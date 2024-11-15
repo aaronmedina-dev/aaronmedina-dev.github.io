@@ -1,0 +1,133 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+h1 {
+    text-align: center;
+    color: #333;
+}
+#timeUnit-container {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+#timeUnit-container label {
+    margin-right: 10px;
+}
+#timeUnit {
+    width: auto;
+    padding: 5px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+table, th, td {
+    border: 1px solid #ddd;
+}
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+th {
+    background-color: #f2f2f2;
+}
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+button {
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+button:hover {
+    opacity: 0.8;
+}
+.add-task-button {
+    background-color: #007bff;
+    /* margin: 20px 0; */
+    float: right;
+    padding: 10px 20px;
+}
+.calculate-button {
+    background-color: #28a745;
+    margin: 40px 0;
+    display: block;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    text-align: center;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+#copy-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+.copy-button {
+    background-color: #17a2b8;
+    padding: 10px 20px;
+}
+.remove-button {
+    background-color: #dc3545;
+    padding: 10px 20px;
+}
+#template-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.save-button,
+.load-button {
+    background-color: #ffc107;
+    padding: 10px 20px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.save-button:hover,
+.load-button:hover {
+    opacity: 0.8;
+}
+
+.load-button {
+    background-color: #6c757d;
+}
+.reset-pert-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.reset-pert-button:hover {
+    background-color: darkred;
+}

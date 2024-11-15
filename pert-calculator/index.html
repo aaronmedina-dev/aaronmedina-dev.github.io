@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERT Estimate Calculator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>PERT Estimate Calculator</h1>
+        <div id="template-buttons">
+            <button type="button" id="save-template-button" class="save-button"><i class="fas fa-save"></i> Save Template</button>
+            <button type="button" id="load-template-button" class="load-button"><i class="fas fa-upload"></i> Load Template</button>
+        </div>
+        
+        <form id="estimate-form">
+            <div id="timeUnit-container">
+                <label for="timeUnit">Time Unit:</label>
+                <select id="timeUnit" name="timeUnit">
+                    <option value="minutes">Minutes</option>
+                    <option value="hours" selected>Hours</option>
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                </select>
+            </div>
+            <table id="tasks-table">
+                <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Complexity</th>
+                        <th>Optimistic Estimate</th>
+                        <th>Likely Estimate</th>
+                        <th>Pessimistic Estimate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasks-body">
+                    <tr>
+                        <td><input type="text" name="taskName" placeholder="Enter task name" required></td>
+                        <td>
+                            <select name="complexity">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </td>
+                        <td><input type="number" name="optimistic" placeholder="e.g. 2" required></td>
+                        <td><input type="number" name="likely" placeholder="e.g. 3" required></td>
+                        <td><input type="number" name="pessimistic" placeholder="e.g. 5" required></td>
+                        <td><button type="button" class="remove-button" onclick="removeTask(this)"><i class="fas fa-trash"></i> Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-task-button" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
+            <button type="button" class="reset-pert-button" onclick="resetPERTTable()">Reset Table</button>
+            <button type="button" class="calculate-button" onclick="calculatePERT()"><i class="fas fa-calculator"></i> Calculate PERT Estimate</button>
+        </form>
+        
+        <div id="result">
+            <p>The PERT (Program Evaluation and Review Technique) estimate helps determine how long a task is likely to take by considering three different time estimates: optimistic, likely, and pessimistic. It provides a realistic timeframe that helps in planning and managing project schedules effectively.</p>
+            <p>Note: The complexity value is for reference purposes only and does not affect the PERT calculation.</p>
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Complexity</th>
+                        <th>Optimistic Estimate</th>
+                        <th>Likely Estimate</th>
+                        <th>Pessimistic Estimate</th>
+                        <th>PERT Estimate</th>
+                    </tr>
+                </thead>
+                <tbody id="result-body">
+                </tbody>
+            </table>
+            <div id="copy-buttons">
+                <button class="copy-button" onclick="copyToClipboard('text')"><i class="fas fa-copy"></i> Copy as Text</button>
+                <button class="copy-button" onclick="copyToClipboard('richtext')"><i class="fas fa-code"></i> Copy as RichText</button>
+                <button class="copy-button" onclick="copyAsImage()"><i class="fas fa-image"></i> Copy as Image</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/functions.js"></script>
+</body>
+</html>
