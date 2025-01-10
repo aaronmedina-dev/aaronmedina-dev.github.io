@@ -15,7 +15,7 @@ function processInput() {
         const codeSnippet = matches[4].trim();
         count++;
 
-        output += `Issue ${count} Line ${lineRange} ${filePath}
+        output += `**Issue ${count} Line ${lineRange} ${filePath}**
 ${codeSnippet}
 
 
