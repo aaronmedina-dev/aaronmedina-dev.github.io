@@ -3,17 +3,18 @@ function processInput() {
     const outputText = document.getElementById('outputText');
 
     // Regex pattern
-    const regex = /^(.*?)\n(?:High|Critical|Medium|Low)\nLine (\d+) in (.*?)\n([\s\S]*?)View file/gm;
+    const regex = /^(.*?)(?:\n\n)?(?:High|Critical|Medium|Low)\nLine (\d+) in (.*?)\n([\s\S]*?)View file/gm;
     let matches;
     let output = '';
+    let count = 0;
 
     while ((matches = regex.exec(inputText)) !== null) {
         const filePath = matches[1].trim();
         const lineNumber = matches[2];
-        const fileName = matches[3].trim();
         const codeSnippet = matches[4].trim();
+        count++;
 
-        output += `Line ${lineNumber} ${filePath}/${fileName}\n\`${codeSnippet}\`\n\n`;
+        output += `Issue ${count}\nLine ${lineNumber} ${filePath}\n\`${codeSnippet}\`\n\n`;
     }
 
     if (!output) {
