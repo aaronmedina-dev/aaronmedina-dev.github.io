@@ -7,18 +7,18 @@
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
-    <h1>Aikido Single Repo Subissue Parser</h1>
-    <form id="inputForm">
-        <label for="inputText">Enter the Input:</label>
-        <textarea id="inputText" placeholder="Paste your input here..."></textarea>
-        <br><br>
-        <button type="button" onclick="processInput()">Process</button>
-        <button type="button" onclick="copyOutput()">Copy to Clipboard</button>
-    </form>
+    <main class="main">
+            <h1 class="title">Aikido Single Repo Subissue Parser</h1>
+            <form id="inputForm">
+                <textarea id="inputText" class="textarea" placeholder="Paste your input here..."></textarea>
+                <br><br>
+                <button type="button" onclick="processInput()">Process</button>
+                <button type="button" onclick="copyOutput()">Copy to Clipboard</button>
+            </form>
 
-    <h2>Processed Output:</h2>
-    <pre id="outputText">Output will appear here...</pre>
-
+            <h2 class="output-title">Processed Output:</h2>
+            <pre id="outputText" class="output">Output will appear here...</pre>
+    </main>
     <script src="./js/script.js"></script>
 </body>
 </html>
