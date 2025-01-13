@@ -3,7 +3,7 @@ function processInput() {
     const outputText = document.getElementById('outputText');
 
     // Updated regex pattern to handle multiple line code snippets
-    const regex = /^(.*?)\n\n(?:High|Critical|Medium|Low)\nLine (\d+(?: - \d+)?) in (.*?)\n([\s\S]*?)View file/gm;
+    const regex = /^(.*?)\n\n(?:High|Critical|Medium|Low)\nLine (\d+(?: - \d+)?) in (.*?)\n([\s\S]*?)View (?:file|commit)/gm;
     let matches;
     let output = '';
     count = 0;
