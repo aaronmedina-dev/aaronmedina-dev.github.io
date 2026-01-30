@@ -1,67 +1,65 @@
-# Hi there! 👋 I'm Aaron Medina
+# Aaron Medina
 
-<table>
-  <tr>
-      <td>
-          <div style="width: 200px; height: 200px; overflow: hidden; border-radius: 50%;">
-              <img src="https://github.com/aaronmedina-dev.png" width="200" style="border-radius: 50%;" />
-          </div>
-      </td>
-      <td>
-          <h2>🚀 About Me</h2>
-          <p>I'm a passionate <b>Software Developer</b> with a strong focus on <b>DevOps, Cloud Infrastructure, and Backend Development</b>. I enjoy building applications and automating workflows to improve efficiency.</p>
-          <ul>
-              <li>💻 Experienced in <b> Python, TypeScript, and Javascript</b></li>
-              <li>☁️ Skilled in <b>AWS and Docker</b></li>
-              <li>⚡ Enthusiastic about <b>DevOps, Infrastructure as Code (IaC), and CI/CD</b></li>
-              <li>📈 Always learning and improving my <b>Cloud & DevOps Engineering</b> skills</li>
-          </ul>
-      </td>
-  </tr>
-</table>
+**DevOps Engineer** | AWS Solutions Architect Professional | 8+ Years Experience
 
-## 🛠️ Tech Stack
-<div width="100%" align="center">
-    <table>
-      <tr>
-          <td align="center" width="33.33%"><b>DevOps & Cloud</b></td>
-          <td align="center" width="33.33%"><b>Programming Languages</b></td>
-          <td align="center" width="33.33%"><b>Tools & Frameworks</b></td>
-      </tr>
-      <tr>
-          <td width="33.33%">
-              <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white" />
-              <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-          </td>
-          <td width="33.33%">
-              <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-              <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-              <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-              <img src="https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white" />
-              <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" />
-          </td>
-          <td width="33.33%">
-              <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-              <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
-          </td>
-      </tr>
-    </table>
-</div>
+Building scalable cloud infrastructure, CI/CD pipelines, and developer tooling for e-commerce platforms.
 
-
-## 📈 GitHub Stats
-<div align="center">
-    <img src="https://github-readme-streak-stats.herokuapp.com/?user=aaronmedina-dev&theme=radical" height="150" alt="" />
-    <img src="https://github-readme-stats.vercel.app/api?username=aaronmedina-dev&show_icons=true&theme=radical" height="150" alt=""/>
-    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=aaronmedina-dev&layout=compact&theme=radical" height="150" alt=""/>
-</div>
-<table>
+<a href="https://www.credly.com/badges/your-badge-id">
+    <img src="assets/aws-sap-badge.png" alt="AWS Solutions Architect Professional" width="120" />
+</a>
 
 ---
 
-## 📫 Connect With Me
-💼 <b>LinkedIn:</b> <a href="https://linkedin.com/in/aaronmedina">linkedin.com/in/aaronmedina</a>
+## What I Do
 
-> "The best way to predict the future is to create it." – Peter Drucker
+- Design and implement **CI/CD pipelines** that reduce deployment friction
+- Build **cloud infrastructure** on AWS using Infrastructure as Code
+- Develop **internal tooling** that improves developer productivity
+- Architect backend systems for **high-traffic e-commerce** applications
 
-Let's build something amazing together! 🚀
+---
+
+## Tech Stack
+
+**Cloud & DevOps**
+
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white)
+
+**Languages**
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat-square&logo=php&logoColor=white)
+
+**Frameworks & Tools**
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+
+---
+
+## Projects
+
+| Project | Description |
+|---------|-------------|
+| [PERT Estimate Calculator](https://aaronmedina-dev.github.io/pert/) | Three-point estimation tool for project planning with export capabilities |
+| [Aikido Sub-Issue Formatter](https://aaronmedina-dev.github.io/aikido/sub-issue-formatter/) | Utility for parsing and reformatting security scanner output |
+
+---
+
+## GitHub Stats
+
+<div align="center">
+    <img src="https://github-readme-stats.vercel.app/api?username=aaronmedina-dev&show_icons=true&theme=default&hide_border=true" height="150" alt=""/>
+    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=aaronmedina-dev&layout=compact&theme=default&hide_border=true" height="150" alt=""/>
+</div>
+
+---
+
+## Connect
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/aaronmedina)

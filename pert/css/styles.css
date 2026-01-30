@@ -1,133 +1,285 @@
+:root {
+    --bg-primary: #0a0f1a;
+    --bg-secondary: #111827;
+    --bg-card: #1a2234;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --border: #1f2937;
+    --border-light: #374151;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     line-height: 1.6;
     padding: 20px;
+    min-height: 100vh;
 }
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent);
+}
+
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: auto;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    background: var(--bg-secondary);
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
 }
+
 h1 {
     text-align: center;
-    color: #333;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    margin-bottom: 24px;
 }
+
 #timeUnit-container {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
+    gap: 12px;
 }
+
 #timeUnit-container label {
-    margin-right: 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
+
 #timeUnit {
     width: auto;
-    padding: 5px;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
 }
+
+#timeUnit:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
-table, th, td {
-    border: 1px solid #ddd;
-}
+
 th, td {
-    padding: 10px;
+    padding: 12px;
     text-align: center;
+    border: 1px solid var(--border);
 }
+
 th {
-    background-color: #f2f2f2;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
 }
+
+td {
+    background-color: var(--bg-secondary);
+}
+
 input[type="text"], input[type="number"], select {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     box-sizing: border-box;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
 }
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+input[type="text"]::placeholder, input[type="number"]::placeholder {
+    color: var(--text-secondary);
+}
+
 button {
     color: #fff;
     border: none;
     cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
 }
+
 button:hover {
-    opacity: 0.8;
+    transform: translateY(-1px);
 }
+
 .add-task-button {
-    background-color: #007bff;
-    /* margin: 20px 0; */
+    background-color: var(--accent);
     float: right;
     padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
+
+.add-task-button:hover {
+    background-color: var(--accent-hover);
+}
+
 .calculate-button {
-    background-color: #28a745;
-    margin: 40px 0;
-    display: block;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    text-align: center;
+    background-color: var(--success);
+    margin: 40px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 32px;
+    font-size: 1rem;
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
 }
+
+.calculate-button:hover {
+    background-color: #16a34a;
+}
+
 #copy-buttons {
     display: flex;
-    justify-content: space-around;
-    margin: 20px 0;
+    justify-content: center;
+    gap: 12px;
+    margin: 24px 0;
+    flex-wrap: wrap;
 }
+
 .copy-button {
-    background-color: #17a2b8;
+    background-color: var(--accent);
     padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
 }
+
+.copy-button:hover {
+    background-color: var(--accent-hover);
+}
+
 .remove-button {
-    background-color: #dc3545;
-    padding: 10px 20px;
+    background-color: var(--danger);
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
 }
+
+.remove-button:hover {
+    background-color: #dc2626;
+}
+
 #template-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .save-button,
 .load-button {
-    background-color: #ffc107;
+    background-color: var(--warning);
     padding: 10px 20px;
     color: #fff;
     border: none;
     cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
 }
 
-.save-button:hover,
-.load-button:hover {
-    opacity: 0.8;
+.save-button:hover {
+    background-color: #d97706;
 }
 
 .load-button {
-    background-color: #6c757d;
+    background-color: var(--border-light);
 }
+
+.load-button:hover {
+    background-color: #4b5563;
+}
+
 .reset-pert-button {
-    background-color: red;
+    background-color: var(--danger);
     color: white;
     border: none;
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 0.9rem;
     cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    border-radius: 6px;
 }
 
 .reset-pert-button:hover {
-    background-color: darkred;
+    background-color: #dc2626;
+}
+
+#result {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+#result p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+
+#result-table {
+    margin-top: 20px;
+}
+
+#result-table th {
+    background-color: var(--accent);
+    color: white;
+}
+
+#result-table td {
+    background-color: var(--bg-card);
+}
+
+#result-table tr:last-child td {
+    background-color: var(--bg-primary);
+    font-weight: 600;
 }
