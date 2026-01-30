@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Aaron Medina - DevOps Engineer specializing in AWS, CI/CD, and cloud infrastructure">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Aaron Medina | DevOps Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -528,64 +529,6 @@
             color: var(--text-primary);
         }
 
-        /* Achievements Section */
-        .achievements-scroll {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 16px;
-            scroll-snap-type: x mandatory;
-        }
-
-        .achievements-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .achievements-scroll::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-            border-radius: 3px;
-        }
-
-        .achievements-scroll::-webkit-scrollbar-thumb {
-            background: var(--border-light);
-            border-radius: 3px;
-        }
-
-        .achievement-card {
-            min-width: 280px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            scroll-snap-align: start;
-        }
-
-        .achievement-card .year {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-
-        .achievement-card h4 {
-            font-size: 1rem;
-            margin-bottom: 12px;
-        }
-
-        .achievement-card p {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 16px;
-        }
-
-        .achievement-tag {
-            display: inline-block;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-        }
-
         /* Contact Section */
         .contact-simple {
             max-width: 600px;
@@ -635,6 +578,37 @@
         .github-stats img {
             height: 180px;
             border-radius: 8px;
+        }
+
+        .github-stats img.hidden {
+            display: none;
+        }
+
+        .stat-fallback {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px 32px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+            height: 180px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-fallback.visible {
+            display: flex;
+        }
+
+        .stat-fallback a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .stat-fallback a:hover {
+            text-decoration: underline;
         }
 
         .contribution-graph {
@@ -839,6 +813,41 @@
             height: 20px;
             display: inline-block;
         }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .scroll-top:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top svg {
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -851,7 +860,6 @@
                 <a href="#about">About</a>
                 <a href="#projects">Projects</a>
                 <a href="#skills">Skills</a>
-                <a href="#achievements">Achievements</a>
                 <a href="#contact">Contact</a>
                 <a href="https://linkedin.com/in/aaronmedina" class="nav-btn" target="_blank">LinkedIn</a>
             </div>
@@ -1018,11 +1026,14 @@
                 <p>My contributions and most active public repositories.</p>
             </div>
             <div class="github-stats">
-                <img src="https://github-readme-stats.vercel.app/api?username=aaronmedina-dev&show_icons=true&theme=github_dark&hide_border=true&bg_color=111827" alt="GitHub Stats"/>
-                <img src="https://github-readme-streak-stats.herokuapp.com/?user=aaronmedina-dev&theme=github-dark-blue&hide_border=true&background=111827" alt="GitHub Streak"/>
+                <img src="https://github-readme-stats.vercel.app/api?username=aaronmedina-dev&show_icons=true&theme=github_dark&hide_border=true&bg_color=111827" alt="GitHub Stats" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.add('visible');"/>
+                <div class="stat-fallback">View stats on <a href="https://github.com/aaronmedina-dev" target="_blank">GitHub</a></div>
+                <img src="https://github-readme-streak-stats.herokuapp.com/?user=aaronmedina-dev&theme=github-dark-blue&hide_border=true&background=111827" alt="GitHub Streak" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.add('visible');"/>
+                <div class="stat-fallback">View activity on <a href="https://github.com/aaronmedina-dev" target="_blank">GitHub</a></div>
             </div>
             <div class="contribution-graph">
-                <img src="https://ghchart.rshah.org/3b82f6/aaronmedina-dev" alt="GitHub Contribution Graph" style="width: 100%; max-width: 900px; border-radius: 8px; filter: invert(1) hue-rotate(180deg) saturate(1.5) brightness(0.95);"/>
+                <img src="https://ghchart.rshah.org/3b82f6/aaronmedina-dev" alt="GitHub Contribution Graph" style="width: 100%; max-width: 900px; border-radius: 8px; filter: invert(1) hue-rotate(180deg) saturate(1.5) brightness(0.95);" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+                <p style="display: none; color: var(--text-secondary); font-size: 0.9rem;">Contribution graph temporarily unavailable. View on <a href="https://github.com/aaronmedina-dev" target="_blank" style="color: var(--accent);">GitHub</a>.</p>
             </div>
             <h3 style="margin-bottom: 24px;">Featured Repositories</h3>
             <div class="repos-grid" id="repos-container">
@@ -1113,34 +1124,6 @@
             </div>
         </section>
 
-        <!-- Achievements Section -->
-        <section id="achievements">
-            <div class="section-header">
-                <h2>Achievements</h2>
-                <p>Certifications and professional accomplishments.</p>
-            </div>
-            <div class="achievements-scroll">
-                <div class="achievement-card">
-                    <p class="year">2024</p>
-                    <h4>AWS Solutions Architect Professional</h4>
-                    <p>Demonstrated advanced technical skills and experience in designing distributed systems on AWS.</p>
-                    <span class="achievement-tag">Certification</span>
-                </div>
-                <div class="achievement-card">
-                    <p class="year">Ongoing</p>
-                    <h4>CI/CD Pipeline Optimization</h4>
-                    <p>Reduced deployment times and improved reliability for e-commerce platform releases.</p>
-                    <span class="achievement-tag">Professional</span>
-                </div>
-                <div class="achievement-card">
-                    <p class="year">Ongoing</p>
-                    <h4>Infrastructure as Code</h4>
-                    <p>Implemented Terraform-based infrastructure management across multiple AWS environments.</p>
-                    <span class="achievement-tag">Professional</span>
-                </div>
-            </div>
-        </section>
-
         <!-- Contact Section -->
         <section id="contact">
             <div class="section-header">
@@ -1175,6 +1158,10 @@
                             </a>
                         </div>
                     </div>
+                    <blockquote style="margin-top: 32px; padding-left: 16px; border-left: 3px solid var(--accent); color: var(--text-secondary); font-style: italic;">
+                        "The best way to predict the future is to create it." – Peter Drucker
+                    </blockquote>
+                    <p style="margin-top: 16px; color: var(--text-primary); font-weight: 500;">Let's build something amazing together!</p>
                 </div>
             </div>
         </section>
@@ -1201,6 +1188,13 @@
         </div>
     </footer>
 
+    <!-- Scroll to top button -->
+    <button class="scroll-top" onclick="scrollToTop()" title="Back to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
     <script>
         // Smooth scroll for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1222,8 +1216,23 @@
             navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        // Active nav link highlighting
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Active nav link highlighting and scroll-to-top visibility
         window.addEventListener('scroll', () => {
+            // Show/hide scroll-to-top button
+            const scrollBtn = document.querySelector('.scroll-top');
+            if (window.scrollY > 500) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
             const sections = document.querySelectorAll('section');
             const navLinks = document.querySelectorAll('.nav-links a:not(.nav-btn)');
 
