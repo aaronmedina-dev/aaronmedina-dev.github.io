@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>CIDR Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Home
+        </a>
+        <h1>CIDR Calculator</h1>
+
+        <form id="cidr-form">
+            <div class="grid-2">
+                <div class="form-control">
+                    <label for="ipInput">IPv4 Address</label>
+                    <input type="text" id="ipInput" placeholder="e.g. 192.168.1.10" autocomplete="off" />
+                </div>
+                <div class="form-control">
+                    <label for="prefixInput">Prefix Length</label>
+                    <input type="number" id="prefixInput" min="0" max="32" value="24" />
+                </div>
+            </div>
+            <div class="actions">
+                <button type="button" class="calculate-button" id="calculateBtn"><i class="fas fa-calculator"></i> Calculate</button>
+                <button type="button" class="reset-button" id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+        </form>
+
+        <div class="view-toggle">
+            <button type="button" class="toggle-btn active" data-view="summary">Summary</button>
+            <button type="button" class="toggle-btn" data-view="subnets">Subnets</button>
+            <button type="button" class="toggle-btn" data-view="addresses">Addresses</button>
+            <button type="button" class="toggle-btn" data-view="bits">Bits</button>
+        </div>
+
+        <!-- Summary View -->
+        <div id="view-summary" class="view-section active">
+            <div class="results">
+                <div class="hint">Enter an IPv4 address and prefix (e.g., 10.0.0.1 and 24) then click Calculate.</div>
+                <table id="result-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-body"></tbody>
+                </table>
+                <div id="copy-buttons">
+                    <button class="copy-button" id="copyText"><i class="fas fa-copy"></i> Copy as Text</button>
+                    <button class="copy-button" id="copyJson"><i class="fas fa-code"></i> Copy as JSON</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subnets View -->
+        <div id="view-subnets" class="view-section">
+            <div class="subnets-controls">
+                <label for="subnetPrefix">Subdivide to prefix</label>
+                <input type="number" id="subnetPrefix" min="0" max="32" value="28" />
+                <button type="button" class="calculate-button" id="genSubnetsBtn">Generate</button>
+            </div>
+            <div class="hint" id="subnets-hint">Calculate first, then choose a target prefix to list blocks inside the CIDR.</div>
+            <table id="subnets-table">
+                <thead>
+                    <tr>
+                        <th>CIDR</th>
+                        <th>First</th>
+                        <th>Last</th>
+                        <th>Usable Hosts</th>
+                    </tr>
+                </thead>
+                <tbody id="subnets-body"></tbody>
+            </table>
+            <div class="hint" id="subnets-note"></div>
+        </div>
+
+        <!-- Addresses View -->
+        <div id="view-addresses" class="view-section">
+            <div class="addresses-controls">
+                <label for="pageSize">Page size</label>
+                <select id="pageSize">
+                    <option value="64">64</option>
+                    <option value="256" selected>256</option>
+                    <option value="1024">1024</option>
+                </select>
+                <button type="button" class="calculate-button" id="prevPage">Prev</button>
+                <button type="button" class="calculate-button" id="nextPage">Next</button>
+                <span id="pageInfo" class="hint"></span>
+                <button type="button" class="reset-button" id="downloadCSV">Download CSV</button>
+            </div>
+            <div class="hint" id="addresses-hint">Calculated addresses appear here. Large ranges are paginated; use CSV for very large blocks.</div>
+            <table id="addresses-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>IP</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody id="addresses-body"></tbody>
+            </table>
+        </div>
+
+        <!-- Bits View -->
+        <div id="view-bits" class="view-section">
+            <div class="hint">Visualizes network and host bits for the CIDR.</div>
+            <div id="bits-output" class="bits-output"></div>
+        </div>
+    </div>
+
+    <script src="js/functions.js"></script>
+</body>
+</html>
