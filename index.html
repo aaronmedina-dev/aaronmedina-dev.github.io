@@ -414,24 +414,41 @@
         .project-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            transition: border-color 0.2s, transform 0.2s;
+            transition: all 0.3s ease;
         }
 
         .project-card:hover {
             border-color: var(--accent);
-            transform: translateY(-4px);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--accent);
         }
 
         .project-image {
-            height: 200px;
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            height: 180px;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-secondary);
-            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+        }
+
+        .project-image svg {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
         }
 
         .project-info {
@@ -439,8 +456,9 @@
         }
 
         .project-info h3 {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             margin-bottom: 12px;
+            font-weight: 600;
         }
 
         .project-info p {
@@ -458,11 +476,13 @@
         }
 
         .project-tags span {
-            border: 1px solid var(--border-light);
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
             color: var(--accent);
-            padding: 4px 12px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-size: 0.75rem;
+            font-weight: 500;
         }
 
         .project-links {
@@ -475,16 +495,20 @@
             align-items: center;
             gap: 6px;
             background: var(--bg-card);
-            padding: 8px 16px;
-            border-radius: 6px;
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 8px;
             color: var(--text-primary);
             text-decoration: none;
             font-size: 0.85rem;
-            transition: background 0.2s;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .project-link:hover {
-            background: var(--border);
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
 
         /* Skills Section */
@@ -978,14 +1002,15 @@
             <div class="projects-grid">
                 <div class="project-card">
                     <div class="project-image">
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="40" height="40" rx="8" fill="#1a2234"/>
-                          <rect x="8" y="10" width="16" height="3" rx="1.5" fill="#ef4444"/>
-                          <rect x="8" y="16" width="20" height="3" rx="1.5" fill="#22c55e"/>
-                          <rect x="8" y="22" width="14" height="3" rx="1.5" fill="#374151"/>
-                          <path d="M26 24L29 27L35 19" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                          <circle cx="32" cy="11" r="2" fill="#3b82f6"/>
-                          <path d="M32 7V9M32 13V15M28 11H30M34 11H36" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="80" height="80" rx="16" fill="#1e293b"/>
+                            <rect x="14" y="18" width="32" height="6" rx="3" fill="#ef4444"/>
+                            <rect x="14" y="30" width="40" height="6" rx="3" fill="#22c55e"/>
+                            <rect x="14" y="42" width="28" height="6" rx="3" fill="#475569"/>
+                            <rect x="14" y="54" width="36" height="6" rx="3" fill="#475569"/>
+                            <path d="M52 48L58 54L70 40" stroke="#3b82f6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="64" cy="22" r="4" fill="#3b82f6"/>
+                            <path d="M64 12V17M64 27V32M54 22H59M69 22H74" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <div class="project-info">
@@ -1010,7 +1035,43 @@
                 </div>
                 <div class="project-card">
                     <div class="project-image">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M40 8L72 24V56L40 72L8 56V24L40 8Z" fill="#F26322"/>
+                            <path d="M40 8L72 24V56L40 40V8Z" fill="#EC5B1A"/>
+                            <path d="M40 40L72 24V56L40 72V40Z" fill="#D94E15"/>
+                            <path d="M26 32L40 24L54 32L40 40L26 32Z" fill="white" fill-opacity="0.95"/>
+                            <path d="M26 32V48L40 56V40L26 32Z" fill="white" fill-opacity="0.75"/>
+                            <path d="M40 40V56L54 48V32L40 40Z" fill="white" fill-opacity="0.55"/>
+                        </svg>
+                    </div>
+                    <div class="project-info">
+                        <h3>Magento Env Scripts</h3>
+                        <p>Bash utilities for Adobe Commerce Cloud: environment audits, database dumps with PII stripping, email diagnostics, and health checks. Read-only and production-safe.</p>
+                        <div class="project-tags">
+                            <span>Bash</span>
+                            <span>Adobe Commerce</span>
+                            <span>DevOps</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/aaronmedina-dev/magento-env-scripts" target="_blank" rel="noopener" class="project-link">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="12" y="6" width="48" height="60" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                            <rect x="20" y="14" width="32" height="4" rx="2" fill="#475569"/>
+                            <rect x="20" y="24" width="14" height="8" rx="2" fill="#ef4444"/>
+                            <rect x="38" y="24" width="14" height="8" rx="2" fill="#22c55e"/>
+                            <rect x="20" y="36" width="14" height="8" rx="2" fill="#f59e0b"/>
+                            <rect x="38" y="36" width="14" height="8" rx="2" fill="#3b82f6"/>
+                            <rect x="20" y="50" width="32" height="8" rx="2" fill="#6366f1"/>
+                            <text x="36" y="57" font-family="sans-serif" font-size="6" fill="white" text-anchor="middle" font-weight="bold">PERT</text>
+                        </svg>
                     </div>
                     <div class="project-info">
                         <h3>PERT Estimate Calculator</h3>
@@ -1030,7 +1091,11 @@
                 </div>
                 <div class="project-card">
                     <div class="project-image">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M36 6L62 18V42C62 54 50 64 36 68C22 64 10 54 10 42V18L36 6Z" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+                            <path d="M36 14L54 23V41C54 50 45 57 36 60C27 57 18 50 18 41V23L36 14Z" fill="#0f172a"/>
+                            <path d="M28 36L33 41L44 30" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
                     <div class="project-info">
                         <h3>Aikido Sub-Issue Formatter</h3>
@@ -1050,7 +1115,17 @@
                 </div>
                 <div class="project-card">
                     <div class="project-image">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
+                        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="36" cy="36" r="28" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                            <circle cx="36" cy="20" r="6" fill="#8b5cf6"/>
+                            <circle cx="20" cy="44" r="6" fill="#8b5cf6"/>
+                            <circle cx="52" cy="44" r="6" fill="#8b5cf6"/>
+                            <circle cx="36" cy="36" r="4" fill="#c4b5fd"/>
+                            <line x1="36" y1="26" x2="36" y2="32" stroke="#8b5cf6" stroke-width="2"/>
+                            <line x1="25" y1="41" x2="32" y2="38" stroke="#8b5cf6" stroke-width="2"/>
+                            <line x1="47" y1="41" x2="40" y2="38" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="36" y="58" font-family="monospace" font-size="8" fill="#a78bfa" text-anchor="middle">/24</text>
+                        </svg>
                     </div>
                     <div class="project-info">
                         <h3>CIDR Calculator</h3>
