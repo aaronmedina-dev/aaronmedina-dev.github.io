@@ -872,9 +872,29 @@
         .scroll-top svg {
             color: white;
         }
+
+        /* Grid distortion effect */
+        .grid-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        @media (max-width: 768px) {
+            .grid-canvas {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Grid distortion effect -->
+    <canvas class="grid-canvas" id="gridCanvas"></canvas>
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
@@ -1452,6 +1472,71 @@
 
         // Load repos on page load
         loadGitHubRepos();
+
+        // Grid distortion effect
+        const canvas = document.getElementById('gridCanvas');
+        const ctx = canvas.getContext('2d');
+        let mouseX = -1000, mouseY = -1000;
+        const gridSpacing = 40;
+        const dotRadius = 1.5;
+        const influenceRadius = 150;
+        const maxDisplacement = 20;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouseX = -1000;
+            mouseY = -1000;
+        });
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cols = Math.ceil(canvas.width / gridSpacing) + 1;
+            const rows = Math.ceil(canvas.height / gridSpacing) + 1;
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    let x = i * gridSpacing;
+                    let y = j * gridSpacing;
+
+                    // Calculate distance from mouse
+                    const dx = x - mouseX;
+                    const dy = y - mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Apply displacement if within influence radius
+                    if (distance < influenceRadius && distance > 0) {
+                        const force = (1 - distance / influenceRadius) * maxDisplacement;
+                        x += (dx / distance) * force;
+                        y += (dy / distance) * force;
+                    }
+
+                    // Calculate opacity based on distance (dots near cursor are brighter)
+                    let opacity = 0.15;
+                    if (distance < influenceRadius) {
+                        opacity = 0.15 + (1 - distance / influenceRadius) * 0.5;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(59, 130, 246, ${opacity})`;
+                    ctx.fill();
+                }
+            }
+            requestAnimationFrame(drawGrid);
+        }
+        drawGrid();
     </script>
 </body>
 </html>
