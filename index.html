@@ -1477,7 +1477,7 @@
         const canvas = document.getElementById('gridCanvas');
         const ctx = canvas.getContext('2d');
         let mouseX = -1000, mouseY = -1000;
-        const gridSpacing = 40;
+        const gridSpacing = 30;
         const dotRadius = 1.5;
         const influenceRadius = 150;
         const maxDisplacement = 20;
@@ -1523,9 +1523,9 @@
                     }
 
                     // Calculate opacity based on distance (dots near cursor are brighter)
-                    let opacity = 0.15;
+                    let opacity = 0.25;
                     if (distance < influenceRadius) {
-                        opacity = 0.15 + (1 - distance / influenceRadius) * 0.5;
+                        opacity = 0.25 + (1 - distance / influenceRadius) * 1;
                     }
 
                     ctx.beginPath();
