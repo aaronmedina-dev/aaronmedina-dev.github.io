@@ -1,64 +1,9 @@
-:root {
-    --bg-primary: #0a0f1a;
-    --bg-secondary: #111827;
-    --bg-card: #1a2234;
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --border: #1f2937;
-    --border-light: #374151;
-    --success: #22c55e;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-}
+/*
+ * PERT Estimate Calculator - App-specific styles
+ * Global styles loaded from /assets/css/global.css
+ */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    padding: 20px;
-    min-height: 100vh;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    margin-bottom: 24px;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: var(--accent);
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: var(--bg-secondary);
-    padding: 32px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-}
-
-h1 {
-    text-align: center;
-    color: var(--text-primary);
-    font-size: 1.75rem;
-    margin-bottom: 24px;
-}
-
+/* Time unit container */
 #timeUnit-container {
     margin-bottom: 24px;
     display: flex;
@@ -74,138 +19,9 @@ h1 {
 #timeUnit {
     width: auto;
     padding: 8px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-primary);
-    cursor: pointer;
 }
 
-#timeUnit:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: center;
-    border: 1px solid var(--border);
-}
-
-th {
-    background-color: var(--bg-card);
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-td {
-    background-color: var(--bg-secondary);
-}
-
-input[type="text"], input[type="number"], select {
-    width: 100%;
-    padding: 10px 12px;
-    box-sizing: border-box;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-}
-
-input[type="text"]:focus, input[type="number"]:focus, select:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-input[type="text"]::placeholder, input[type="number"]::placeholder {
-    color: var(--text-secondary);
-}
-
-button {
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.2s;
-    font-weight: 500;
-}
-
-button:hover {
-    transform: translateY(-1px);
-}
-
-.add-task-button {
-    background-color: var(--accent);
-    float: right;
-    padding: 10px 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.add-task-button:hover {
-    background-color: var(--accent-hover);
-}
-
-.calculate-button {
-    background-color: var(--success);
-    margin: 40px auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 32px;
-    font-size: 1rem;
-    width: fit-content;
-}
-
-.calculate-button:hover {
-    background-color: #16a34a;
-}
-
-#copy-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin: 24px 0;
-    flex-wrap: wrap;
-}
-
-.copy-button {
-    background-color: var(--accent);
-    padding: 10px 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.9rem;
-}
-
-.copy-button:hover {
-    background-color: var(--accent-hover);
-}
-
-.remove-button {
-    background-color: var(--danger);
-    padding: 8px 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-}
-
-.remove-button:hover {
-    background-color: #dc2626;
-}
-
+/* Template buttons */
 #template-buttons {
     display: flex;
     justify-content: flex-end;
@@ -213,61 +29,53 @@ button:hover {
     margin-bottom: 24px;
 }
 
-.save-button,
-.load-button {
-    background-color: var(--warning);
-    padding: 10px 20px;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
+/* Table actions row */
+.table-actions {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
 }
 
-.save-button:hover {
-    background-color: #d97706;
+/* Calculate button */
+.calculate-button {
+    margin: 40px auto 20px;
+    display: flex;
+    padding: 14px 32px;
+    font-size: 1rem;
 }
 
-.load-button {
-    background-color: var(--border-light);
+/* Copy buttons */
+#copy-buttons {
+    justify-content: center;
+    margin: 24px 0;
 }
 
-.load-button:hover {
-    background-color: #4b5563;
+/* Small button variant */
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.85rem;
 }
 
-.reset-pert-button {
-    background-color: var(--danger);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border-radius: 6px;
+/* Table styling overrides */
+th, td {
+    text-align: center;
 }
 
-.reset-pert-button:hover {
-    background-color: #dc2626;
-}
-
+/* Result section */
 #result {
     margin-top: 32px;
     padding-top: 32px;
     border-top: 1px solid var(--border);
 }
 
-#result p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+#result .hint {
     margin-bottom: 16px;
     line-height: 1.7;
 }
 
 #result-table {
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 #result-table th {
@@ -282,4 +90,34 @@ button:hover {
 #result-table tr:last-child td {
     background-color: var(--bg-primary);
     font-weight: 600;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    table {
+        font-size: 0.8rem;
+    }
+
+    th, td {
+        padding: 8px 4px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+
+    #template-buttons {
+        flex-wrap: wrap;
+    }
+
+    .table-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #copy-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }

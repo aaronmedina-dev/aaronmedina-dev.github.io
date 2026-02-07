@@ -1,0 +1,292 @@
+/*
+ * Global CSS - Shared styles for all tools
+ * aaronmedina-dev.github.io
+ */
+
+/* CSS Variables */
+:root {
+    --bg-primary: #0a0f1a;
+    --bg-secondary: #111827;
+    --bg-card: #1a2234;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --border: #1f2937;
+    --border-light: #374151;
+    --success: #22c55e;
+    --success-hover: #16a34a;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --warning: #f59e0b;
+    --warning-hover: #d97706;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base Body */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Back Link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent);
+}
+
+/* Container */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+/* Typography */
+h1 {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    margin-bottom: 24px;
+}
+
+h2, h3, h4 {
+    color: var(--text-primary);
+}
+
+/* Form Controls */
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Textarea */
+textarea,
+.textarea {
+    width: 100%;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
+    color: var(--text-primary);
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+textarea:focus,
+.textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+textarea::placeholder,
+.textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Buttons */
+button,
+.btn {
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+}
+
+button:hover,
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Button Variants */
+.btn-primary {
+    background-color: var(--accent);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-success {
+    background-color: var(--success);
+}
+
+.btn-success:hover {
+    background-color: var(--success-hover);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover);
+}
+
+.btn-warning {
+    background-color: var(--warning);
+}
+
+.btn-warning:hover {
+    background-color: var(--warning-hover);
+}
+
+.btn-secondary {
+    background-color: var(--border-light);
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+/* Button Groups */
+.button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+}
+
+th {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+td {
+    background-color: var(--bg-secondary);
+}
+
+/* Form Layout Helpers */
+.form-control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-control label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Actions Row */
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+/* Hint/Note Text */
+.hint {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Code/Output Blocks */
+.output,
+pre {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .actions {
+        justify-content: center;
+    }
+}

@@ -8,8 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Shared styles -->
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <!-- App-specific styles -->
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -19,10 +21,16 @@
         </a>
         <h1>PERT Estimate Calculator</h1>
         <div id="template-buttons">
-            <button type="button" id="save-template-button" class="save-button"><i class="fas fa-save"></i> Save Template</button>
-            <button type="button" id="load-template-button" class="load-button"><i class="fas fa-upload"></i> Load Template</button>
+            <button type="button" id="save-template-button" class="btn-warning">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                Save Template
+            </button>
+            <button type="button" id="load-template-button" class="btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Load Template
+            </button>
         </div>
-        
+
         <form id="estimate-form">
             <div id="timeUnit-container">
                 <label for="timeUnit">Time Unit:</label>
@@ -58,18 +66,32 @@
                         <td><input type="number" name="optimistic" placeholder="e.g. 2" required></td>
                         <td><input type="number" name="likely" placeholder="e.g. 3" required></td>
                         <td><input type="number" name="pessimistic" placeholder="e.g. 5" required></td>
-                        <td><button type="button" class="remove-button" onclick="removeTask(this)"><i class="fas fa-trash"></i> Remove</button></td>
+                        <td><button type="button" class="btn-danger btn-sm" onclick="removeTask(this)">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Remove
+                        </button></td>
                     </tr>
                 </tbody>
             </table>
-            <button type="button" class="add-task-button" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
-            <button type="button" class="reset-pert-button" onclick="resetPERTTable()">Reset Table</button>
-            <button type="button" class="calculate-button" onclick="calculatePERT()"><i class="fas fa-calculator"></i> Calculate PERT Estimate</button>
+            <div class="table-actions">
+                <button type="button" class="btn-primary" onclick="addTask()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    Add Task
+                </button>
+                <button type="button" class="btn-danger" onclick="resetPERTTable()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Reset Table
+                </button>
+            </div>
+            <button type="button" class="btn-success calculate-button" onclick="calculatePERT()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                Calculate PERT Estimate
+            </button>
         </form>
-        
+
         <div id="result">
-            <p>The PERT (Program Evaluation and Review Technique) estimate helps determine how long a task is likely to take by considering three different time estimates: optimistic, likely, and pessimistic. It provides a realistic timeframe that helps in planning and managing project schedules effectively.</p>
-            <p>Note: The complexity value is for reference purposes only and does not affect the PERT calculation.</p>
+            <p class="hint">The PERT (Program Evaluation and Review Technique) estimate helps determine how long a task is likely to take by considering three different time estimates: optimistic, likely, and pessimistic. It provides a realistic timeframe that helps in planning and managing project schedules effectively.</p>
+            <p class="hint">Note: The complexity value is for reference purposes only and does not affect the PERT calculation.</p>
             <table id="result-table">
                 <thead>
                     <tr>
@@ -84,20 +106,27 @@
                 <tbody id="result-body">
                 </tbody>
             </table>
-            <div id="copy-buttons">
-                <button class="copy-button" onclick="copyToClipboard('text')"><i class="fas fa-copy"></i> Copy as Text</button>
-                <button class="copy-button" onclick="copyToClipboard('richtext')"><i class="fas fa-code"></i> Copy as RichText</button>
-                <button class="copy-button" onclick="copyAsImage()"><i class="fas fa-image"></i> Copy as Image</button>
+            <div id="copy-buttons" class="button-group">
+                <button class="btn-primary" onclick="copyToClipboard('text')">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Copy as Text
+                </button>
+                <button class="btn-primary" onclick="copyToClipboard('richtext')">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    Copy as RichText
+                </button>
+                <button class="btn-primary" onclick="copyAsImage()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Copy as Image
+                </button>
             </div>
         </div>
-
-
     </div>
 
-    
-    
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Shared utilities -->
+    <script src="/assets/js/utils.js"></script>
+    <!-- App-specific script -->
     <script src="js/functions.js"></script>
 </body>
 </html>

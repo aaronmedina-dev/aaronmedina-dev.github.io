@@ -1,146 +1,26 @@
-:root {
-    --bg-primary: #0a0f1a;
-    --bg-secondary: #111827;
-    --bg-card: #1a2234;
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --border: #1f2937;
-    --border-light: #374151;
-    --success: #22c55e;
-}
+/*
+ * Aikido Sub-Issue Formatter - App-specific styles
+ * Global styles loaded from /assets/css/global.css
+ */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.main {
+/* Override container max-width for this app */
+.container {
     max-width: 800px;
-    margin: 0 auto;
-    background: var(--bg-secondary);
-    padding: 32px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
 }
 
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    margin-bottom: 24px;
-    transition: color 0.2s;
-}
-
-.back-link:hover {
-    color: var(--accent);
-}
-
-.title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: var(--text-primary);
-}
-
-.textarea {
-    width: 100%;
-    height: 200px;
-    padding: 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-family: 'Monaco', 'Menlo', monospace;
-    color: var(--text-primary);
-    resize: vertical;
-    transition: border-color 0.2s;
-}
-
-.textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-.textarea::placeholder {
-    color: var(--text-secondary);
-}
-
-.button-group {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-button {
-    background-color: var(--accent);
-    color: #fff;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-button:hover {
-    background-color: var(--accent-hover);
-    transform: translateY(-1px);
-}
-
-button:last-child {
-    background-color: var(--success);
-}
-
-button:last-child:hover {
-    background-color: #16a34a;
-}
-
+/* Output section */
 .output-title {
     margin-top: 32px;
     margin-bottom: 16px;
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--text-primary);
 }
 
 .output {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    font-size: 0.9rem;
-    font-family: 'Monaco', 'Menlo', monospace;
-    text-align: left;
-    white-space: pre-wrap;
-    color: var(--text-primary);
     min-height: 150px;
-    line-height: 1.7;
 }
 
-pre {
-    background-color: var(--bg-card);
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    white-space: pre-wrap;
-    color: var(--text-primary);
+/* Textarea height */
+.textarea {
+    height: 200px;
 }

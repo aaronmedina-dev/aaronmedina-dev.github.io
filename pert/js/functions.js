@@ -1,3 +1,8 @@
+/*
+ * PERT Estimate Calculator - App-specific logic
+ * Shared utilities loaded from /assets/js/utils.js
+ */
+
 function addTask() {
     const tasksBody = document.getElementById('tasks-body');
     const row = document.createElement('tr');
@@ -13,7 +18,10 @@ function addTask() {
         <td><input type="number" name="optimistic" placeholder="e.g. 2" required></td>
         <td><input type="number" name="likely" placeholder="e.g. 3" required></td>
         <td><input type="number" name="pessimistic" placeholder="e.g. 5" required></td>
-        <td><button type="button" class="remove-button" onclick="removeTask(this)"><i class="fas fa-trash"></i> Remove</button></td>
+        <td><button type="button" class="btn-danger btn-sm" onclick="removeTask(this)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Remove
+        </button></td>
     `;
     tasksBody.appendChild(row);
 }
@@ -89,12 +97,7 @@ function saveTemplate() {
         });
     });
 
-    const templateJSON = JSON.stringify(template);
-    const blob = new Blob([templateJSON], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'pert_template.json';
-    link.click();
+    downloadJson(template, 'pert_template');
 }
 
 function resetPERTTable() {
@@ -104,10 +107,10 @@ function resetPERTTable() {
     }
     const tasksBody = document.getElementById('tasks-body');
     tasksBody.innerHTML = '';
-    addTask(); // Retain one empty row
+    addTask();
 
     const timeUnit = document.getElementById('timeUnit');
-    timeUnit.value = 'hours'; // Reset time unit to 'hours'
+    timeUnit.value = 'hours';
 
     const resultBody = document.getElementById('result-body');
     resultBody.innerHTML = '';
@@ -127,8 +130,6 @@ function loadTemplate(event) {
         const template = JSON.parse(content);
 
         document.getElementById('timeUnit').value = template.timeUnit;
-        // const tasksBody = document.getElementById('tasks-body');
-        // tasksBody.innerHTML = '';
 
         template.tasks.forEach(task => {
             const row = document.createElement('tr');
@@ -144,7 +145,10 @@ function loadTemplate(event) {
                 <td><input type="number" name="optimistic" value="${task.optimistic}" required></td>
                 <td><input type="number" name="likely" value="${task.likely}" required></td>
                 <td><input type="number" name="pessimistic" value="${task.pessimistic}" required></td>
-                <td><button type="button" class="remove-button" onclick="removeTask(this)"><i class="fas fa-trash"></i> Remove</button></td>
+                <td><button type="button" class="btn-danger btn-sm" onclick="removeTask(this)">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Remove
+                </button></td>
             `;
             tasksBody.appendChild(row);
         });
@@ -154,7 +158,8 @@ function loadTemplate(event) {
 
 function copyToClipboard(format) {
     const resultTable = document.getElementById('result-table');
-    let definitionText = 'The PERT (Program Evaluation and Review Technique) estimate helps determine how long a task is likely to take by considering three different time estimates: optimistic, likely, and pessimistic. It provides a realistic timeframe that helps in planning and managing project schedules effectively.\nNote: The complexity value is for reference purposes only and does not affect the PERT calculation.\n\n';
+    const definitionText = 'The PERT (Program Evaluation and Review Technique) estimate helps determine how long a task is likely to take by considering three different time estimates: optimistic, likely, and pessimistic. It provides a realistic timeframe that helps in planning and managing project schedules effectively.\nNote: The complexity value is for reference purposes only and does not affect the PERT calculation.\n\n';
+
     if (format === 'text') {
         let resultText = definitionText;
         for (let row of resultTable.rows) {
@@ -163,17 +168,11 @@ function copyToClipboard(format) {
             }
             resultText += '\n';
         }
-        navigator.clipboard.writeText(resultText).then(() => {
-            alert('Result copied to clipboard as text');
-        });
+        copyTextToClipboard(resultText, 'Result copied to clipboard as text');
     } else if (format === 'richtext') {
         let resultHTML = `<p>${definitionText.replace(/\n/g, '<br>')}</p>`;
         resultHTML += resultTable.outerHTML;
-        const blob = new Blob([resultHTML], { type: 'text/html' });
-        const item = new ClipboardItem({ 'text/html': blob });
-        navigator.clipboard.write([item]).then(() => {
-            alert('Result copied to clipboard as RichText');
-        });
+        copyHtmlToClipboard(resultHTML, 'Result copied to clipboard as RichText');
     }
 }
 
@@ -209,7 +208,6 @@ function copyAsImage() {
 document.getElementById('save-template-button').addEventListener('click', saveTemplate);
 document.getElementById('load-template-button').addEventListener('click', triggerLoadTemplate);
 
-// Event listener to load template button
 const loadTemplateInput = document.createElement('input');
 loadTemplateInput.type = 'file';
 loadTemplateInput.accept = 'application/json';
@@ -226,4 +224,3 @@ function triggerLoadTemplate() {
     }
     loadTemplateInput.click();
 }
-

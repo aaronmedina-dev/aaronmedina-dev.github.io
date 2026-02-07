@@ -141,14 +141,12 @@ document.getElementById('resetBtn').addEventListener('click', resetForm);
 document.getElementById('copyText').addEventListener('click', function() {
     const info = window.__lastCIDRInfo;
     if (!info) { alert('Nothing to copy. Calculate first.'); return; }
-    navigator.clipboard.writeText(toText(info)).then(() => alert('Copied as text'));
+    copyTextToClipboard(toText(info), 'Copied as text');
 });
 document.getElementById('copyJson').addEventListener('click', function() {
     const info = window.__lastCIDRInfo;
     if (!info) { alert('Nothing to copy. Calculate first.'); return; }
-    const blob = new Blob([JSON.stringify(info, null, 2)], { type: 'application/json' });
-    const item = new ClipboardItem({ 'application/json': blob });
-    navigator.clipboard.write([item]).then(() => alert('Copied as JSON'));
+    copyJsonToClipboard(info, 'Copied as JSON');
 });
 
 // View toggling
@@ -251,7 +249,6 @@ function renderAddressesPage(page) {
 
     const total = totalAddresses(info);
     const start = addrStartInt(info);
-    const end = addrEndInt(info);
     const pageSize = Number(document.getElementById('pageSize').value);
 
     const maxForUI = 1 << 16; // 65536

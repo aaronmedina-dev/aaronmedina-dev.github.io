@@ -1,3 +1,8 @@
+/*
+ * Aikido Sub-Issue Formatter - App-specific logic
+ * Shared utilities loaded from /assets/js/utils.js
+ */
+
 function processInput() {
     const inputText = document.getElementById('inputText').value;
     const outputText = document.getElementById('outputText');
@@ -6,12 +11,11 @@ function processInput() {
     const regex = /^(.*?)\n\n(?:High|Critical|Medium|Low)\nLine (\d+(?: - \d+)?) in (.*?)\n([\s\S]*?)View (?:file|commit)/gm;
     let matches;
     let output = '';
-    count = 0;
+    let count = 0;
 
     while ((matches = regex.exec(inputText)) !== null) {
         const filePath = matches[1].trim();
         const lineRange = matches[2];
-        const fileName = matches[3].trim();
         const codeSnippet = matches[4].trim();
         count++;
 
@@ -30,8 +34,6 @@ ${codeSnippet}
 }
 
 function copyOutput() {
-    const outputText = document.getElementById('outputText');
-    navigator.clipboard.writeText(outputText.textContent)
-        .then(() => alert('Output copied to clipboard!'))
-        .catch(err => alert('Failed to copy output: ' + err));
+    const outputText = document.getElementById('outputText').textContent;
+    copyTextToClipboard(outputText, 'Output copied to clipboard!');
 }
