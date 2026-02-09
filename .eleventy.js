@@ -15,6 +15,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.ignores.add("pert/README.md");
     eleventyConfig.ignores.add("aikido/sub-issue-formatter/README.md");
     eleventyConfig.ignores.add("whatthepatch/README.md");
+    eleventyConfig.ignores.add("IGNORE/");
 
     // Blog posts collection sorted newest-first
     eleventyConfig.addCollection("posts", function (collectionApi) {
