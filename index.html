@@ -279,29 +279,20 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             overflow: hidden;
-            position: relative;
         }
 
-        .code-block::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                300px circle at var(--spotlight-x, 50%) var(--spotlight-y, -100%),
-                rgba(59, 130, 246, 0.12),
-                transparent 70%
-            );
-            pointer-events: none;
-            z-index: 1;
-            transition: opacity 0.3s;
-            opacity: 0;
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background: var(--text-primary);
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
         }
 
-        .code-block:hover::after {
-            opacity: 1;
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         .code-header {
@@ -1081,7 +1072,7 @@
                         <p>&nbsp;&nbsp;<span class="property">focus:</span> [<span class="string">'DevOps'</span>, <span class="string">'CI/CD'</span>, <span class="string">'Automation'</span>],</p>
                         <p>&nbsp;&nbsp;<span class="property">certified:</span> <span class="string">'AWS Solutions Architect Professional'</span>,</p>
                         <p>&nbsp;&nbsp;<span class="property">learning:</span> <span class="string">'Always'</span></p>
-                        <p>}<span class="bracket">;</span></p>
+                        <p>}<span class="bracket">;</span><span class="cursor-blink"></span></p>
                     </div>
                 </div>
             </div>
@@ -1110,14 +1101,14 @@
                             <p class="info-subtitle">Aligent</p>
                             <p class="info-date">Building cloud infrastructure for e-commerce</p>
                         </div>
-                        <div class="info-card" style="position: relative;">
+                        <div class="info-card">
                             <h4>
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                                 Certification
                             </h4>
                             <p class="info-title">AWS Solutions Architect</p>
-                            <p class="info-subtitle">Professional</p>
-                            <a href="https://www.credly.com/badges/your-badge-id" target="_blank" style="position: absolute; bottom: 16px; right: 16px;">
+                            <p class="info-subtitle">Professional (SAP-C02)</p>
+                            <a href="https://www.credly.com/badges/your-badge-id" target="_blank" class="cert-badge">
                                 <img src="assets/aws-sap-badge.png" alt="AWS Solutions Architect Professional" style="width: 70px; height: auto;">
                             </a>
                         </div>
@@ -1597,16 +1588,6 @@
 
         // Load repos on page load
         loadGitHubRepos();
-
-        // Code block spotlight effect
-        const codeBlock = document.querySelector('.code-block');
-        codeBlock.addEventListener('mousemove', (e) => {
-            const rect = codeBlock.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            codeBlock.style.setProperty('--spotlight-x', x + 'px');
-            codeBlock.style.setProperty('--spotlight-y', y + 'px');
-        });
 
         // Grid distortion effect
         const canvas = document.getElementById('gridCanvas');
