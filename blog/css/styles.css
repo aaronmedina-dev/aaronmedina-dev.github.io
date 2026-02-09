@@ -419,6 +419,24 @@ body {
     text-decoration: underline;
 }
 
+/* Comments Section (Giscus) */
+.comments-section {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+.comments-section h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.giscus {
+    max-width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .blog-header h1 {
