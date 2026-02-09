@@ -13,14 +13,14 @@
     <meta property="og:url" content="https://aaronmedina-dev.github.io/">
     <meta property="og:title" content="Aaron Medina | DevOps Engineer">
     <meta property="og:description" content="DevOps Engineer specializing in AWS, CI/CD, and cloud infrastructure. Building scalable solutions for e-commerce platforms.">
-    <meta property="og:image" content="https://github.com/aaronmedina-dev.png">
+    <meta property="og:image" content="https://aaronmedina-dev.github.io/assets/og-image.png">
     <meta property="og:site_name" content="Aaron Medina">
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Aaron Medina | DevOps Engineer">
     <meta name="twitter:description" content="DevOps Engineer specializing in AWS, CI/CD, and cloud infrastructure. Building scalable solutions for e-commerce platforms.">
-    <meta name="twitter:image" content="https://github.com/aaronmedina-dev.png">
+    <meta name="twitter:image" content="https://aaronmedina-dev.github.io/assets/og-image.png">
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Aaron Medina | DevOps Engineer</title>
@@ -279,6 +279,29 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             overflow: hidden;
+            position: relative;
+        }
+
+        .code-block::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                300px circle at var(--spotlight-x, 50%) var(--spotlight-y, -100%),
+                rgba(59, 130, 246, 0.12),
+                transparent 70%
+            );
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .code-block:hover::after {
+            opacity: 1;
         }
 
         .code-header {
@@ -1574,6 +1597,16 @@
 
         // Load repos on page load
         loadGitHubRepos();
+
+        // Code block spotlight effect
+        const codeBlock = document.querySelector('.code-block');
+        codeBlock.addEventListener('mousemove', (e) => {
+            const rect = codeBlock.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            codeBlock.style.setProperty('--spotlight-x', x + 'px');
+            codeBlock.style.setProperty('--spotlight-y', y + 'px');
+        });
 
         // Grid distortion effect
         const canvas = document.getElementById('gridCanvas');

@@ -1,0 +1,93 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0f1a"/>
+      <stop offset="100%" style="stop-color:#111827"/>
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+    <!-- Dot pattern -->
+    <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1.5" fill="rgba(59,130,246,0.15)"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Dot grid overlay -->
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Accent glow -->
+  <ellipse cx="900" cy="315" rx="400" ry="300" fill="rgba(59,130,246,0.04)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="4" fill="url(#accentLine)"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="200" width="4" height="120" rx="2" fill="#3b82f6"/>
+
+  <!-- Greeting -->
+  <text x="104" y="232" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" fill="#3b82f6" font-weight="500">Hello! I'm</text>
+
+  <!-- Name -->
+  <text x="104" y="290" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="64" fill="#f3f4f6" font-weight="700">Aaron</text>
+  <text x="330" y="290" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="64" fill="#3b82f6" font-weight="700">Medina</text>
+
+  <!-- Title -->
+  <text x="104" y="340" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" fill="#9ca3af" font-weight="500">DevOps Engineer</text>
+
+  <!-- Tagline -->
+  <text x="104" y="390" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="18" fill="#6b7280">Building scalable cloud infrastructure, CI/CD pipelines,</text>
+  <text x="104" y="416" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="18" fill="#6b7280">and developer tooling for e-commerce platforms.</text>
+
+  <!-- Skill tags -->
+  <rect x="104" y="450" width="62" height="32" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="135" y="471" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#3b82f6" font-weight="500" text-anchor="middle">AWS</text>
+
+  <rect x="180" y="450" width="82" height="32" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="221" y="471" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#3b82f6" font-weight="500" text-anchor="middle">Docker</text>
+
+  <rect x="276" y="450" width="108" height="32" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="330" y="471" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#3b82f6" font-weight="500" text-anchor="middle">Kubernetes</text>
+
+  <rect x="398" y="450" width="98" height="32" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="447" y="471" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#3b82f6" font-weight="500" text-anchor="middle">Terraform</text>
+
+  <rect x="510" y="450" width="66" height="32" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="543" y="471" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#3b82f6" font-weight="500" text-anchor="middle">CI/CD</text>
+
+  <!-- Code block on the right -->
+  <rect x="720" y="160" width="400" height="310" rx="12" fill="#111827" stroke="#1f2937" stroke-width="1"/>
+
+  <!-- Code block header -->
+  <rect x="720" y="160" width="400" height="40" rx="12" fill="#111827"/>
+  <rect x="720" y="188" width="400" height="2" fill="#1f2937"/>
+  <!-- Window dots -->
+  <circle cx="748" cy="180" r="6" fill="#ef4444"/>
+  <circle cx="768" cy="180" r="6" fill="#eab308"/>
+  <circle cx="788" cy="180" r="6" fill="#22c55e"/>
+  <text x="1080" y="184" font-family="Monaco, monospace" font-size="12" fill="#6b7280" text-anchor="end">devops.js</text>
+
+  <!-- Code content -->
+  <text x="748" y="222" font-family="Monaco, 'Fira Code', monospace" font-size="14" fill="#6b7280" xml:space="preserve">// DevOps Engineer</text>
+  <text x="748" y="250" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#c084fc">const</tspan><tspan fill="#60a5fa"> devOpsEngineer</tspan><tspan fill="#f3f4f6"> = {</tspan></text>
+  <text x="748" y="278" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#f3f4f6">  </tspan><tspan fill="#f472b6">name:</tspan><tspan fill="#4ade80"> 'Aaron Medina'</tspan><tspan fill="#f3f4f6">,</tspan></text>
+  <text x="748" y="306" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#f3f4f6">  </tspan><tspan fill="#f472b6">focus:</tspan><tspan fill="#f3f4f6"> [</tspan><tspan fill="#4ade80">'DevOps'</tspan><tspan fill="#f3f4f6">, </tspan><tspan fill="#4ade80">'CI/CD'</tspan><tspan fill="#f3f4f6">],</tspan></text>
+  <text x="748" y="334" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#f3f4f6">  </tspan><tspan fill="#f472b6">cloud:</tspan><tspan fill="#4ade80"> 'AWS'</tspan><tspan fill="#f3f4f6">,</tspan></text>
+  <text x="748" y="362" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#f3f4f6">  </tspan><tspan fill="#f472b6">certified:</tspan><tspan fill="#4ade80"> 'AWS SAP-C02'</tspan><tspan fill="#f3f4f6">,</tspan></text>
+  <text x="748" y="390" font-family="Monaco, 'Fira Code', monospace" font-size="14" xml:space="preserve"><tspan fill="#f3f4f6">  </tspan><tspan fill="#f472b6">learning:</tspan><tspan fill="#4ade80"> 'Always'</tspan></text>
+  <text x="748" y="418" font-family="Monaco, 'Fira Code', monospace" font-size="14" fill="#fbbf24" xml:space="preserve">};</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="560" width="1200" height="70" fill="rgba(17,24,39,0.8)"/>
+  <rect x="0" y="560" width="1200" height="1" fill="#1f2937"/>
+
+  <!-- URL -->
+  <text x="104" y="602" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="16" fill="#6b7280">aaronmedina-dev.github.io</text>
+
+  <!-- GitHub icon and LinkedIn simplified -->
+  <text x="1096" y="602" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" fill="#6b7280" text-anchor="end">github.com/aaronmedina-dev</text>
+</svg>
