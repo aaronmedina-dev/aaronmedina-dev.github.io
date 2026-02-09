@@ -13,10 +13,16 @@
     <meta property="og:title" content="{{ title }} | {{ site.author }}">
     <meta property="og:description" content="{{ description }}">
     <meta property="og:site_name" content="{{ site.author }}">
+    {% if image %}
+    <meta property="og:image" content="{{ image }}">
+    {% endif %}
 
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="{% if image %}summary_large_image{% else %}summary{% endif %}">
     <meta name="twitter:title" content="{{ title }} | {{ site.author }}">
     <meta name="twitter:description" content="{{ description }}">
+    {% if image %}
+    <meta name="twitter:image" content="{{ image }}">
+    {% endif %}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>{{ title }} | {{ site.author }}</title>
