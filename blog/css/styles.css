@@ -205,12 +205,17 @@ body {
 }
 
 .article-body pre {
-    background: var(--bg-secondary);
+    background: #0d1117;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px;
     padding: 20px 24px;
     margin-bottom: 24px;
     overflow-x: auto;
+    position: relative;
+}
+
+.article-body pre[class*="language-"] {
+    margin-top: 0;
 }
 
 .article-body pre code {
@@ -219,7 +224,121 @@ body {
     padding: 0;
     font-size: 0.9rem;
     line-height: 1.7;
-    color: var(--text-primary);
+    color: #e6edf3;
+}
+
+/* Code block language header bar */
+.code-block-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.code-block-wrapper .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #161b22;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 16px;
+}
+
+.code-block-wrapper .code-lang {
+    font-family: 'Fira Code', 'Monaco', monospace;
+    font-size: 0.75rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-block-wrapper .code-copy {
+    background: none;
+    border: 1px solid rgba(139, 148, 158, 0.3);
+    color: #8b949e;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.code-block-wrapper .code-copy:hover {
+    border-color: #8b949e;
+    color: #e6edf3;
+}
+
+.code-block-wrapper .code-copy.copied {
+    border-color: #3fb950;
+    color: #3fb950;
+}
+
+.code-block-wrapper pre {
+    margin-bottom: 0;
+}
+
+/* Prism.js syntax highlighting -- GitHub Dark theme */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #8b949e;
+}
+
+.token.punctuation {
+    color: #c9d1d9;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #79c0ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #a5d6ff;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #d2a8ff;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #ff7b72;
+}
+
+.token.function,
+.token.class-name {
+    color: #d2a8ff;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #ffa657;
+}
+
+.token.string {
+    color: #a5d6ff;
 }
 
 .article-body blockquote {

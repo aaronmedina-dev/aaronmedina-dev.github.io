@@ -8,7 +8,9 @@ image: "https://placehold.co/780x400/111827/22c55e?text=GitHub+Pages+%2B+Elevent
 imageAlt: "GitHub Pages and Eleventy Blog Setup"
 ---
 
-I recently migrated this blog from hand-written HTML to [Eleventy (11ty)](https://www.11ty.dev/) and the workflow improvement has been significant. New posts are now just a single Markdown file -- no folders to create, no listing page to update, no sitemap to maintain. In this post, I'll walk through the entire setup from scratch so you can build the same thing.
+While I was in the process of rebuilding my GitHub Pages site, I decided to add a blog section so I could consolidate all my posts from different platforms into one place. My initial idea was simple -- just create static HTML pages for each post. But after writing only a few posts, the inefficiency hit me hard. Every new post meant creating a folder, copying a template, manually updating the listing page, and editing the sitemap. The tedious work was already piling up, and I could see it snowballing into an avalanche as the number of posts grew.
+
+So I went looking for a better way and found [Eleventy (11ty)](https://www.11ty.dev/). After migrating, the workflow improvement has been significant. New posts are now just a single Markdown file -- no folders to create, no listing page to update, no sitemap to maintain. In this post, I'll walk through the entire setup from scratch so you can build the same thing.
 
 ## What We're Building
 
