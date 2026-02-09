@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog posts by {{ site.author }} on DevOps, cloud infrastructure, CI/CD, and developer tooling.">
+    <meta name="author" content="{{ site.author }}">
+    <meta name="theme-color" content="#0a0f1a">
+    <link rel="canonical" href="{{ site.url }}/blog/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site.url }}/blog/">
+    <meta property="og:title" content="Blog | {{ site.author }}">
+    <meta property="og:description" content="Blog posts on DevOps, cloud infrastructure, CI/CD, and developer tooling.">
+    <meta property="og:site_name" content="{{ site.author }}">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Blog | {{ site.author }}">
+    <meta name="twitter:description" content="Blog posts on DevOps, cloud infrastructure, CI/CD, and developer tooling.">
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Blog | {{ site.author }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/blog/css/styles.css">
+</head>
+<body>
+    <canvas class="grid-canvas" id="gridCanvas"></canvas>
+    <div class="mobile-dots"></div>
+    <div class="blog-container">
+        <a href="/" class="back-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+
+        <div class="blog-header">
+            <h1>{{ title }}</h1>
+            <p>{{ description }}</p>
+        </div>
+
+        <div class="post-list">
+            {% for post in collections.posts %}
+            <a href="{{ post.url }}" class="post-card">
+                <span class="post-card-date">{{ post.date | dateFormat }}</span>
+                <h2>{{ post.data.title }}</h2>
+                <p>{{ post.data.description }}</p>
+                <div class="post-card-tags">
+                    {% for tag in post.data.tags %}
+                    <span>{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="/assets/js/grid-background.js"></script>
+</body>
+</html>

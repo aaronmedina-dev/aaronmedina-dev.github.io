@@ -29,6 +29,10 @@
     box-sizing: border-box;
 }
 
+html {
+    background-color: var(--bg-primary);
+}
+
 /* Base Body */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -266,6 +270,41 @@ pre {
     color: var(--text-primary);
     white-space: pre-wrap;
     line-height: 1.7;
+}
+
+/* Grid distortion background */
+.grid-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+.mobile-dots {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.3;
+    background-image: radial-gradient(circle, rgba(59, 130, 246, 0.4) 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+}
+
+@media (max-width: 768px) {
+    .grid-canvas {
+        display: none;
+    }
+    .mobile-dots {
+        display: block;
+    }
 }
 
 /* Responsive */
