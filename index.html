@@ -1165,7 +1165,7 @@
                     <p class="greeting">Hello! I'm</p>
                     <h1>Aaron <span class="highlight">Medina</span></h1>
                     <p class="title">DevOps Engineer</p>
-                    <p class="tagline">Building scalable cloud infrastructure, CI/CD pipelines, and developer tooling for e-commerce platforms.</p>
+                    <p class="tagline">🚀 Helping teams build, ship, and run reliable cloud systems.</p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn-primary">Contact Me</a>
                         <a href="#projects" class="btn-secondary">View Projects</a>
@@ -1216,7 +1216,9 @@
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Bio
                     </h3>
-                    <p>DevOps Engineer with 8+ years of experience building and maintaining cloud infrastructure for high-traffic e-commerce platforms. I specialize in designing CI/CD pipelines, implementing Infrastructure as Code, and developing internal tooling that improves developer productivity.</p>
+                    <p>I work at the intersection of engineering, operations, and architecture, and I’ve spent my career building, running, and improving production systems in demanding environments. My background spans software development, cloud platforms, DevOps, and technical leadership.</p>
+                    <p>I’ve been involved across the full lifecycle of systems, from building and deploying, to operating in production and evolving them as requirements change. Along the way, I’ve led teams, guided delivery across multiple projects, and worked closely with stakeholders and clients on cloud migrations, CI/CD pipelines, Infrastructure as Code, security and compliance work, and internal tools that make life easier for both developers and operators.</p>
+                    <p>I’m drawn to complex systems and long-term problems. I enjoy thinking through trade-offs, bringing clarity to messy situations, and building platforms that don’t just work today, but continue to support teams and businesses as they grow.</p>
 
                     <div class="info-cards">
                         <div class="info-card">
@@ -1259,7 +1261,7 @@
         <section id="projects">
             <div class="section-header">
                 <h2>Projects</h2>
-                <p>Tools and applications I've built to solve real problems.</p>
+                <p>Things I’ve built to make work a little easier.</p>
             </div>
             <div class="projects-grid">
                 <div class="project-card">
@@ -1414,61 +1416,40 @@
                 <h2>Blog</h2>
                 <p>Thoughts on DevOps, cloud infrastructure, and developer tooling.</p>
             </div>
-            <div class="blog-featured">
-                <a href="/blog/posts/setting-up-blog-github-pages-eleventy/" class="blog-card featured">
-                    <div class="blog-card-meta">
-                        <time>Feb 9, 2026</time>
-                        <span class="blog-latest-badge">Latest</span>
-                        <span>15 min read</span>
-                    </div>
-                    <h3>Setting Up a Blog on GitHub Pages with Eleventy</h3>
-                    <p>A step-by-step guide to building a blog with Eleventy and deploying it to GitHub Pages using GitHub Actions, with Markdown posts and auto-generated listings.</p>
-                    <div class="blog-card-tags">
-                        <span>GitHub Pages</span>
-                        <span>Eleventy</span>
-                        <span>Blog</span>
-                        <span>Static Site</span>
-                    </div>
-                    <span class="blog-card-read">
-                        Read article
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </span>
-                </a>
-                <a href="/blog/posts/terraform-multi-environment-aws/" class="blog-card">
-                    <div class="blog-card-meta">
-                        <time>Feb 5, 2026</time>
-                        <span>12 min read</span>
-                    </div>
-                    <h3>Terraform Multi-Environment Infrastructure on AWS</h3>
-                    <p>A practical guide to managing multiple AWS environments with Terraform using workspaces, modules, and CI/CD integration.</p>
-                    <div class="blog-card-tags">
-                        <span>Terraform</span>
-                        <span>AWS</span>
-                        <span>IaC</span>
-                    </div>
-                    <span class="blog-card-read">
-                        Read article
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </span>
-                </a>
-                <a href="/blog/posts/docker-best-practices-production/" class="blog-card">
-                    <div class="blog-card-meta">
-                        <time>Jan 28, 2026</time>
-                        <span>10 min read</span>
-                    </div>
-                    <h3>Docker Best Practices for Production</h3>
-                    <p>Essential Docker practices for production deployments covering multi-stage builds, security hardening, and container orchestration.</p>
-                    <div class="blog-card-tags">
-                        <span>Docker</span>
-                        <span>DevOps</span>
-                        <span>Containers</span>
-                    </div>
-                    <span class="blog-card-read">
-                        Read article
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </span>
-                </a>
+            <div class="blog-featured" id="blogFeatured">
+                <p class="loading-repos">Loading posts...</p>
             </div>
+            <script>
+            fetch('/blog/feed.json')
+                .then(function(res) { return res.json(); })
+                .then(function(posts) {
+                    var container = document.getElementById('blogFeatured');
+                    var max = 3;
+                    var html = '';
+                    posts.slice(0, max).forEach(function(post, i) {
+                        var isFeatured = i === 0;
+                        html += '<a href="' + post.url + '" class="blog-card' + (isFeatured ? ' featured' : '') + '">';
+                        html += '<div class="blog-card-meta">';
+                        html += '<time>' + post.date + '</time>';
+                        if (isFeatured) html += '<span class="blog-latest-badge">Latest</span>';
+                        html += '<span>' + post.readTime + '</span>';
+                        html += '</div>';
+                        html += '<h3>' + post.title + '</h3>';
+                        html += '<p>' + post.description + '</p>';
+                        html += '<div class="blog-card-tags">';
+                        post.tags.forEach(function(tag) {
+                            html += '<span>' + tag + '</span>';
+                        });
+                        html += '</div>';
+                        html += '<span class="blog-card-read">Read article <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
+                        html += '</a>';
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(function() {
+                    document.getElementById('blogFeatured').innerHTML = '<p class="loading-repos">Unable to load posts.</p>';
+                });
+            </script>
             <a href="/blog/" class="blog-view-all">
                 View All Posts
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>

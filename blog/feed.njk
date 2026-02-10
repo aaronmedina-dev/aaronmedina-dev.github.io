@@ -1,0 +1,16 @@
+---
+permalink: /blog/feed.json
+eleventyExcludeFromCollections: true
+---
+[
+{%- for post in collections.posts %}
+  {
+    "title": {{ post.data.title | dump | safe }},
+    "date": "{{ post.date | dateFormat }}",
+    "description": {{ post.data.description | dump | safe }},
+    "url": "{{ post.url }}",
+    "tags": {{ post.data.tags | dump | safe }},
+    "readTime": "{{ post.data.readTime }}"
+  }{% if not loop.last %},{% endif %}
+{%- endfor %}
+]
