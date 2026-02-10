@@ -1,6 +1,6 @@
 ---
 title: "Adding Comments and Reactions to a GitHub Pages Site with Giscus"
-date: 2026-02-09
+date: 2026-02-10
 description: "How to add a GitHub-powered commenting system to your static site using Giscus, giving readers a way to leave comments and emoji reactions on your blog posts."
 tags: ["GitHub Pages", "Giscus", "Blog", "Static Site"]
 readTime: "8 min read"
