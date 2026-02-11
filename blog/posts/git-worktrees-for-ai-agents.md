@@ -26,8 +26,8 @@ Here's what happens when you try to run multiple Claude Code sessions in the tra
 
 ```
 my-repo/
-  git checkout feature/auth    <- Agent 1 wants this
-  git checkout test/coverage   <- Agent 2 wants this
+  git checkout feature/1    <- Agent 1 wants this
+  git checkout feature/2    <- Agent 2 wants this
   CONFLICT: agents fighting for the same files
 ```
 
@@ -61,13 +61,13 @@ Create separate directories for each agent's work. You can create a worktree for
 
 ```bash
 # Worktree for an existing branch
-git worktree add ../feature-auth feature/auth
+git worktree add ../feature-1 feature/1
 
 # Worktree with a new branch (created from current HEAD)
-git worktree add -b feature/api ../feature-api
+git worktree add -b feature/2 ../feature-2
 
-# Another worktree for test work
-git worktree add -b test/coverage ../test-coverage
+# Another worktree
+git worktree add -b feature/3 ../feature-3
 ```
 
 This gives you a directory structure like:
@@ -75,9 +75,9 @@ This gives you a directory structure like:
 ```
 workspace/
   my-repo/           <- main branch (untouched)
-  feature-auth/      <- Agent 1 works here
-  feature-api/       <- Agent 2 works here
-  test-coverage/     <- Agent 3 works here
+  feature-1/         <- Agent 1 works here
+  feature-2/         <- Agent 2 works here
+  feature-3/         <- Agent 3 works here
 ```
 
 ### Point Each Claude Session to Its Worktree
@@ -86,15 +86,15 @@ Open separate Claude Code sessions, each pointed at a different worktree directo
 
 ```bash
 # Terminal 1
-cd ../feature-auth
+cd ../feature-1
 claude
 
 # Terminal 2
-cd ../feature-api
+cd ../feature-2
 claude
 
 # Terminal 3
-cd ../test-coverage
+cd ../feature-3
 claude
 ```
 
@@ -116,38 +116,37 @@ workspace/
 |   +-- package.json
 |   +-- ...
 |
-+-- feature-auth/               <- worktree 1 (feature/auth branch)
++-- feature-1/                  <- worktree 1 (feature/1 branch)
 |   +-- .git                    <- small file pointing to my-repo/.git
 |   +-- src/
-|   |   +-- auth.js             <- Claude 1 is editing this
-|   |   +-- middleware.js        <- Claude 1 is editing this
+|   |   +-- module-a.js         <- Claude 1 is editing this
+|   |   +-- module-b.js         <- Claude 1 is editing this
 |   +-- tests/
 |   +-- package.json
 |   +-- ...
 |
-+-- feature-api/                <- worktree 2 (feature/api branch)
++-- feature-2/                  <- worktree 2 (feature/2 branch)
 |   +-- .git                    <- small file pointing to my-repo/.git
 |   +-- src/
-|   |   +-- routes/
-|   |   |   +-- users.js        <- Claude 2 is editing this
-|   |   |   +-- products.js     <- Claude 2 is editing this
+|   |   +-- module-c.js         <- Claude 2 is editing this
+|   |   +-- module-d.js         <- Claude 2 is editing this
 |   +-- tests/
 |   +-- package.json
 |   +-- ...
 |
-+-- test-coverage/              <- worktree 3 (test/coverage branch)
++-- feature-3/                  <- worktree 3 (feature/3 branch)
     +-- .git                    <- small file pointing to my-repo/.git
     +-- src/
     +-- tests/
-    |   +-- auth.test.js        <- Claude 3 is writing this
-    |   +-- api.test.js         <- Claude 3 is writing this
+    |   +-- module-a.test.js    <- Claude 3 is writing this
+    |   +-- module-c.test.js    <- Claude 3 is writing this
     +-- package.json
     +-- ...
 ```
 
 Each directory is a full copy of the project files, but they all share the same `.git` object store. The `.git` entry in each worktree is just a small text file pointing back to `my-repo/.git/worktrees/<name>`, not a duplicate.
 
-With this setup, you can have three terminals open side by side, each running Claude Code, each making changes to different files on different branches, all at the same time. Claude 1 is building auth middleware, Claude 2 is writing API routes, and Claude 3 is adding test coverage. None of them waiting on the others, none of them aware the others even exist.
+With this setup, you can have three terminals open side by side, each running Claude Code, each making changes to different files on different branches, all at the same time. Claude 1 is working on feature 1, Claude 2 is working on feature 2, and Claude 3 is working on feature 3. None of them waiting on the others, none of them aware the others even exist.
 
 When all three are done, you merge their branches back into main and you've accomplished three tasks in the time it would have taken to do one.
 
@@ -159,7 +158,7 @@ Git worktrees share the object store (the `.git` directory) but maintain separat
 - **Index/staging areas:** each can stage independently
 - **HEAD pointers:** each tracks its own branch
 
-When Agent 1 commits to `feature/auth`, Agent 2 in `feature/api` isn't affected at all. But if Agent 2 does a `git log main`, it sees Agent 1's merged work immediately because they share the same repository.
+When Agent 1 commits to `feature/1`, Agent 2 in `feature/2` isn't affected at all. But if Agent 2 does a `git log main`, it sees Agent 1's merged work immediately because they share the same repository.
 
 This means:
 
@@ -183,9 +182,10 @@ Decide what each agent will work on. Good candidates for parallel work:
 **2. Create the worktrees**
 
 ```bash
-git worktree add -b feature/auth ../auth
-git worktree add -b feature/notifications ../notifications
-git worktree add -b chore/docs ../docs
+git worktree add -b feature/1 ../feature-1
+git worktree add -b feature/2 ../feature-2
+git worktree add -b feature/3 ../feature-3
+git worktree add -b feature/4 ../feature-4
 ```
 
 **3. Run your Claude sessions**
@@ -198,9 +198,10 @@ When the agents are done, merge everything back:
 
 ```bash
 cd my-repo
-git merge feature/auth
-git merge feature/notifications
-git merge chore/docs
+git merge feature/1
+git merge feature/2
+git merge feature/3
+git merge feature/4
 ```
 
 If the work was truly independent (different files), these merges will be clean fast-forwards or automatic merges.
@@ -210,25 +211,26 @@ If the work was truly independent (different files), these merges will be clean 
 Remove worktrees you no longer need:
 
 ```bash
-git worktree remove ../auth
-git worktree remove ../notifications
-git worktree remove ../docs
+git worktree remove ../feature-1
+git worktree remove ../feature-2
+git worktree remove ../feature-3
+git worktree remove ../feature-4
 ```
 
 ## Quick Reference
 
 ```bash
 # Create worktree for existing branch
-git worktree add ../feature-auth feature/auth
+git worktree add ../feature-1 feature/1
 
 # Create worktree with new branch
-git worktree add -b new-feature ../new-feature
+git worktree add -b feature/2 ../feature-2
 
 # List all worktrees
 git worktree list
 
 # Remove a worktree
-git worktree remove ../feature-auth
+git worktree remove ../feature-1
 
 # Prune stale worktree references
 git worktree prune
