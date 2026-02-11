@@ -33,9 +33,9 @@ my-repo/
 
 Only one branch can be checked out at a time. The moment one agent switches branches, the other loses its working state. You end up with:
 
-- **Stash juggling** -- agents stashing and popping each other's changes
-- **Checkout conflicts** -- uncommitted work blocking branch switches
-- **Serial execution** -- only one agent can do meaningful work at a time
+- **Stash juggling:** agents stashing and popping each other's changes
+- **Checkout conflicts:** uncommitted work blocking branch switches
+- **Serial execution:** only one agent can do meaningful work at a time
 
 This defeats the entire purpose of running multiple agents.
 
@@ -43,7 +43,7 @@ This defeats the entire purpose of running multiple agents.
 
 With worktrees, each agent gets its own directory with its own checked-out branch, while sharing the same underlying repository:
 
-![Git Worktrees for AI Agents -- Traditional vs Worktrees comparison](/blog/images/git-worktrees-for-ai-agents.svg)
+![Git Worktrees for AI Agents: Traditional vs Worktrees comparison](/blog/images/git-worktrees-for-ai-agents.svg)
 
 Each worktree is a fully functional working directory. Agents can read, write, commit, and push independently. No conflicts, no stashing, no stepping on each other's work.
 
@@ -102,7 +102,7 @@ Each Claude session now has full, isolated access to the repo on its own branch.
 
 ## Running Agents Concurrently
 
-This is where worktrees really shine. Because each worktree is a completely separate directory on disk, you can run multiple Claude Code sessions **at the same time** -- not one after the other, but truly in parallel.
+This is where worktrees really shine. Because each worktree is a completely separate directory on disk, you can run multiple Claude Code sessions **at the same time**, not one after the other, but truly in parallel.
 
 Here's what the file structure actually looks like on disk:
 
@@ -145,9 +145,9 @@ workspace/
     +-- ...
 ```
 
-Each directory is a full copy of the project files, but they all share the same `.git` object store. The `.git` entry in each worktree is just a small text file pointing back to `my-repo/.git/worktrees/<name>` -- not a duplicate.
+Each directory is a full copy of the project files, but they all share the same `.git` object store. The `.git` entry in each worktree is just a small text file pointing back to `my-repo/.git/worktrees/<name>`, not a duplicate.
 
-With this setup, you can have three terminals open side by side, each running Claude Code, each making changes to different files on different branches, all at the same time. Claude 1 is building auth middleware, Claude 2 is writing API routes, and Claude 3 is adding test coverage -- none of them waiting on the others, none of them aware the others even exist.
+With this setup, you can have three terminals open side by side, each running Claude Code, each making changes to different files on different branches, all at the same time. Claude 1 is building auth middleware, Claude 2 is writing API routes, and Claude 3 is adding test coverage. None of them waiting on the others, none of them aware the others even exist.
 
 When all three are done, you merge their branches back into main and you've accomplished three tasks in the time it would have taken to do one.
 
@@ -155,18 +155,18 @@ When all three are done, you merge their branches back into main and you've acco
 
 Git worktrees share the object store (the `.git` directory) but maintain separate:
 
-- **Working directories** -- each worktree has its own files on disk
-- **Index/staging areas** -- each can stage independently
-- **HEAD pointers** -- each tracks its own branch
+- **Working directories:** each worktree has its own files on disk
+- **Index/staging areas:** each can stage independently
+- **HEAD pointers:** each tracks its own branch
 
 When Agent 1 commits to `feature/auth`, Agent 2 in `feature/api` isn't affected at all. But if Agent 2 does a `git log main`, it sees Agent 1's merged work immediately because they share the same repository.
 
 This means:
 
-- **Parallel work** -- all agents run simultaneously, no waiting
-- **Isolated sandboxes** -- changes in one worktree don't affect others
-- **Shared history** -- all commits, branches, and tags are visible everywhere
-- **Instant merges** -- merging between worktrees is a regular `git merge` since it's the same repo
+- **Parallel work:** all agents run simultaneously, no waiting
+- **Isolated sandboxes:** changes in one worktree don't affect others
+- **Shared history:** all commits, branches, and tags are visible everywhere
+- **Instant merges:** merging between worktrees is a regular `git merge` since it's the same repo
 
 ## Practical Workflow
 
@@ -236,13 +236,15 @@ git worktree prune
 
 ## Things to Watch Out For
 
-**One branch per worktree.** Git enforces that the same branch can't be checked out in two worktrees simultaneously. This is a feature, not a limitation -- it prevents two agents from modifying the same branch.
+**One branch per worktree.** Git enforces that the same branch can't be checked out in two worktrees simultaneously. This is a feature, not a limitation. It prevents two agents from modifying the same branch.
 
 **Don't delete worktree directories manually.** Always use `git worktree remove` so Git cleans up its internal references. If you do accidentally delete one, `git worktree prune` fixes the stale entries.
 
 **Lock long-lived worktrees.** If you have a worktree you want to keep around (like a persistent staging environment), use `git worktree lock ../staging` to prevent accidental removal.
 
 **Merge conflicts still happen.** If two agents modify the same file on different branches, you'll hit conflicts when merging. The difference is that you deal with it once at merge time, not constantly during development.
+
+**Usage limits burn faster.** Three agents running in parallel means three times the API calls, token consumption, and rate limit usage happening simultaneously. If you're on a plan with daily or monthly limits, parallel sessions will eat through your quota much faster than working sequentially. Plan your parallel workload around your budget. Save concurrency for tasks where the time savings justify the cost, and use a single session for smaller or less time-sensitive work.
 
 ---
 
