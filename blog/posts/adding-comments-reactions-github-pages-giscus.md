@@ -55,7 +55,7 @@ This grants Giscus the permissions it needs to read and create Discussions on yo
 Go to [giscus.app](https://giscus.app/) and fill in the configuration form:
 
 1. **Repository** -- enter your repo in `owner/repo` format (e.g., `aaronmedina-dev/aaronmedina-dev.github.io`)
-2. **Discussion Category** -- select **Announcements**. This is recommended because only maintainers can create new Announcements, which prevents spam. Giscus creates the initial Discussion when the first comment is posted, and it does so as an authorized app.
+2. **Discussion Category** -- select **Announcements**. This is recommended because only maintainers can create new Announcements, which prevents spam. Giscus creates the initial Discussion when the first comment is posted, and it does so as an authorised app.
 3. **Page-Discussion Mapping** -- select **pathname**. This maps each page's URL path to a Discussion, so every blog post gets its own thread automatically.
 4. **Features** -- enable **reactions on the main post** to let readers add emoji reactions without commenting.
 5. **Theme** -- select **dark** (or whichever matches your site).

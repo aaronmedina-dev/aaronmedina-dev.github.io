@@ -11,6 +11,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("aikido");
     eleventyConfig.addPassthroughCopy("whatthepatch");
     eleventyConfig.addPassthroughCopy("blog/css");
+    eleventyConfig.addPassthroughCopy("blog/images");
     eleventyConfig.addPassthroughCopy("favicon.svg");
     eleventyConfig.addPassthroughCopy("robots.txt");
     eleventyConfig.addPassthroughCopy("google7f425c781d89ca1f.html");

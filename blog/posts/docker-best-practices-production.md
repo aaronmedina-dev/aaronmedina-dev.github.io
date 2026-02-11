@@ -1,18 +1,18 @@
 ---
 title: "Docker Best Practices for Production Workloads"
 date: 2026-01-28
-description: "Practical Docker best practices for production workloads: multi-stage builds, security hardening, image optimization, and health checks."
+description: "Practical Docker best practices for production workloads: multi-stage builds, security hardening, image optimisation, and health checks."
 tags: ["Docker", "Containers", "Security", "DevOps"]
 readTime: "10 min read"
 image: "https://placehold.co/780x400/111827/60a5fa?text=Docker+Production+Best+Practices"
 imageAlt: "Docker Production Best Practices"
 ---
 
-Docker has become the standard for packaging and deploying applications, but there's a significant gap between "it works on my machine" Docker usage and production-ready containerization. After running hundreds of containers in production across multiple e-commerce platforms, here are the practices that have made the biggest difference.
+Docker has become the standard for packaging and deploying applications, but there's a significant gap between "it works on my machine" Docker usage and production-ready containerisation. After running hundreds of containers in production across multiple e-commerce platforms, here are the practices that have made the biggest difference.
 
 ## Multi-Stage Builds
 
-If you're still using single-stage Dockerfiles, you're shipping unnecessary build tools, source code, and dependencies to production. Multi-stage builds are the single most impactful optimization you can make.
+If you're still using single-stage Dockerfiles, you're shipping unnecessary build tools, source code, and dependencies to production. Multi-stage builds are the single most impactful optimisation you can make.
 
 ![Size comparison between single and multi-stage builds](https://placehold.co/780x250/111827/c084fc?text=Single+Stage+(1.2GB)+vs+Multi-Stage+(180MB))
 
@@ -82,7 +82,7 @@ We run `trivy` in our CI pipeline on every build:
 
 > A container vulnerability scanner in CI is not optional for production workloads. It's the bare minimum. The earlier you catch vulnerabilities, the cheaper they are to fix.
 
-## Layer Optimization
+## Layer Optimisation
 
 Docker image layers are cached, so the order of your Dockerfile instructions matters significantly for build performance:
 
@@ -131,7 +131,7 @@ Production Docker isn't complicated, but it requires intentionality. The practic
 
 - Multi-stage builds for smaller, cleaner images
 - Non-root users and minimal base images for security
-- Layer ordering optimization for faster builds
+- Layer ordering optimisation for faster builds
 - Health checks for reliable orchestration
 - Resource limits to prevent noisy neighbors
 - Vulnerability scanning in CI as a gate

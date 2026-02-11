@@ -53,7 +53,7 @@ cd <your-username>.github.io
 
 ## Step 2: Install Eleventy
 
-Initialize the project and install Eleventy as a dev dependency:
+Initialise the project and install Eleventy as a dev dependency:
 
 ```bash
 npm init -y

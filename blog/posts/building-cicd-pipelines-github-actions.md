@@ -127,14 +127,14 @@ A pipeline without monitoring is flying blind. We send deployment notifications 
 
 ## Key Takeaways
 
-If you're setting up CI/CD for an e-commerce platform, here's what I'd prioritize:
+If you're setting up CI/CD for an e-commerce platform, here's what I'd prioritise:
 
 1. **Cache aggressively** -- every second counts when developers are waiting
-2. **Parallelize tests** -- don't run things sequentially if they don't depend on each other
+2. **Parallelise tests** -- don't run things sequentially if they don't depend on each other
 3. **Use environment protection rules** -- manual approval for production deploys
 4. **Monitor everything** -- you can't improve what you don't measure
 5. **Keep it simple** -- a pipeline your team understands is better than a clever one they don't
 
 ---
 
-In the next post, I'll cover Docker image optimization strategies that reduced our container sizes by 60% and cut build times significantly.
+In the next post, I'll cover Docker image optimisation strategies that reduced our container sizes by 60% and cut build times significantly.
