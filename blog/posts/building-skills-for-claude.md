@@ -34,10 +34,10 @@ The upshot is that token usage stays low while Claude still has access to specia
 
 ## Anatomy of a Skill
 
-The full file structure looks like this:
+A single skill is just a folder. The structure looks like this:
 
 ```
-your-skill-name/
+code-review/
 ├── SKILL.md              # Required: main skill file
 ├── scripts/              # Optional: executable code
 │   ├── validate.sh
@@ -50,6 +50,38 @@ your-skill-name/
 ```
 
 Only `SKILL.md` is required. Everything else is optional and gets loaded progressively when needed.
+
+### Where Do Skills Live?
+
+If you're building more than one skill, each one gets its own folder. You can keep them all in one place:
+
+```
+my-skills/
+├── code-review/
+│   ├── SKILL.md
+│   └── references/
+│       └── checklist.md
+├── blog-post/
+│   └── SKILL.md
+└── sprint-planning/
+    ├── SKILL.md
+    └── scripts/
+        └── fetch_velocity.py
+```
+
+Where you actually put these depends on how you're using Claude:
+
+**Claude.ai** : Zip each skill folder individually (e.g. `code-review.zip`), then go to Settings > Capabilities > Skills and upload each one. You toggle them on or off from there.
+
+![Skills for Claude.AI](/blog/images/skills-for-claude-ai.jpg)
+
+**Claude Code** : Drop the skill folders into your Claude Code skills directory. Claude picks them up automatically.
+
+![Skills for Claude Code](/blog/images/skills-for-claude-code.jpg)
+
+Reference for [Claude Code skills directory](https://code.claude.com/docs/en/skills).
+
+**API** : Skills can be attached to API requests via the `container.skills` parameter. See the API section further down for more on that.
 
 ### Naming Rules
 
@@ -135,9 +167,9 @@ code-review/
 
 ### SKILL.md
 
-The frontmatter tells Claude when to activate, and the body gives it the full review methodology:
+This is the complete file. The frontmatter (between the `---` markers) tells Claude when to activate, and everything below it is the actual instructions Claude follows. It all goes in one file:
 
-```yaml
+````markdown
 ---
 name: code-review
 description: >
@@ -146,11 +178,7 @@ description: >
   Use when user asks to "review this code", "check this PR",
   "do a code review", or "look over these changes".
 ---
-```
 
-Then the instructions:
-
-```markdown
 # Code Review Skill
 
 ## Instructions
@@ -210,7 +238,7 @@ Always end with at least one positive observation.
 **User says:** "Review this PR for me"
 **Actions:** Read all changed files, apply checklist across the full PR.
 **Result:** Review with file-by-file and overall findings.
-```
+````
 
 ### references/checklist.md
 
