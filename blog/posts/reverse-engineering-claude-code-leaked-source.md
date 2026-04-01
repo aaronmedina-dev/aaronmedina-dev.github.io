@@ -1,5 +1,5 @@
 ---
-title: "5 Things We Learned by Reverse-Engineering Claude Code's Leaked Source"
+title: "Inside Claude Code's Leaked Source: Top 5 Hacks and Optimisations"
 date: 2026-04-01
 description: "While everyone was hunting for vulnerabilities in Claude Code's leaked source, we reverse-engineered it for hacks and optimisations. Here are the top 5 by impact."
 tags: ["Claude", "AI", "Reverse Engineering", "Productivity"]
