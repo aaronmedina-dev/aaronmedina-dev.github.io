@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Deep dive into Claude Code's multi-layered permission system, sandbox enforcement, and security architecture.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Permissions &amp; Sandboxing - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item active">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>Permissions &amp; Sandboxing</h1>
+                    <p class="lead">
+                        Claude Code enforces a multi-layered security model that gates every tool invocation through
+                        permission checks, rule matching, sandbox enforcement, and destructive command detection.
+                        Nothing runs without passing through this gauntlet.
+                    </p>
+
+                    <h2>Three Permission Modes</h2>
+
+                    <p>Every Claude Code session operates in one of three permission modes, each with fundamentally different security postures:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mode</th>
+                                    <th>Behaviour</th>
+                                    <th>Use Case</th>
+                                    <th>Safety Guardrails</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Default</strong></td>
+                                    <td>Interactive approval -- every write operation prompts the user</td>
+                                    <td>Normal interactive sessions</td>
+                                    <td><span class="badge badge-public">Full</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plan</strong></td>
+                                    <td>Read-only mode -- all write operations are blocked entirely</td>
+                                    <td>Code review, exploration, analysis</td>
+                                    <td><span class="badge badge-public">Full + Read-Only</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bypass</strong></td>
+                                    <td>Auto-approve all operations, but destructive command safety stays active</td>
+                                    <td>Automated pipelines, CI/CD, trusted scripts</td>
+                                    <td><span class="badge badge-hidden">Reduced</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Warning</div>
+                        <p>Bypass mode does not disable all safety. Destructive command detection (git force push to main, <code>rm -rf /</code>) still fires even in bypass mode. The macOS seatbelt sandbox also remains active regardless of mode.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Permission Check Flow</h2>
+
+                    <p>Every tool invocation follows a deterministic path through the permission system. The <code>useCanUseTool()</code> hook is the central gatekeeper:</p>
+
+                    <div class="flow-diagram">
+                        <svg width="780" height="620" viewBox="0 0 780 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Start node -->
+                            <rect x="290" y="10" width="200" height="40" rx="20" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="390" y="35" font-family="'Fira Code', monospace" font-size="12" fill="#3b82f6" text-anchor="middle">Tool.call()</text>
+
+                            <!-- Arrow down -->
+                            <line x1="390" y1="50" x2="390" y2="80" stroke="#374151" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+                            <!-- useCanUseTool -->
+                            <rect x="240" y="80" width="300" height="40" rx="6" fill="#1e293b" stroke="#374151" stroke-width="1.5"/>
+                            <text x="390" y="105" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af" text-anchor="middle">useCanUseTool() hook</text>
+
+                            <!-- Arrow down -->
+                            <line x1="390" y1="120" x2="390" y2="150" stroke="#374151" stroke-width="2"/>
+
+                            <!-- Diamond: Read-only? -->
+                            <polygon points="390,150 490,190 390,230 290,190" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="390" y="195" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Read-only?</text>
+
+                            <!-- Yes left - auto approve -->
+                            <line x1="290" y1="190" x2="140" y2="190" stroke="#22c55e" stroke-width="2"/>
+                            <text x="220" y="183" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e">YES</text>
+                            <rect x="40" y="172" width="100" height="36" rx="18" fill="rgba(34, 197, 94, 0.15)" stroke="#22c55e"/>
+                            <text x="90" y="195" font-family="'Fira Code', monospace" font-size="10" fill="#22c55e" text-anchor="middle">APPROVE</text>
+
+                            <!-- No down -->
+                            <line x1="390" y1="230" x2="390" y2="260" stroke="#374151" stroke-width="2"/>
+                            <text x="405" y="250" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af">NO</text>
+
+                            <!-- Diamond: Plan mode? -->
+                            <polygon points="390,260 490,300 390,340 290,300" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="390" y="305" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Plan mode?</text>
+
+                            <!-- Yes left - block -->
+                            <line x1="290" y1="300" x2="140" y2="300" stroke="#ef4444" stroke-width="2"/>
+                            <text x="220" y="293" font-family="'Fira Code', monospace" font-size="9" fill="#ef4444">YES</text>
+                            <rect x="50" y="282" width="90" height="36" rx="18" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444"/>
+                            <text x="95" y="305" font-family="'Fira Code', monospace" font-size="10" fill="#ef4444" text-anchor="middle">BLOCK</text>
+
+                            <!-- No down -->
+                            <line x1="390" y1="340" x2="390" y2="370" stroke="#374151" stroke-width="2"/>
+                            <text x="405" y="360" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af">NO</text>
+
+                            <!-- Diamond: Bypass? -->
+                            <polygon points="390,370 490,410 390,450 290,410" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="390" y="415" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Bypass mode?</text>
+
+                            <!-- Yes right - approve -->
+                            <line x1="490" y1="410" x2="640" y2="410" stroke="#22c55e" stroke-width="2"/>
+                            <text x="560" y="403" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e">YES</text>
+                            <rect x="640" y="392" width="100" height="36" rx="18" fill="rgba(34, 197, 94, 0.15)" stroke="#22c55e"/>
+                            <text x="690" y="415" font-family="'Fira Code', monospace" font-size="10" fill="#22c55e" text-anchor="middle">APPROVE</text>
+
+                            <!-- No down -->
+                            <line x1="390" y1="450" x2="390" y2="480" stroke="#374151" stroke-width="2"/>
+                            <text x="405" y="470" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af">NO</text>
+
+                            <!-- Diamond: Rule match? -->
+                            <polygon points="390,480 500,520 390,560 280,520" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="390" y="525" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Approved rule?</text>
+
+                            <!-- Yes right -->
+                            <line x1="500" y1="520" x2="640" y2="520" stroke="#22c55e" stroke-width="2"/>
+                            <text x="560" y="513" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e">YES</text>
+                            <rect x="640" y="502" width="100" height="36" rx="18" fill="rgba(34, 197, 94, 0.15)" stroke="#22c55e"/>
+                            <text x="690" y="525" font-family="'Fira Code', monospace" font-size="10" fill="#22c55e" text-anchor="middle">APPROVE</text>
+
+                            <!-- No down -->
+                            <line x1="390" y1="560" x2="390" y2="590" stroke="#374151" stroke-width="2"/>
+                            <text x="405" y="580" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af">NO</text>
+
+                            <!-- Prompt UI -->
+                            <rect x="280" y="590" width="220" height="30" rx="4" fill="rgba(139, 92, 246, 0.15)" stroke="#8b5cf6"/>
+                            <text x="390" y="610" font-family="'Fira Code', monospace" font-size="10" fill="#8b5cf6" text-anchor="middle">Show PermissionRequest UI</text>
+
+                            <!-- Arrowhead marker -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#374151"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Permission Rules</h2>
+
+                    <p>Permission rules are the mechanism for pre-authorising specific tool invocations so the user does not have to approve every action. Rules are stored as JSON in two locations:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Rule Locations</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># User-global rules (apply to all projects)</span>
+~/.claude/settings.json
+
+<span class="comment"># Project-scoped rules (apply to this repo only)</span>
+.claude/settings.json</div>
+                    </div>
+
+                    <h3>Rule Structure</h3>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">settings.json</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content">{
+  <span class="string">"permissions"</span>: {
+    <span class="string">"allow"</span>: [
+      {
+        <span class="string">"tool"</span>: <span class="string">"Bash"</span>,          <span class="comment">// Tool name</span>
+        <span class="string">"pattern"</span>: <span class="string">"npm test*"</span>,   <span class="comment">// Glob pattern for command</span>
+        <span class="string">"scope"</span>: <span class="string">"project"</span>        <span class="comment">// "project" or "global"</span>
+      },
+      {
+        <span class="string">"tool"</span>: <span class="string">"Edit"</span>,
+        <span class="string">"pattern"</span>: <span class="string">"src/**/*.ts"</span>,  <span class="comment">// Glob pattern for file path</span>
+        <span class="string">"scope"</span>: <span class="string">"project"</span>
+      }
+    ],
+    <span class="string">"deny"</span>: [
+      {
+        <span class="string">"tool"</span>: <span class="string">"Bash"</span>,
+        <span class="string">"pattern"</span>: <span class="string">"rm -rf *"</span>,
+        <span class="string">"scope"</span>: <span class="string">"global"</span>
+      }
+    ]
+  }
+}</div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">How Rule Matching Works</div>
+                        <p>When a tool is invoked, the system iterates through deny rules first (deny takes precedence), then allow rules. Pattern matching uses glob-style wildcards. If no rule matches, the system falls through to the interactive PermissionRequest UI.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Bash Tool: 7 Security Layers</h2>
+
+                    <p>The Bash tool is the most dangerous tool in the system -- it can execute arbitrary shell commands. As a result, it has the most elaborate security stack of any tool, with seven distinct validation layers that run sequentially:</p>
+
+                    <h3>Layer 1: Mode Validation</h3>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            Permission Mode Gate
+                        </h3>
+                        <p>The first check is the broadest: what permission mode is the session in? In <strong>Plan mode</strong>, all Bash commands that are not read-only are rejected immediately. In <strong>Bypass mode</strong>, most commands skip the interactive prompt but still pass through the remaining layers.</p>
+                    </div>
+
+                    <h3>Layer 2: Path Validation</h3>
+
+                    <p>Every command is analysed to ensure it targets the project directory. Commands that reference paths outside the project root are flagged and may require explicit approval. This prevents accidental (or intentional) modification of system files.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Path Validation Logic</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Simplified representation of path validation</span>
+<span class="keyword">function</span> <span class="command">validatePath</span>(command, projectRoot) {
+  <span class="keyword">const</span> paths = <span class="command">extractPaths</span>(command);
+  <span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> paths) {
+    <span class="keyword">if</span> (!<span class="command">isWithin</span>(p, projectRoot)) {
+      <span class="keyword">return</span> { allowed: <span class="keyword">false</span>, reason: <span class="string">"Path outside project"</span> };
+    }
+  }
+  <span class="keyword">return</span> { allowed: <span class="keyword">true</span> };
+}</div>
+                    </div>
+
+                    <h3>Layer 3: Read-Only Validation</h3>
+
+                    <p>Commands classified as read-only are auto-approved without user interaction. The system maintains a curated allowlist of commands known to be safe:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Auto-Approved Commands</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Git (read)</strong></td>
+                                    <td><code>git log</code>, <code>git show</code>, <code>git diff</code>, <code>git status</code>, <code>git branch</code>, <code>git remote</code>, <code>git config --get</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File inspection</strong></td>
+                                    <td><code>cat</code>, <code>head</code>, <code>tail</code>, <code>less</code>, <code>more</code>, <code>file</code>, <code>strings</code>, <code>od</code>, <code>xxd</code>, <code>hexdump</code>, <code>wc</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Search</strong></td>
+                                    <td><code>grep</code>, <code>rg</code>, <code>find</code>, <code>fd</code>, <code>locate</code>, <code>which</code>, <code>type</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Docker (read)</strong></td>
+                                    <td><code>docker ps</code>, <code>docker logs</code>, <code>docker inspect</code>, <code>docker images</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Data processing</strong></td>
+                                    <td><code>jq</code>, <code>xargs</code> (read-only), <code>sort</code>, <code>uniq</code>, <code>awk</code> (read-only)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Analysis</strong></td>
+                                    <td><code>pyright</code>, <code>tsc --noEmit</code>, <code>ls</code>, <code>du</code>, <code>df</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Layer 4: Command Semantics</h3>
+
+                    <p>Commands that are not read-only are classified into semantic categories that determine how they are presented to the user:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Examples</th>
+                                    <th>UI Treatment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge badge-public">Safe</span></td>
+                                    <td>Read-only, no side effects</td>
+                                    <td><code>cat</code>, <code>grep</code>, <code>git log</code></td>
+                                    <td>Auto-approve</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-env">File-Modifying</span></td>
+                                    <td>Changes files in the project</td>
+                                    <td><code>npm install</code>, <code>touch</code>, <code>mkdir</code></td>
+                                    <td>Prompt with diff preview</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-hidden">System-Modifying</span></td>
+                                    <td>Changes system state beyond files</td>
+                                    <td><code>brew install</code>, <code>apt-get</code>, <code>pip install</code></td>
+                                    <td>Prompt with warning</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-internal">Network</span></td>
+                                    <td>Makes network requests</td>
+                                    <td><code>curl</code>, <code>wget</code>, <code>ssh</code></td>
+                                    <td>Prompt with warning</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Layer 5: Destructive Command Warning</h3>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Destructive Command Detection</div>
+                        <p>Specific command patterns are flagged as destructive and receive an elevated warning in the UI, even in Bypass mode. These patterns are hardcoded and cannot be overridden by permission rules.</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Hardcoded Destructive Patterns</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Commands that always trigger a destructive warning</span>
+<span class="string">"git reset --hard"</span>
+<span class="string">"git push --force"</span>     <span class="comment">// or -f</span>
+<span class="string">"git push --force-with-lease"</span>
+<span class="string">"git clean -f"</span>
+<span class="string">"rm -rf /"</span>
+<span class="string">"rm -rf ~"</span>
+<span class="string">"rm -rf *"</span>
+<span class="string">"chmod -R 777"</span>
+<span class="string">":(){ :|:&amp; };:"</span>        <span class="comment">// Fork bomb detection</span></div>
+                    </div>
+
+                    <h3>Layer 6: Git Safety</h3>
+
+                    <p>A dedicated layer for git-specific safety checks that goes beyond simple destructive command detection:</p>
+
+                    <ul>
+                        <li><strong>Force push to main/master is blocked</strong> -- the system detects <code>git push --force</code> targeting the main or master branch and refuses to execute, even in Bypass mode</li>
+                        <li><strong><code>--no-verify</code> flag triggers a warning</strong> -- skipping git hooks is flagged as risky behaviour</li>
+                        <li><strong><code>--no-gpg-sign</code> detection</strong> -- bypassing commit signing is noted</li>
+                        <li><strong>Branch deletion safety</strong> -- <code>git branch -D</code> on the current branch receives a warning</li>
+                    </ul>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Source Insight</div>
+                        <p>The git safety layer is why Claude's system prompt explicitly says "NEVER run force push to main/master, warn the user if they request it". The prompt instruction and the code-level enforcement are dual layers of the same safety net.</p>
+                    </div>
+
+                    <h3>Layer 7: macOS Seatbelt Sandbox</h3>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            OS-Level Process Isolation
+                        </h3>
+                        <p>On macOS, every Bash command runs inside a <code>sandbox-exec</code> seatbelt profile. This is a kernel-level enforcement mechanism that restricts file system access, network connectivity, and process spawning -- regardless of what the user or permission rules say.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <p>The seatbelt sandbox enforces these restrictions at the OS level:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Resource</th>
+                                    <th>Policy</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>File System (read)</strong></td>
+                                    <td><span class="badge badge-public">Allowed</span></td>
+                                    <td>Project directory, system libraries, temp directories</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File System (write)</strong></td>
+                                    <td><span class="badge badge-hidden">Restricted</span></td>
+                                    <td>Only project directory and <code>/tmp</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Network (outbound)</strong></td>
+                                    <td><span class="badge badge-hidden">Restricted</span></td>
+                                    <td>Allowed for npm/git operations; general outbound varies by config</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Process spawning</strong></td>
+                                    <td><span class="badge badge-hidden">Restricted</span></td>
+                                    <td>Child processes inherit sandbox restrictions</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>System calls</strong></td>
+                                    <td><span class="badge badge-internal">Filtered</span></td>
+                                    <td>Dangerous syscalls (ptrace, etc.) are blocked</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Sed Validation</h2>
+
+                    <p>The <code>sed</code> command receives special treatment because it can be either read-only (printing, filtering) or file-modifying (in-place editing). The system parses the sed expression to determine its intent:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Sed Expression Analysis</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Read-only sed patterns (auto-approved)</span>
+<span class="command">sed</span> <span class="flag">-n</span> <span class="string">'5,10p'</span> file.txt       <span class="comment">// Print lines 5-10</span>
+<span class="command">sed</span> <span class="string">'s/foo/bar/'</span>                <span class="comment">// Pipe mode (no file arg = stdout)</span>
+
+<span class="comment">// File-modifying sed patterns (require approval)</span>
+<span class="command">sed</span> <span class="flag">-i</span> <span class="string">'s/foo/bar/'</span> file.txt   <span class="comment">// In-place edit (the -i flag)</span>
+<span class="command">sed</span> <span class="flag">-i.bak</span> <span class="string">'s/foo/bar/'</span> file   <span class="comment">// In-place with backup</span></div>
+                    </div>
+
+                    <p>The key signal is the <code>-i</code> flag. If present, the command is classified as file-modifying and goes through the standard approval flow. Without <code>-i</code>, sed only writes to stdout and is treated as read-only.</p>
+
+                    <hr class="section-divider">
+
+                    <h2>File Operation Permissions</h2>
+
+                    <h3>FileEditTool (Edit)</h3>
+
+                    <p>The Edit tool has two critical preconditions that are enforced before the permission check even runs:</p>
+
+                    <ul>
+                        <li><strong>Must read first:</strong> The file must have been read with the Read tool in the current conversation. The tool will error if you attempt an edit without a prior read. This prevents blind edits.</li>
+                        <li><strong><code>old_string</code> must be unique:</strong> The string to replace must appear exactly once in the file. If it matches zero times or more than once, the edit is rejected. This prevents ambiguous edits.</li>
+                    </ul>
+
+                    <h3>FileWriteTool (Write)</h3>
+
+                    <p>The Write tool has a similar read-first requirement for existing files:</p>
+
+                    <ul>
+                        <li><strong>Existing files:</strong> Must be read first. The tool will fail if you did not read the file before overwriting.</li>
+                        <li><strong>New files:</strong> No read required. Creating a file from scratch is allowed directly.</li>
+                    </ul>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Why Read-First Exists</div>
+                        <p>The read-first requirement serves two purposes: it ensures Claude has seen the current state of the file before modifying it (preventing stale edits after compaction), and it creates an auditable trail showing what was in the file before the change.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Permission UI Components</h2>
+
+                    <p>When a tool invocation requires interactive approval, the system renders one of several UI components depending on context:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Trigger</th>
+                                    <th>User Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>PermissionRequest</strong></td>
+                                    <td>Standard write operation</td>
+                                    <td>Allow once, Allow always, Deny</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DestructiveWarning</strong></td>
+                                    <td>Destructive command detected</td>
+                                    <td>Allow once (no "always" option), Deny</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BashPreview</strong></td>
+                                    <td>Bash command with file changes</td>
+                                    <td>Allow, Deny, with command preview</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>EditDiff</strong></td>
+                                    <td>File edit operation</td>
+                                    <td>Allow, Deny, with inline diff view</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>When the user selects "Allow always", a permission rule is created and persisted to the appropriate settings.json file. Future invocations matching that rule skip the prompt entirely.</p>
+
+                    <hr class="section-divider">
+
+                    <h2>Denial Tracking</h2>
+
+                    <p>The system tracks permission denials to provide context to Claude and prevent repeated requests for the same blocked action:</p>
+
+                    <ul>
+                        <li><strong>Denial count:</strong> Each denied tool+pattern combination increments a counter</li>
+                        <li><strong>Backoff behaviour:</strong> After repeated denials of the same action, Claude is instructed to stop retrying and ask the user for guidance</li>
+                        <li><strong>Session scoped:</strong> Denial counters reset when the session ends</li>
+                        <li><strong>Surfaced in context:</strong> Recent denials are included in the system prompt so Claude knows what has been rejected</li>
+                    </ul>
+
+                    <hr class="section-divider">
+
+                    <h2>Enterprise MDM Controls</h2>
+
+                    <p>For enterprise deployments, Claude Code supports Mobile Device Management (MDM) style controls that override user-level settings:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Enterprise Configuration</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Enterprise MDM can enforce:</span>
+{
+  <span class="string">"enforcePermissionMode"</span>: <span class="string">"default"</span>,    <span class="comment">// Prevent bypass mode</span>
+  <span class="string">"blockNetworkTools"</span>: <span class="keyword">true</span>,              <span class="comment">// Block curl, wget, ssh</span>
+  <span class="string">"requireReadFirst"</span>: <span class="keyword">true</span>,               <span class="comment">// Cannot be disabled</span>
+  <span class="string">"allowedDirectories"</span>: [                 <span class="comment">// Restrict project roots</span>
+    <span class="string">"/Users/*/work/*"</span>,
+    <span class="string">"/opt/projects/*"</span>
+  ],
+  <span class="string">"blockedCommands"</span>: [                    <span class="comment">// Additional deny patterns</span>
+    <span class="string">"docker run*"</span>,
+    <span class="string">"kubectl*"</span>
+  ]
+}</div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">MDM Priority</div>
+                        <p>Enterprise MDM rules take the highest priority in the permission chain. They are evaluated before user rules, before mode checks, and cannot be overridden by any local configuration. This is the mechanism organisations use to enforce security policies across developer machines.</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

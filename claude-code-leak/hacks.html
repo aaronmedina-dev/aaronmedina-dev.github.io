@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Undocumented hacks and optimisations for Claude Code extracted from source analysis.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Hacks &amp; Optimisations - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item active">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>Hacks &amp; Optimisations</h1>
+                    <p class="lead">
+                        Practical, actionable tricks extracted from Claude Code's source. These are undocumented
+                        environment variables, hidden commands, and configuration patterns that let you control
+                        behaviour, cut costs, and work more efficiently.
+                    </p>
+
+                    <h2>The Nuclear Option: Minimal Prompt Mode</h2>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            CLAUDE_CODE_SIMPLE=1
+                        </h3>
+                        <p>Strips the system prompt down to a minimal version. The full system prompt is massive (15+ sections of instructions). This bypasses nearly all of it.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Terminal</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">CLAUDE_CODE_SIMPLE</span>=<span class="number">1</span> claude</div>
+                    </div>
+
+                    <p><strong>What it does:</strong> Reduces input tokens significantly, makes Claude respond faster, costs less per turn. Loses all guardrails, style guidance, and tool usage tips.</p>
+                    <p><strong>Best for:</strong> Scripted/automated pipelines where you send structured prompts and don't need the interactive hand-holding.</p>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Warning</div>
+                        <p>Not recommended for interactive use. Claude will behave differently without its full instruction set -- it may use tools incorrectly, skip safety checks, or produce inconsistent output styles.</p>
+                    </div>
+
+                    <h2>Environment Variable Controls</h2>
+
+                    <h3>Context &amp; Compaction</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Environment Variables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Override the auto-compact threshold (default: context window - 33K)</span>
+<span class="command">CLAUDE_CODE_AUTO_COMPACT_WINDOW</span>=<span class="number">150000</span>
+
+<span class="comment"># Trigger compaction at a specific % of context used</span>
+<span class="command">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</span>=<span class="number">85</span>
+
+<span class="comment"># Disable auto-compaction (keep manual /compact only)</span>
+<span class="command">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span>
+
+<span class="comment"># Disable ALL compaction</span>
+<span class="command">DISABLE_COMPACT</span>=<span class="number">1</span>
+
+<span class="comment"># Disable 1M context even if your model supports it</span>
+<span class="command">CLAUDE_CODE_DISABLE_1M_CONTEXT</span>=<span class="number">1</span>
+
+<span class="comment"># Cap maximum context tokens</span>
+<span class="command">CLAUDE_CODE_MAX_CONTEXT_TOKENS</span>=<span class="number">500000</span></div>
+                    </div>
+
+                    <h3>Thinking &amp; Output</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Environment Variables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Disable extended thinking</span>
+<span class="command">CLAUDE_CODE_DISABLE_THINKING</span>=<span class="number">1</span>
+
+<span class="comment"># Disable interleaved thinking</span>
+<span class="command">DISABLE_INTERLEAVED_THINKING</span>=<span class="number">1</span></div>
+                    </div>
+
+                    <h3>Background Behaviour</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Environment Variables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Disable all background tasks (auto-memory extraction, dreams, etc.)</span>
+<span class="command">DISABLE_BACKGROUND_TASKS</span>=<span class="number">1</span>
+
+<span class="comment"># Disable auto-memory extraction specifically</span>
+<span class="command">CLAUDE_CODE_DISABLE_AUTO_MEMORY</span>=<span class="number">1</span></div>
+                    </div>
+
+                    <h3>Hidden Modes</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Environment Variables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Coordinator mode: Claude orchestrates worker sub-agents</span>
+<span class="command">CLAUDE_CODE_COORDINATOR_MODE</span>=<span class="number">1</span>
+
+<span class="comment"># Fork sub-agents: full context fork into a background agent</span>
+<span class="command">CLAUDE_CODE_FORK_SUBAGENT</span>=<span class="number">1</span></div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>CLAUDE.md Optimisation Tricks</h2>
+
+                    <h3>Where Your Instructions Actually Land</h3>
+                    <p>The source reveals the exact prompt order Claude sees. Your CLAUDE.md lands at <strong>position 10 out of 15+ sections</strong>, after 9 sections of Anthropic's own instructions:</p>
+
+                    <div class="flow-diagram">
+                        <svg width="700" height="480" viewBox="0 0 700 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Static sections -->
+                            <rect x="50" y="10" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="30" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">1. Identity + Security Guardrails</text>
+                            <text x="590" y="30" font-family="'Fira Code', monospace" font-size="9" fill="#374151" text-anchor="end">STATIC</text>
+
+                            <rect x="50" y="48" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="68" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">2. System Behaviour Rules</text>
+
+                            <rect x="50" y="86" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="106" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">3. Task Execution Guidelines</text>
+
+                            <rect x="50" y="124" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="144" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">4. Safety &amp; Reversibility Guidance</text>
+
+                            <rect x="50" y="162" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="182" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">5. Tool Usage Guidance</text>
+
+                            <rect x="50" y="200" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="220" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">6. Tone &amp; Style</text>
+
+                            <!-- Cache boundary -->
+                            <line x1="50" y1="248" x2="650" y2="248" stroke="#f59e0b" stroke-width="2" stroke-dasharray="8,4"/>
+                            <rect x="240" y="238" width="220" height="20" rx="4" fill="#0a0f1a"/>
+                            <text x="350" y="252" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">CACHE BOUNDARY</text>
+
+                            <!-- Dynamic sections -->
+                            <rect x="50" y="268" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="288" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">7. Session-Specific Tool Tips</text>
+                            <text x="590" y="288" font-family="'Fira Code', monospace" font-size="9" fill="#374151" text-anchor="end">DYNAMIC</text>
+
+                            <!-- YOUR CLAUDE.MD - highlighted -->
+                            <rect x="50" y="306" width="600" height="34" rx="4" fill="rgba(59, 130, 246, 0.15)" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="65" y="328" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" font-weight="bold">8. YOUR MEMORY.md + CLAUDE.md</text>
+                            <text x="590" y="328" font-family="'Fira Code', monospace" font-size="9" fill="#3b82f6" text-anchor="end">YOU ARE HERE</text>
+
+                            <rect x="50" y="348" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="368" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">9. Environment Info (CWD, git, OS, model)</text>
+
+                            <rect x="50" y="386" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="406" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">10. Language + Output Style</text>
+
+                            <rect x="50" y="424" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="444" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">11. MCP Server Instructions</text>
+
+                            <rect x="50" y="462" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="65" y="482" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">12. Scratchpad + Token Management</text>
+                        </svg>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Practical Takeaway</div>
+                        <p>Don't repeat what sections 1-6 already cover (e.g., "be concise", "use tools properly"). Instead, add <strong>project-specific context</strong> that Claude cannot derive from the codebase. Every byte of CLAUDE.md is injected on every turn, so 1KB of CLAUDE.md = 1KB per API call.</p>
+                    </div>
+
+                    <h3>Steal Anthropic's Internal Prompt Tricks</h3>
+                    <p>Internal Anthropic builds include numeric length anchors that reduced output tokens by ~1.2%. Add similar instructions to your CLAUDE.md:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">CLAUDE.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Output Rules</span>
+- Keep responses under 100 words unless I ask for detail.
+- Keep text between tool calls under 25 words.
+- No preamble, no summaries, just do the work.</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Hidden Slash Commands</h2>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Command</th>
+                                    <th>What It Does</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/rewind</code></td>
+                                    <td>Restore code AND conversation to a previous point (full undo)</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/compact &lt;instructions&gt;</code></td>
+                                    <td>Custom compaction with priority instructions</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/context</code></td>
+                                    <td>See what's actually in your context window</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/stats</code></td>
+                                    <td>Token usage, costs, timing statistics</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/cost</code></td>
+                                    <td>Accumulated session cost breakdown</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/diff</code></td>
+                                    <td>See what files changed this session</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/export</code></td>
+                                    <td>Export conversation transcript</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/stickers</code></td>
+                                    <td>Easter egg -- opens StickerMule for Claude Code stickers</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Custom Compact Instructions</h3>
+                    <p>One of the most useful undocumented features. When running <code>/compact</code>, you can tell the compactor what to prioritise:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Examples</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Preserve specific context, discard the rest</span>
+/compact Preserve all details about the API migration. Forget the CSS discussion.
+
+<span class="comment"># Focus on what matters</span>
+/compact Keep the database schema decisions. Summarise everything else.
+
+<span class="comment"># Debug-focused compaction</span>
+/compact Focus on the test failures and their fixes.</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Memory System Tricks</h2>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            MEMORY.md Has a 200-Line Hard Limit
+                        </h3>
+                        <p>Lines after 200 in MEMORY.md are silently truncated. If your index is bloated, Claude literally cannot see entries past line 200. Prune regularly.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <h3>Memory Staleness Caveats</h3>
+                    <p>Memories older than 1 day get a caveat injected into the prompt that makes Claude second-guess them. If you have stable memories that shouldn't be doubted, reset the modification time:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Terminal</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content">touch ~/.claude/projects/&lt;project&gt;/memory/important_memory.md</div>
+                    </div>
+
+                    <h3>Auto-Extraction Behaviour</h3>
+                    <ul>
+                        <li>Runs as a <strong>forked sub-agent</strong> after every N turns</li>
+                        <li>Has a <strong>5-turn budget</strong> max per extraction run</li>
+                        <li>Sandboxed to only write to the memory directory</li>
+                        <li>Skips if you manually wrote to memory in the same turn</li>
+                        <li>Throttled by GrowthBook feature flags</li>
+                    </ul>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Tip</div>
+                        <p>Explicitly saying "remember this" is more reliable than hoping auto-extraction catches it, because auto-extraction has throttling and conflict detection that can cause it to skip turns.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Tool Permission Tricks</h2>
+
+                    <h3>Commands That Never Prompt</h3>
+                    <p>These read-only commands are auto-approved in default permission mode -- no dialog, no delay:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Auto-Approved Commands</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Git</strong></td>
+                                    <td><code>git log</code>, <code>git show</code>, <code>git diff</code>, <code>git status</code>, <code>git config --get</code>, <code>git branch</code>, <code>git remote</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Files</strong></td>
+                                    <td><code>cat</code>, <code>head</code>, <code>tail</code>, <code>less</code>, <code>more</code>, <code>file</code>, <code>strings</code>, <code>od</code>, <code>xxd</code>, <code>hexdump</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Search</strong></td>
+                                    <td><code>grep</code>, <code>rg</code>, <code>find</code>, <code>fd</code>, <code>locate</code>, <code>which</code>, <code>type</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Docker</strong></td>
+                                    <td><code>docker ps</code>, <code>docker logs</code>, <code>docker inspect</code>, <code>docker images</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Other</strong></td>
+                                    <td><code>xargs</code> (read-only), <code>jq</code>, <code>pyright</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Optimisation</h2>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Explore Agent Uses Haiku (Cheapest Model)
+                        </h3>
+                        <p>The built-in Explore agent runs on Haiku for external builds. It's read-only, skips CLAUDE.md loading, and is designed for fire-and-forget codebase searches. Use it liberally without worrying about cost.</p>
+                        <span class="impact impact-medium">Medium Impact</span>
+                    </div>
+
+                    <h3>Build Custom Agents on Haiku</h3>
+                    <p>Create cheap, specialised agents in <code>~/.claude/agents/</code> or <code>.claude/agents/</code>:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">.claude/agents/test-runner.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content">---
+name: test-runner
+description: Run tests and report results
+tools: [Bash, Read, Glob]
+model: haiku
+maxTurns: 10
+---
+You are a test runner agent. Run the test suite and report failures concisely.
+Do not explain the failures in detail -- just list them.</div>
+                    </div>
+
+                    <h3>Full Agent Frontmatter Options</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Agent Frontmatter Reference</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content">---
+name: my-agent                    <span class="comment"># Required: agent type identifier</span>
+description: What this agent does <span class="comment"># Required: shown in UI and prompt</span>
+tools: [Read, Bash, Glob]        <span class="comment"># Optional: tool allowlist (default: all)</span>
+disallowedTools: [Write]          <span class="comment"># Optional: tool denylist</span>
+model: haiku                      <span class="comment"># Optional: model override (haiku/sonnet/opus)</span>
+effort: high                      <span class="comment"># Optional: effort level</span>
+maxTurns: 20                      <span class="comment"># Optional: turn limit</span>
+memory: project                   <span class="comment"># Optional: memory scope (user/project/local)</span>
+isolation: worktree               <span class="comment"># Optional: run in git worktree</span>
+background: true                  <span class="comment"># Optional: run in background by default</span>
+color: red                        <span class="comment"># Optional: UI colour</span>
+skills: skill1, skill2            <span class="comment"># Optional: skills to preload</span>
+initialPrompt: /run-tests         <span class="comment"># Optional: slash command on start</span>
+permissionMode: plan              <span class="comment"># Optional: permission mode override</span>
+mcpServers: [slack, github]       <span class="comment"># Optional: MCP servers to connect</span>
+---</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Cost Reduction Cheat Sheet</h2>
+                    <p>Ordered by estimated impact:</p>
+
+                    <ol>
+                        <li><strong><code>CLAUDE_CODE_SIMPLE=1</code></strong> for automated/scripted pipelines -- massive prompt reduction</li>
+                        <li><strong>Use Explore agent</strong> for searches -- runs on Haiku, skips CLAUDE.md</li>
+                        <li><strong>Keep CLAUDE.md short</strong> -- it's injected on every turn</li>
+                        <li><strong>Custom compact instructions</strong> -- <code>/compact keep only X</code> prevents re-doing work</li>
+                        <li><strong>Create Haiku-based custom agents</strong> for repetitive tasks (linting, testing, searching)</li>
+                        <li><strong>Set <code>CLAUDE_CODE_MAX_CONTEXT_TOKENS</code></strong> lower if you don't need the full window</li>
+                        <li><strong>Disable auto-memory</strong> (<code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code>) if you don't use it</li>
+                        <li><strong>Disable background tasks</strong> (<code>DISABLE_BACKGROUND_TASKS=1</code>) for short scripted sessions</li>
+                    </ol>
+
+                    <h2>Compaction Tricks</h2>
+
+                    <h3>Microcompaction Runs Silently</h3>
+                    <p>Two types happen before every API call without you knowing:</p>
+                    <ul>
+                        <li><strong>Cached microcompaction:</strong> Deletes oldest tool results via API <code>cache_edits</code> (preserves prompt cache)</li>
+                        <li><strong>Time-based microcompaction:</strong> If idle &gt;60 minutes, clears old tool results (cache expired anyway)</li>
+                    </ul>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Why This Matters</div>
+                        <p>If you step away for an hour and come back, your oldest tool results have been silently removed. This is why Claude sometimes says "let me re-read that file" after breaks -- the earlier read result was garbage-collected.</p>
+                    </div>
+
+                    <h3>Compaction Circuit Breaker</h3>
+                    <p>After 3 consecutive auto-compact failures, the system stops retrying. If compaction seems stuck, run <code>/compact</code> manually to reset the circuit breaker.</p>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

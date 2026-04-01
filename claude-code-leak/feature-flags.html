@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Claude Code's compile-time and runtime feature flags, hidden slash commands, and internal gating mechanisms.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Feature Flags &amp; Hidden Commands - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item active">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>Feature Flags &amp; Hidden Commands</h1>
+                    <p class="lead">
+                        Claude Code uses two distinct feature flag systems: compile-time flags via <code>bun:bundle</code> for
+                        dead code elimination (DCE), and runtime flags via GrowthBook for A/B testing and gradual rollouts.
+                        On top of these, a collection of hidden slash commands and environment variables provide
+                        undocumented control over behaviour.
+                    </p>
+
+                    <h2>Compile-Time Flags (bun:bundle)</h2>
+                    <p>These flags are resolved at build time. The bundler evaluates <code>feature('FLAG_NAME')</code> calls to <code>true</code> or <code>false</code>, then DCE strips the dead branches entirely from the output. In the external npm build, all internal-only features resolve to <code>false</code> and their code is eliminated.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Flag</th>
+                                    <th>Purpose</th>
+                                    <th>Availability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>COORDINATOR_MODE</code></td>
+                                    <td>Enables the orchestrator pattern where Claude manages worker sub-agents</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>KAIROS</code></td>
+                                    <td>Internal scheduling and task management system</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>VOICE_MODE</code></td>
+                                    <td>Voice input/output interaction mode</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>BRIDGE_MODE</code></td>
+                                    <td>IDE bridge integration for editor-side communication</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DAEMON</code></td>
+                                    <td>Background daemon process for persistent agent execution</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>PROACTIVE</code></td>
+                                    <td>Proactive suggestions and actions without explicit user prompt</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>ABLATION_BASELINE</code></td>
+                                    <td>Disables all optimisations for A/B impact measurement</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DUMP_SYSTEM_PROMPT</code></td>
+                                    <td>Outputs the full system prompt for debugging</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>FORK_SUBAGENT</code></td>
+                                    <td>Full context fork into a background agent process</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>BUILTIN_EXPLORE_PLAN_AGENTS</code></td>
+                                    <td>Built-in Explore and Plan agents</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>VERIFICATION_AGENT</code></td>
+                                    <td>Post-task verification agent that checks work quality</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CACHED_MICROCOMPACT</code></td>
+                                    <td>Cache-aware microcompaction using API cache_edits</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>TOKEN_BUDGET</code></td>
+                                    <td>Token budget management and enforcement</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>EXPERIMENTAL_SKILL_SEARCH</code></td>
+                                    <td>Experimental skill discovery and search functionality</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>NATIVE_CLIENT_ATTESTATION</code></td>
+                                    <td>Client authenticity attestation for native builds</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>How DCE Works</h3>
+                    <p>At build time, the bundler replaces <code>feature()</code> calls with literal booleans. The JavaScript engine's dead code elimination then strips unreachable branches.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Source Code (Before Build)</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">if</span> (<span class="command">feature</span>(<span class="string">'VOICE_MODE'</span>)) {
+  <span class="comment">// Entire voice interaction system</span>
+  <span class="keyword">import</span> { VoiceEngine } <span class="keyword">from</span> <span class="string">'./voice'</span>;
+  registerVoiceCommands();
+}</div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">External npm Build (After DCE)</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">if</span> (<span class="number">false</span>) {
+  <span class="comment">// This entire block is eliminated by DCE</span>
+}
+<span class="comment">// Result: zero bytes in the output bundle</span></div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Key Insight</div>
+                        <p>This is why the npm-installed version of Claude Code is smaller and has fewer features than the internal Anthropic build. The features are not just hidden -- they are physically absent from the code.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>ABLATION_BASELINE Flag</h2>
+                    <p>A special internal flag used to measure the cumulative impact of all optimisations. When enabled, it disables everything to establish a performance baseline.</p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            The "Turn Everything Off" Switch
+                        </h3>
+                        <p>ABLATION_BASELINE sets multiple environment variables simultaneously to create a minimal, unoptimised baseline for A/B comparison.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">What ABLATION_BASELINE Enables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># When ABLATION_BASELINE is active, these are all set:</span>
+<span class="command">CLAUDE_CODE_SIMPLE</span>=<span class="number">1</span>           <span class="comment"># Minimal system prompt</span>
+<span class="command">DISABLE_THINKING</span>=<span class="number">1</span>             <span class="comment"># No extended thinking</span>
+<span class="command">DISABLE_COMPACT</span>=<span class="number">1</span>              <span class="comment"># No compaction</span>
+<span class="command">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span>         <span class="comment"># No auto-compaction</span>
+<span class="command">DISABLE_INTERLEAVED_THINKING</span>=<span class="number">1</span> <span class="comment"># No interleaved thinking</span>
+<span class="command">DISABLE_BACKGROUND_TASKS</span>=<span class="number">1</span>    <span class="comment"># No background tasks</span></div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>GrowthBook Runtime Flags</h2>
+                    <p>Runtime feature flags are loaded at startup from GrowthBook (a feature flagging service). These use the <code>tengu_</code> naming prefix -- "Tengu" being the internal codename for the Claude Code project.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Flag</th>
+                                    <th>Likely Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>tengu_attribution_header</code></td>
+                                    <td>Controls attribution header injection in API requests</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tengu_hive_evidence</code></td>
+                                    <td>Evidence collection for Hive (multi-agent coordination)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tengu_amber_stoat</code></td>
+                                    <td>A/B test variant (colour + animal naming convention)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tengu_cobalt_raccoon</code></td>
+                                    <td>A/B test variant</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tengu_slate_heron</code></td>
+                                    <td>A/B test variant</td>
+                                </tr>
+                                <tr>
+                                    <td><code>tengu_cache_plum_violet</code></td>
+                                    <td>Cache strategy experiment</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Naming Pattern</div>
+                        <p>GrowthBook flags follow the pattern <code>tengu_&lt;colour&gt;_&lt;animal&gt;</code> for A/B tests and <code>tengu_&lt;feature&gt;</code> for permanent flags. Telemetry events also use the <code>tengu_</code> prefix, making it easy to correlate feature flag states with usage data.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Hidden Slash Commands</h2>
+                    <p>These commands are registered in the source but not shown in <code>/help</code> output. They range from debugging tools to easter eggs.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Command</th>
+                                    <th>What It Does</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/bughunter</code></td>
+                                    <td>Activates bug-hunting mode with specialised prompts for finding defects</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/good-claude</code></td>
+                                    <td>Positive reinforcement -- adjusts Claude's confidence and assertiveness</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/stickers</code></td>
+                                    <td>Easter egg -- opens StickerMule page for Claude Code stickers</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/thinkback</code></td>
+                                    <td>Replays Claude's internal thinking from the previous turn</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/thinkback-play</code></td>
+                                    <td>Animated playback of thinking with typing effect</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/teleport</code></td>
+                                    <td>Restores a conversation from a serialised state</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/mock-limits</code></td>
+                                    <td>Simulates rate limit / usage limit states for testing</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/ant-trace</code></td>
+                                    <td>Outputs Anthropic trace IDs for request debugging</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/debug-tool-call</code></td>
+                                    <td>Shows raw tool call payloads and responses</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/ctx_viz</code></td>
+                                    <td>Visualises current context window contents and token distribution</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/break-cache</code></td>
+                                    <td>Forces cache invalidation on the next API call</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/heapdump</code></td>
+                                    <td>Dumps a V8 heap snapshot for memory profiling</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/passes</code></td>
+                                    <td>Shows prompt transformation passes and their effects</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/rewind</code></td>
+                                    <td>Restores code AND conversation to a previous checkpoint</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/reset-limits</code></td>
+                                    <td>Resets internal rate limit counters</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/backfill-sessions</code></td>
+                                    <td>Backfills missing session metadata from conversation logs</td>
+                                    <td><span class="badge badge-internal">Internal</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/btw</code></td>
+                                    <td>Injects an out-of-band message into the conversation without a model turn</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/extra-usage</code></td>
+                                    <td>Displays extended usage statistics beyond what /stats shows</td>
+                                    <td><span class="badge badge-hidden">Hidden</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Conditionally Available Commands</h3>
+                    <p>These commands only appear when their corresponding compile-time flag or environment condition is met.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Command</th>
+                                    <th>Condition</th>
+                                    <th>What It Does</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/bridge</code></td>
+                                    <td><code>BRIDGE_MODE</code> flag enabled</td>
+                                    <td>IDE bridge management and status</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/voice</code></td>
+                                    <td><code>VOICE_MODE</code> flag enabled</td>
+                                    <td>Toggle voice input/output</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/mobile</code></td>
+                                    <td>Mobile client detected</td>
+                                    <td>Mobile-specific settings and layout</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/agents-platform</code></td>
+                                    <td>Anthropic internal build only</td>
+                                    <td>Agent platform management and deployment</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/remote-setup</code></td>
+                                    <td>Remote execution environment</td>
+                                    <td>Configure remote agent connection</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/remote-env</code></td>
+                                    <td>Remote execution environment</td>
+                                    <td>Display remote environment details</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Standard Visible Commands</h3>
+                    <p>For completeness, these are the commands that appear in <code>/help</code> output:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Command</th>
+                                    <th>What It Does</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/help</code></td>
+                                    <td>Show available commands</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/compact</code></td>
+                                    <td>Compact conversation context (accepts custom instructions)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/clear</code></td>
+                                    <td>Clear conversation and start fresh</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/context</code></td>
+                                    <td>Inspect current context window contents</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/cost</code></td>
+                                    <td>Show session cost breakdown</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/diff</code></td>
+                                    <td>Show files changed this session</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/export</code></td>
+                                    <td>Export conversation transcript</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/memory</code></td>
+                                    <td>Manage persistent memories</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/stats</code></td>
+                                    <td>Token usage and timing statistics</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/permissions</code></td>
+                                    <td>View and manage tool permissions</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/config</code></td>
+                                    <td>Open settings configuration</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>USER_TYPE Gate</h2>
+                    <p>The primary mechanism for separating internal Anthropic builds from external npm builds.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Source Pattern</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">if</span> (process.env.<span class="command">USER_TYPE</span> === <span class="string">'ant'</span>) {
+  <span class="comment">// Internal-only functionality</span>
+  registerInternalCommands();
+  enableTelemetryDashboard();
+}
+
+<span class="comment">// In external builds, DCE strips this entire block because</span>
+<span class="comment">// USER_TYPE is resolved at compile time to a non-'ant' value</span></div>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Important</div>
+                        <p>Setting <code>USER_TYPE=ant</code> at runtime does nothing in the npm build. The check is resolved at compile time by the bundler, so the internal code blocks are physically absent from the distributed package. There is no way to unlock internal features in the public build.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Environment Variable Toggles</h2>
+                    <p>These environment variables are checked at runtime and can be set by any user to modify behaviour.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Effect</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_SIMPLE</code></td>
+                                    <td>Minimal system prompt -- strips nearly all instructions</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_DISABLE_THINKING</code></td>
+                                    <td>Disables extended thinking entirely</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DISABLE_INTERLEAVED_THINKING</code></td>
+                                    <td>Disables thinking between tool calls</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DISABLE_COMPACT</code></td>
+                                    <td>Disables all compaction (manual and auto)</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DISABLE_AUTO_COMPACT</code></td>
+                                    <td>Disables auto-compaction only (manual /compact still works)</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>DISABLE_BACKGROUND_TASKS</code></td>
+                                    <td>Disables all background tasks (memory extraction, dreams, etc.)</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_DISABLE_AUTO_MEMORY</code></td>
+                                    <td>Disables auto-memory extraction specifically</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_AUTO_COMPACT_WINDOW</code></td>
+                                    <td>Override auto-compact threshold (token count)</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code></td>
+                                    <td>Trigger compaction at specific percentage of context used</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code></td>
+                                    <td>Disable 1M context window even if model supports it</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_MAX_CONTEXT_TOKENS</code></td>
+                                    <td>Cap maximum context tokens</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_COORDINATOR_MODE</code></td>
+                                    <td>Enable coordinator mode (orchestrate worker agents)</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CLAUDE_CODE_FORK_SUBAGENT</code></td>
+                                    <td>Enable full context fork into background agents</td>
+                                    <td><span class="badge badge-env">Env</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Usage</div>
+                        <p>Set these as environment variables before launching Claude Code. For example: <code>CLAUDE_CODE_SIMPLE=1 DISABLE_AUTO_COMPACT=1 claude</code>. They take effect immediately for that session.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Flag Architecture Summary</h2>
+
+                    <div class="flow-diagram">
+                        <svg width="780" height="340" viewBox="0 0 780 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Title -->
+                            <text x="390" y="24" font-family="'Inter', sans-serif" font-size="14" fill="#f3f4f6" text-anchor="middle" font-weight="600">Feature Flag Resolution Pipeline</text>
+
+                            <!-- Compile-time path -->
+                            <rect x="30" y="50" width="220" height="40" rx="6" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="140" y="75" font-family="'Fira Code', monospace" font-size="11" fill="#8b5cf6" text-anchor="middle">bun:bundle (Build Time)</text>
+
+                            <line x1="250" y1="70" x2="290" y2="70" stroke="#374151" stroke-width="2"/>
+                            <polygon points="286,65 296,70 286,75" fill="#374151"/>
+
+                            <rect x="290" y="50" width="180" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="380" y="75" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">feature('X') -> true/false</text>
+
+                            <line x1="470" y1="70" x2="510" y2="70" stroke="#374151" stroke-width="2"/>
+                            <polygon points="506,65 516,70 506,75" fill="#374151"/>
+
+                            <rect x="510" y="50" width="240" height="40" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                            <text x="630" y="75" font-family="'Fira Code', monospace" font-size="11" fill="#ef4444" text-anchor="middle">DCE Strips Dead Code</text>
+
+                            <!-- Runtime path -->
+                            <rect x="30" y="130" width="220" height="40" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+                            <text x="140" y="155" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle">GrowthBook (Startup)</text>
+
+                            <line x1="250" y1="150" x2="290" y2="150" stroke="#374151" stroke-width="2"/>
+                            <polygon points="286,145 296,150 286,155" fill="#374151"/>
+
+                            <rect x="290" y="130" width="180" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="380" y="155" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">tengu_* flag evaluation</text>
+
+                            <line x1="470" y1="150" x2="510" y2="150" stroke="#374151" stroke-width="2"/>
+                            <polygon points="506,145 516,150 506,155" fill="#374151"/>
+
+                            <rect x="510" y="130" width="240" height="40" rx="6" fill="#1e293b" stroke="#eab308" stroke-width="2"/>
+                            <text x="630" y="155" font-family="'Fira Code', monospace" font-size="11" fill="#eab308" text-anchor="middle">A/B Test + Gradual Rollout</text>
+
+                            <!-- Env var path -->
+                            <rect x="30" y="210" width="220" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="140" y="235" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" text-anchor="middle">process.env (Runtime)</text>
+
+                            <line x1="250" y1="230" x2="290" y2="230" stroke="#374151" stroke-width="2"/>
+                            <polygon points="286,225 296,230 286,235" fill="#374151"/>
+
+                            <rect x="290" y="210" width="180" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="380" y="235" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">CLAUDE_CODE_* checks</text>
+
+                            <line x1="470" y1="230" x2="510" y2="230" stroke="#374151" stroke-width="2"/>
+                            <polygon points="506,225 516,230 506,235" fill="#374151"/>
+
+                            <rect x="510" y="210" width="240" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="630" y="235" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" text-anchor="middle">User-Controllable Toggles</text>
+
+                            <!-- USER_TYPE path -->
+                            <rect x="30" y="290" width="220" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                            <text x="140" y="315" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle">USER_TYPE (Build Time)</text>
+
+                            <line x1="250" y1="310" x2="290" y2="310" stroke="#374151" stroke-width="2"/>
+                            <polygon points="286,305 296,310 286,315" fill="#374151"/>
+
+                            <rect x="290" y="290" width="180" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="380" y="315" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">=== 'ant' check + DCE</text>
+
+                            <line x1="470" y1="310" x2="510" y2="310" stroke="#374151" stroke-width="2"/>
+                            <polygon points="506,305 516,310 506,315" fill="#374151"/>
+
+                            <rect x="510" y="290" width="240" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                            <text x="630" y="315" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle">Internal vs External Build</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

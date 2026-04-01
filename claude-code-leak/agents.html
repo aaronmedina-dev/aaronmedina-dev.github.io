@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Deep dive into Claude Code's multi-agent architecture: sub-agent spawning, built-in agent types, inter-agent communication, and swarm coordination.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Agent &amp; Sub-Agent System - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item active">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>Agent &amp; Sub-Agent System</h1>
+                    <p class="lead">
+                        Claude Code is not a single-threaded assistant. Under the hood, it operates a multi-agent architecture
+                        where the main conversation can spawn specialised sub-agents for parallel work, background verification,
+                        codebase exploration, and even full team coordination via swarm mode. This page documents the complete
+                        agent lifecycle, communication protocols, and configuration options.
+                    </p>
+
+                    <h2>Architecture Overview</h2>
+                    <p>
+                        The main Claude Code session acts as the primary agent. It can spawn sub-agents via the <code><span class="command">AgentTool</span></code>,
+                        each running in its own API conversation loop with a restricted tool set, a potentially different model,
+                        and an independent turn budget. Sub-agents report results back to the parent when they complete.
+                    </p>
+
+                    <div class="flow-diagram">
+                        <svg width="720" height="480" viewBox="0 0 720 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="agentArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+                                </marker>
+                                <marker id="blueArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                                </marker>
+                            </defs>
+
+                            <!-- Main Agent -->
+                            <rect x="240" y="10" width="240" height="50" rx="8" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="360" y="32" font-family="'Fira Code', monospace" font-size="12" fill="#3b82f6" text-anchor="middle" font-weight="bold">Main Agent</text>
+                            <text x="360" y="48" font-family="'Fira Code', monospace" font-size="9" fill="#60a5fa" text-anchor="middle">Primary conversation loop</text>
+
+                            <!-- Spawn arrows -->
+                            <line x1="280" y1="60" x2="120" y2="100" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+                            <line x1="360" y1="60" x2="360" y2="100" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+                            <line x1="440" y1="60" x2="600" y2="100" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <!-- Explore Agent -->
+                            <rect x="30" y="100" width="180" height="50" rx="6" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="1.5"/>
+                            <text x="120" y="122" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle" font-weight="bold">Explore Agent</text>
+                            <text x="120" y="138" font-family="'Fira Code', monospace" font-size="9" fill="#4ade80" text-anchor="middle">Haiku / Read-only / Fast</text>
+
+                            <!-- General Agent -->
+                            <rect x="270" y="100" width="180" height="50" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="360" y="122" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle" font-weight="bold">General Agent</text>
+                            <text x="360" y="138" font-family="'Fira Code', monospace" font-size="9" fill="#fbbf24" text-anchor="middle">All tools / Default model</text>
+
+                            <!-- Plan Agent -->
+                            <rect x="510" y="100" width="180" height="50" rx="6" fill="rgba(168,85,247,0.12)" stroke="#a855f7" stroke-width="1.5"/>
+                            <text x="600" y="122" font-family="'Fira Code', monospace" font-size="11" fill="#a855f7" text-anchor="middle" font-weight="bold">Plan Agent</text>
+                            <text x="600" y="138" font-family="'Fira Code', monospace" font-size="9" fill="#c084fc" text-anchor="middle">Read-only / Inherit model</text>
+
+                            <!-- Lifecycle section -->
+                            <rect x="30" y="190" width="660" height="28" rx="4" fill="rgba(59,130,246,0.08)" stroke="#1e3a5f"/>
+                            <text x="360" y="209" font-family="'Fira Code', monospace" font-size="11" fill="#60a5fa" text-anchor="middle" font-weight="bold">Agent Lifecycle</text>
+
+                            <!-- Lifecycle steps -->
+                            <rect x="30" y="230" width="130" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="95" y="252" font-family="'Fira Code', monospace" font-size="10" fill="#f8fafc" text-anchor="middle">Spawn</text>
+
+                            <line x1="160" y1="248" x2="180" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <rect x="180" y="230" width="130" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="245" y="252" font-family="'Fira Code', monospace" font-size="10" fill="#f8fafc" text-anchor="middle">Build Messages</text>
+
+                            <line x1="310" y1="248" x2="330" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <rect x="330" y="230" width="130" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="395" y="252" font-family="'Fira Code', monospace" font-size="10" fill="#f8fafc" text-anchor="middle">API Loop</text>
+
+                            <line x1="460" y1="248" x2="480" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <rect x="480" y="230" width="130" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="545" y="252" font-family="'Fira Code', monospace" font-size="10" fill="#f8fafc" text-anchor="middle">Tool Execution</text>
+
+                            <!-- Loop back arrow -->
+                            <path d="M 545 266 L 545 286 L 395 286 L 395 266" stroke="#374151" stroke-width="1.5" fill="none" marker-end="url(#agentArrow)"/>
+                            <text x="470" y="280" font-family="'Fira Code', monospace" font-size="8" fill="#6b7280" text-anchor="middle">repeat until done</text>
+
+                            <!-- Check turn limit -->
+                            <line x1="545" y1="286" x2="545" y2="310" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <rect x="480" y="310" width="130" height="36" rx="4" fill="rgba(245,158,11,0.12)" stroke="#f59e0b"/>
+                            <text x="545" y="332" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" text-anchor="middle">Turn Limit?</text>
+
+                            <line x1="545" y1="346" x2="545" y2="370" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+
+                            <!-- Complete -->
+                            <rect x="430" y="370" width="230" height="36" rx="4" fill="rgba(34,197,94,0.12)" stroke="#22c55e"/>
+                            <text x="545" y="392" font-family="'Fira Code', monospace" font-size="10" fill="#22c55e" text-anchor="middle">Complete -- Report to Parent</text>
+
+                            <!-- Communication section -->
+                            <rect x="30" y="310" width="200" height="100" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="130" y="332" font-family="'Fira Code', monospace" font-size="10" fill="#60a5fa" text-anchor="middle" font-weight="bold">SendMessage Tool</text>
+                            <text x="130" y="352" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Inter-agent messaging</text>
+                            <text x="130" y="370" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Running: queue msg</text>
+                            <text x="130" y="386" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Stopped: auto-resume</text>
+                            <text x="130" y="402" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Unreachable: mailbox</text>
+
+                            <!-- Mailbox -->
+                            <rect x="30" y="420" width="200" height="50" rx="6" fill="rgba(168,85,247,0.08)" stroke="#7c3aed"/>
+                            <text x="130" y="442" font-family="'Fira Code', monospace" font-size="10" fill="#a855f7" text-anchor="middle" font-weight="bold">Mailbox System</text>
+                            <text x="130" y="458" font-family="'Fira Code', monospace" font-size="9" fill="#c084fc" text-anchor="middle">Async team coordination</text>
+
+                            <line x1="130" y1="410" x2="130" y2="420" stroke="#374151" stroke-width="1.5" marker-end="url(#agentArrow)"/>
+                        </svg>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Spawning</h2>
+                    <p>
+                        Agents are spawned via the <code><span class="command">AgentTool</span></code>, which the main agent (or another agent with permission) can
+                        invoke like any other tool. The tool accepts a prompt and an agent type, then creates an independent
+                        conversation loop.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">AgentTool Invocation Example</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Main agent spawning an Explore sub-agent</span>
+{
+  <span class="string">"tool"</span>: <span class="string">"Agent"</span>,
+  <span class="string">"params"</span>: {
+    <span class="string">"prompt"</span>: <span class="string">"Find all files that import the DatabaseConnection class"</span>,
+    <span class="string">"agentType"</span>: <span class="string">"explore"</span>
+  }
+}
+
+<span class="comment">// Main agent spawning a general sub-agent with specific tools</span>
+{
+  <span class="string">"tool"</span>: <span class="string">"Agent"</span>,
+  <span class="string">"params"</span>: {
+    <span class="string">"prompt"</span>: <span class="string">"Refactor the auth module to use JWT tokens"</span>,
+    <span class="string">"agentType"</span>: <span class="string">"general"</span>
+  }
+}</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Built-In Agent Types</h2>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Agent Type</th>
+                                    <th>Model</th>
+                                    <th>Tools</th>
+                                    <th>Key Behaviour</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>General-Purpose</strong></td>
+                                    <td>Default (inherits parent)</td>
+                                    <td>All tools</td>
+                                    <td>Full capabilities, same model as parent. Default when no type specified.</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Explore</strong></td>
+                                    <td>Haiku</td>
+                                    <td>Glob, Grep, Bash, Read</td>
+                                    <td>Read-only codebase search. Skips CLAUDE.md. ONE_SHOT mode. Three thoroughness levels.</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plan</strong></td>
+                                    <td>Inherits parent</td>
+                                    <td>Read-only subset</td>
+                                    <td>Reads code and produces a plan. Cannot write files or execute commands.</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Verification</strong></td>
+                                    <td>Varies</td>
+                                    <td>Read-only + Bash (limited)</td>
+                                    <td>Background agent that verifies outputs. Part of an A/B experiment.</td>
+                                    <td><span class="badge badge-internal">Ant-Only</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Claude Code Guide</strong></td>
+                                    <td>Default</td>
+                                    <td>Read, Glob, Grep</td>
+                                    <td>Helps users understand Claude Code itself. Searches internal documentation.</td>
+                                    <td><span class="badge badge-public">Public</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Explore Agent Deep Dive</h2>
+                    <p>
+                        The Explore agent is the most frequently spawned sub-agent. It is deliberately cheap and fast, running on Haiku
+                        with a minimal tool set and no CLAUDE.md loading overhead.
+                    </p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Cost Optimisation: omitClaudeMd = true
+                        </h3>
+                        <p>The Explore agent sets <code><span class="command">omitClaudeMd: true</span></code>, which skips loading all three CLAUDE.md files (global, project, workspace). This reduces the system prompt size and avoids cache invalidation from CLAUDE.md changes. It also means any project-specific instructions you have written will not apply to Explore agents.</p>
+                        <span class="impact impact-medium">Medium Impact</span>
+                    </div>
+
+                    <h3>Thoroughness Levels</h3>
+                    <p>
+                        The Explore agent supports three thoroughness levels that control how deeply it searches. The level is selected
+                        automatically based on the complexity of the query, or can be hinted at by the parent agent.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Behaviour</th>
+                                    <th>Typical Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Quick</strong></td>
+                                    <td>Single glob or grep, return first match</td>
+                                    <td>"Where is the config file?"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Standard</strong></td>
+                                    <td>Multiple search passes, cross-reference results</td>
+                                    <td>"Find all usages of the deprecated API"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Thorough</strong></td>
+                                    <td>Exhaustive search, reads files for context, follows import chains</td>
+                                    <td>"Map the complete dependency graph of the auth module"</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Explore Agent Configuration</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">EXPLORE_AGENT_CONFIG</span> = {
+  <span class="command">model</span>: <span class="string">"haiku"</span>,
+  <span class="command">tools</span>: [<span class="string">"Glob"</span>, <span class="string">"Grep"</span>, <span class="string">"Bash"</span>, <span class="string">"Read"</span>],
+  <span class="command">omitClaudeMd</span>: <span class="keyword">true</span>,
+  <span class="command">mode</span>: <span class="string">"ONE_SHOT"</span>,       <span class="comment">// No multi-turn conversation</span>
+  <span class="command">maxTurns</span>: <span class="number">15</span>,            <span class="comment">// Hard ceiling</span>
+};</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Tool Resolution</h2>
+                    <p>
+                        When an agent is spawned, its available tool set is resolved from three inputs: the agent's allowlist,
+                        its denylist, and a global disallowed set. MCP tools receive special treatment.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Tool Resolution Logic</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Tool resolution priority:</span>
+<span class="comment">// 1. Start with allowlist (or wildcard ['*'] for all tools)</span>
+<span class="comment">// 2. Remove denylist entries</span>
+<span class="comment">// 3. Remove CUSTOM_AGENT_DISALLOWED_TOOLS</span>
+<span class="comment">// 4. Always add MCP tools (they bypass restrictions)</span>
+
+<span class="keyword">function</span> <span class="command">resolveTools</span>(config: <span class="type">AgentConfig</span>): <span class="type">Tool</span>[] {
+  <span class="keyword">let</span> tools = config.<span class="command">tools</span> === [<span class="string">'*'</span>]
+    ? getAllBuiltinTools()
+    : getToolsByName(config.<span class="command">tools</span>);
+
+  tools = tools.<span class="command">filter</span>(t =&gt;
+    !config.<span class="command">disallowedTools</span>?.<span class="command">includes</span>(t.name) &amp;&amp;
+    !<span class="command">CUSTOM_AGENT_DISALLOWED_TOOLS</span>.<span class="command">includes</span>(t.name)
+  );
+
+  <span class="comment">// MCP tools always pass through</span>
+  tools.<span class="command">push</span>(...getMcpTools());
+
+  <span class="keyword">return</span> tools;
+}</div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Resolution Method</th>
+                                    <th>Syntax</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Wildcard (all tools)</strong></td>
+                                    <td><code><span class="command">tools</span>: [<span class="string">'*'</span>]</code></td>
+                                    <td>General-purpose agent gets everything</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Allowlist</strong></td>
+                                    <td><code><span class="command">tools</span>: [<span class="string">"Read"</span>, <span class="string">"Glob"</span>]</code></td>
+                                    <td>Explore agent only gets search tools</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Denylist</strong></td>
+                                    <td><code><span class="command">disallowedTools</span>: [<span class="string">"Write"</span>]</code></td>
+                                    <td>Plan agent cannot write files</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Global block</strong></td>
+                                    <td><code><span class="command">CUSTOM_AGENT_DISALLOWED_TOOLS</span></code></td>
+                                    <td>Prevents agents from spawning further agents (recursion guard)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MCP bypass</strong></td>
+                                    <td>Automatic</td>
+                                    <td>MCP tools are always available regardless of allow/deny lists</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">MCP Tools Bypass All Restrictions</div>
+                        <p>MCP tools are <strong>always</strong> injected into every agent's tool set, regardless of allowlists or denylists. This is by design -- MCP servers are user-configured and trusted. But it means a restrictive agent (like Explore) can still invoke MCP tools if any servers are connected.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Lifecycle</h2>
+                    <p>
+                        Every agent follows the same lifecycle from spawn to completion. The lifecycle is managed by the agent
+                        executor, which handles the API loop, tool dispatch, and turn counting.
+                    </p>
+
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" fill="#22c55e" text-anchor="middle" font-family="'Fira Code'">1</text></svg>
+                            </div>
+                            <div>
+                                <strong>Spawn:</strong> Parent invokes AgentTool with prompt and type. Agent ID is generated, config is resolved.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" fill="#3b82f6" text-anchor="middle" font-family="'Fira Code'">2</text></svg>
+                            </div>
+                            <div>
+                                <strong>Build Messages:</strong> System prompt is assembled (with agent-specific overrides), initial user message is set from the prompt parameter.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" fill="#f59e0b" text-anchor="middle" font-family="'Fira Code'">3</text></svg>
+                            </div>
+                            <div>
+                                <strong>API Loop:</strong> Agent sends messages to the API, receives responses, and processes tool calls in a loop.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" fill="#a855f7" text-anchor="middle" font-family="'Fira Code'">4</text></svg>
+                            </div>
+                            <div>
+                                <strong>Tool Execution:</strong> Each tool call is dispatched, results are appended to the conversation, and the loop continues.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" fill="#ef4444" text-anchor="middle" font-family="'Fira Code'">5</text></svg>
+                            </div>
+                            <div>
+                                <strong>Turn Limit Check:</strong> After each API response, the turn counter is incremented. If it exceeds <code><span class="command">maxTurns</span></code>, the agent is forced to complete.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <strong>Complete:</strong> Agent produces a final text result. This is returned to the parent as the tool result of the AgentTool invocation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Resume Phase</h3>
+                    <p>
+                        If a session is interrupted (e.g., terminal closed), agents can be resumed. The transcript is persisted to
+                        <code><span class="string">~/.claude/tasks/&lt;agentId&gt;/</span></code> and the agent state is reconstructed on resume.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Resume Path Structure</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="string">~/.claude/tasks/</span>
+  <span class="string">&lt;agentId&gt;/</span>
+    <span class="command">transcript.json</span>    <span class="comment"># Full conversation history</span>
+    <span class="command">state.json</span>          <span class="comment"># Agent config, turn count, status</span>
+    <span class="command">tool-results/</span>       <span class="comment"># Cached tool outputs for replay</span></div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Memory</h2>
+                    <p>
+                        Agents can access memory files at three scopes. The scope determines which MEMORY.md files are loaded
+                        into the agent's system prompt.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Scope</th>
+                                    <th>Path</th>
+                                    <th>Shared With</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>User</strong></td>
+                                    <td><code><span class="string">~/.claude/CLAUDE.md</span></code></td>
+                                    <td>All sessions, all projects for this user</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Project</strong></td>
+                                    <td><code><span class="string">.claude/CLAUDE.md</span></code> + <code><span class="string">~/.claude/projects/&lt;hash&gt;/memory/</span></code></td>
+                                    <td>All sessions in this project directory</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Local</strong></td>
+                                    <td><code><span class="string">~/.claude/projects/&lt;hash&gt;/local-memory/</span></code></td>
+                                    <td>Only this user on this machine</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Agent Memory Scope Selection</div>
+                        <p>
+                            When defining a custom agent, the <code><span class="command">memory</span></code> frontmatter field controls which scope is loaded.
+                            Setting <code><span class="command">memory: user</span></code> loads only global preferences. Setting <code><span class="command">memory: project</span></code>
+                            loads both global and project memories. The Explore agent effectively uses no memory (since it sets
+                            <code><span class="command">omitClaudeMd: true</span></code>).
+                        </p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Inter-Agent Communication</h2>
+                    <p>
+                        Agents communicate via the <code><span class="command">SendMessage</span></code> tool. The routing logic determines how messages are
+                        delivered based on the target agent's current state.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Target State</th>
+                                    <th>Routing Behaviour</th>
+                                    <th>When This Happens</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Running</strong></td>
+                                    <td>Message is queued for the next turn</td>
+                                    <td>Agent is actively processing; message will be injected as a user message on the next API loop iteration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stopped</strong></td>
+                                    <td>Agent is auto-resumed with the message</td>
+                                    <td>Agent has completed but the sender needs something from it; the message becomes the resume prompt</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Unreachable</strong></td>
+                                    <td>Message goes to the mailbox</td>
+                                    <td>Agent does not exist, has been cleaned up, or is on a different machine (remote teammates)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">SendMessage Tool Invocation</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Sending a message to another agent</span>
+{
+  <span class="string">"tool"</span>: <span class="string">"SendMessage"</span>,
+  <span class="string">"params"</span>: {
+    <span class="string">"targetAgentId"</span>: <span class="string">"agent-abc123"</span>,
+    <span class="string">"message"</span>: <span class="string">"I've finished refactoring the auth module. Please verify the tests pass."</span>
+  }
+}</div>
+                    </div>
+
+                    <h3>Mailbox System</h3>
+                    <p>
+                        When a message cannot be delivered directly (target unreachable), it is stored in a mailbox. Agents check
+                        their mailbox when they start or resume. This enables asynchronous coordination between agents that are
+                        not running simultaneously -- critical for team-based workflows where agents may be in different terminal
+                        panes or even on different machines.
+                    </p>
+
+                    <hr class="section-divider">
+
+                    <h2>Multi-Agent Swarm</h2>
+                    <p>
+                        The swarm system enables a team of agents to work together on a large task. A team configuration
+                        defines a leader agent and one or more worker agents, each with their own specialisation.
+                    </p>
+
+                    <h3>Team Architecture</h3>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Responsibility</th>
+                                    <th>Backing Mode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Leader</strong></td>
+                                    <td>Decomposes the task, delegates to workers, aggregates results, reports to the user</td>
+                                    <td>In-process (main terminal)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Worker (In-Process)</strong></td>
+                                    <td>Runs in the same process as the leader. Lightweight, no separate terminal.</td>
+                                    <td>In-process</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Worker (Pane-Backed)</strong></td>
+                                    <td>Runs in a separate tmux/terminal pane. Visible to the user, independent process.</td>
+                                    <td>Pane-backed</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Worker (Remote)</strong></td>
+                                    <td>Runs on a different machine. Communicates via the mailbox system.</td>
+                                    <td>Remote</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Pane-Backed Workers</div>
+                        <p>
+                            Pane-backed workers are particularly useful for long-running tasks. Each worker gets its own terminal
+                            pane (via tmux or a similar multiplexer), so you can watch their progress in real time. The leader
+                            communicates with them via SendMessage and receives completion signals automatically.
+                        </p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Worktree Isolation</h2>
+                    <p>
+                        Agents can be configured to run in an isolated git worktree. This prevents file conflicts when multiple
+                        agents write to the same repository simultaneously.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Worktree Lifecycle</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># 1. Agent spawns with isolation: worktree</span>
+<span class="command">git</span> worktree add <span class="string">/tmp/claude-worktree-abc123</span> <span class="flag">-b</span> agent/task-abc123
+
+<span class="comment"># 2. Agent works in the worktree directory</span>
+<span class="comment">#    All file paths are translated: /project/src/foo.ts -&gt; /tmp/claude-worktree-abc123/src/foo.ts</span>
+
+<span class="comment"># 3. Agent completes, commits its changes</span>
+<span class="command">git</span> add <span class="flag">-A</span> &amp;&amp; <span class="command">git</span> commit <span class="flag">-m</span> <span class="string">"Agent task: refactor auth module"</span>
+
+<span class="comment"># 4. Worktree is cleaned up automatically</span>
+<span class="command">git</span> worktree remove <span class="string">/tmp/claude-worktree-abc123</span></div>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Path Translation Notice</div>
+                        <p>When an agent runs in a worktree, all file paths in tool calls are automatically translated to the worktree directory. If the agent reports a file path in its output, that path points to the worktree, not the main checkout. The parent agent needs to account for this when processing results.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Fork Sub-Agent</h2>
+                    <p>
+                        Enabled via <code><span class="command">CLAUDE_CODE_FORK_SUBAGENT=1</span></code>, fork sub-agents receive a <strong>full copy of the parent's
+                        conversation context</strong> at the point of forking. This is different from a normal agent spawn, which starts
+                        with a fresh conversation.
+                    </p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Fork Safety Rules
+                        </h3>
+                        <p>Forked agents have strict constraints to prevent runaway recursion and ensure clean handoffs:</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <ul>
+                        <li><strong>No recursion:</strong> A forked agent cannot fork further sub-agents. The fork depth is capped at 1.</li>
+                        <li><strong>No sub-agents:</strong> Forked agents cannot use the AgentTool to spawn additional agents of any type.</li>
+                        <li><strong>Commit and report:</strong> The expected workflow is: do the work, commit the changes, then report the result back to the parent. The fork should be self-contained.</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Fork Sub-Agent Constraints</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">FORK_AGENT_RULES</span> = {
+  <span class="command">maxForkDepth</span>: <span class="number">1</span>,              <span class="comment">// Cannot fork from a fork</span>
+  <span class="command">canSpawnAgents</span>: <span class="keyword">false</span>,         <span class="comment">// AgentTool is disabled</span>
+  <span class="command">inheritContext</span>: <span class="keyword">true</span>,          <span class="comment">// Gets full parent conversation</span>
+  <span class="command">expectedWorkflow</span>: <span class="string">"commit-and-report"</span>,
+};</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>User-Defined Agents</h2>
+                    <p>
+                        Beyond the built-in types, you can define custom agents using Markdown files with YAML frontmatter.
+                        Agents are loaded from multiple sources, resolved in priority order.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Location</th>
+                                    <th>Priority</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Built-in</strong></td>
+                                    <td>Bundled with Claude Code</td>
+                                    <td>Lowest (fallback)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plugin</strong></td>
+                                    <td>Installed plugin agents</td>
+                                    <td>Low</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>User</strong></td>
+                                    <td><code><span class="string">~/.claude/agents/*.md</span></code></td>
+                                    <td>Medium</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Project</strong></td>
+                                    <td><code><span class="string">.claude/agents/*.md</span></code></td>
+                                    <td>High</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Managed</strong></td>
+                                    <td>Organisation-managed agent configs</td>
+                                    <td>Higher</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CLI Flags</strong></td>
+                                    <td><code><span class="command">--agent-type</span></code> argument</td>
+                                    <td>Highest (overrides all)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>YAML Frontmatter Format</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">.claude/agents/lint-checker.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content">---
+<span class="command">name</span>: lint-checker
+<span class="command">description</span>: <span class="string">Run linting and report issues concisely</span>
+<span class="command">tools</span>: [<span class="string">Bash</span>, <span class="string">Read</span>, <span class="string">Glob</span>]
+<span class="command">disallowedTools</span>: [<span class="string">Write</span>, <span class="string">Edit</span>]
+<span class="command">model</span>: <span class="string">haiku</span>
+<span class="command">maxTurns</span>: <span class="number">10</span>
+<span class="command">memory</span>: <span class="string">project</span>
+<span class="command">isolation</span>: <span class="string">worktree</span>
+<span class="command">background</span>: <span class="keyword">true</span>
+<span class="command">colour</span>: <span class="string">yellow</span>
+---
+You are a linting agent. Run the project's lint command and report
+any errors or warnings. Group issues by file. Do not attempt fixes.</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Coordinator Mode</h2>
+                    <p>
+                        Activated via <code><span class="command">CLAUDE_CODE_COORDINATOR_MODE=1</span></code>, coordinator mode transforms Claude into an
+                        orchestrator that follows a structured four-phase workflow. Rather than doing the work itself, the
+                        coordinator delegates to worker agents.
+                    </p>
+
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <div>
+                                <strong>Phase 1 -- Research:</strong> Spawn Explore agents to understand the codebase, gather context, and identify relevant files. Multiple Explore agents can run in parallel.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            </div>
+                            <div>
+                                <strong>Phase 2 -- Synthesis:</strong> Analyse research results, identify the approach, and create a detailed plan. May spawn a Plan agent.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            </div>
+                            <div>
+                                <strong>Phase 3 -- Implementation:</strong> Delegate the actual work to general-purpose worker agents. Each worker handles one logical piece. Workers can use worktree isolation to avoid conflicts.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <strong>Phase 4 -- Verification:</strong> Run tests, check for regressions, verify the implementation matches the plan. May spawn a Verification agent if available (ant-only).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Activating Coordinator Mode</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">CLAUDE_CODE_COORDINATOR_MODE</span>=<span class="number">1</span> claude
+
+<span class="comment"># Or in .claude/settings.json:</span>
+{
+  <span class="string">"env"</span>: {
+    <span class="string">"CLAUDE_CODE_COORDINATOR_MODE"</span>: <span class="string">"1"</span>
+  }
+}</div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">When to Use Coordinator Mode</div>
+                        <p>
+                            Coordinator mode shines for large, multi-file tasks: feature implementations spanning 5+ files,
+                            cross-cutting refactors, or any task where the research and implementation phases benefit from
+                            parallelism. For simple single-file changes, it adds unnecessary overhead.
+                        </p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Spawning &amp; Lifecycle Flow</h2>
+                    <p>The complete flow from user request through agent orchestration to result delivery:</p>
+
+                    <div class="flow-diagram">
+                        <svg width="720" height="600" viewBox="0 0 720 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="flowArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+                                </marker>
+                                <marker id="greenArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/>
+                                </marker>
+                            </defs>
+
+                            <!-- User Request -->
+                            <rect x="250" y="10" width="220" height="40" rx="20" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="360" y="35" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" text-anchor="middle">User Request</text>
+
+                            <line x1="360" y1="50" x2="360" y2="75" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+
+                            <!-- Main Agent Decision -->
+                            <rect x="240" y="75" width="240" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="100" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">Main Agent: Analyse Task</text>
+
+                            <!-- Decision diamond -->
+                            <line x1="360" y1="115" x2="360" y2="140" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+                            <polygon points="360,140 400,165 360,190 320,165" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="360" y="169" font-family="'Fira Code', monospace" font-size="9" fill="#f59e0b" text-anchor="middle">Delegate?</text>
+
+                            <!-- No - do it yourself -->
+                            <line x1="320" y1="165" x2="120" y2="165" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+                            <text x="220" y="158" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="middle">No</text>
+                            <rect x="30" y="148" width="90" height="34" rx="4" fill="rgba(34,197,94,0.12)" stroke="#22c55e"/>
+                            <text x="75" y="169" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e" text-anchor="middle">Do Work</text>
+
+                            <!-- Yes - spawn agent -->
+                            <line x1="360" y1="190" x2="360" y2="220" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+                            <text x="375" y="210" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280">Yes</text>
+
+                            <!-- Resolve Agent Config -->
+                            <rect x="240" y="220" width="240" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="245" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">Resolve Agent Config</text>
+
+                            <line x1="360" y1="260" x2="360" y2="285" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+
+                            <!-- Resolve Tools -->
+                            <rect x="240" y="285" width="240" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="310" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">Resolve Tool Set</text>
+
+                            <line x1="360" y1="325" x2="360" y2="350" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+
+                            <!-- Build System Prompt -->
+                            <rect x="240" y="350" width="240" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="375" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">Build System Prompt</text>
+
+                            <line x1="360" y1="390" x2="360" y2="415" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+
+                            <!-- API Loop box -->
+                            <rect x="200" y="415" width="320" height="80" rx="6" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-dasharray="4,4"/>
+                            <text x="360" y="438" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle" font-weight="bold">API Loop</text>
+                            <text x="360" y="458" font-family="'Fira Code', monospace" font-size="9" fill="#fbbf24" text-anchor="middle">Call API -&gt; Process Response -&gt; Execute Tools</text>
+                            <text x="360" y="478" font-family="'Fira Code', monospace" font-size="9" fill="#fbbf24" text-anchor="middle">Repeat until done or maxTurns reached</text>
+
+                            <line x1="360" y1="495" x2="360" y2="520" stroke="#374151" stroke-width="1.5" marker-end="url(#flowArrow)"/>
+
+                            <!-- Return result -->
+                            <rect x="240" y="520" width="240" height="40" rx="6" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="1.5"/>
+                            <text x="360" y="545" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle">Return Result to Parent</text>
+
+                            <line x1="360" y1="560" x2="360" y2="580" stroke="#22c55e" stroke-width="1.5" marker-end="url(#greenArrow)"/>
+
+                            <!-- Done -->
+                            <rect x="290" y="580" width="140" height="24" rx="12" fill="rgba(34,197,94,0.2)" stroke="#22c55e"/>
+                            <text x="360" y="596" font-family="'Fira Code', monospace" font-size="10" fill="#22c55e" text-anchor="middle">Complete</text>
+
+                            <!-- Worktree branch -->
+                            <line x1="480" y1="310" x2="600" y2="310" stroke="#374151" stroke-width="1" stroke-dasharray="4,4"/>
+                            <rect x="560" y="295" width="140" height="30" rx="4" fill="rgba(168,85,247,0.1)" stroke="#7c3aed"/>
+                            <text x="630" y="314" font-family="'Fira Code', monospace" font-size="9" fill="#a855f7" text-anchor="middle">Worktree?</text>
+
+                            <line x1="630" y1="325" x2="630" y2="350" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,4"/>
+                            <rect x="560" y="350" width="140" height="30" rx="4" fill="rgba(168,85,247,0.1)" stroke="#7c3aed"/>
+                            <text x="630" y="369" font-family="'Fira Code', monospace" font-size="9" fill="#a855f7" text-anchor="middle">git worktree add</text>
+                        </svg>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Key Takeaway</div>
+                        <p>
+                            The agent system is Claude Code's mechanism for parallelism and specialisation. Use Explore agents
+                            liberally (they are cheap), define custom Haiku agents for repetitive tasks, and consider coordinator
+                            mode for large multi-file changes. Understanding the tool resolution rules ensures your custom agents
+                            get exactly the capabilities they need -- no more, no less.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

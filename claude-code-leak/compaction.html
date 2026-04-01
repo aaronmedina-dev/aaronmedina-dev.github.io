@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How Claude Code manages context window limits through microcompaction, auto-compaction, and manual compaction with full algorithm details.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Context Compaction - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item active">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>Context Compaction</h1>
+                    <p class="lead">
+                        As conversations approach the context window limit, Claude Code employs a multi-layered
+                        compaction system to summarise, prune, and reconstruct conversation history. Three levels
+                        of compaction work together -- from silent background garbage collection to full
+                        conversation summarisation.
+                    </p>
+
+                    <h2>Three Levels of Compaction</h2>
+
+                    <div class="flow-diagram">
+                        <svg width="700" height="420" viewBox="0 0 700 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Level 1 - top layer -->
+                            <rect x="50" y="20" width="600" height="100" rx="8" fill="rgba(34, 197, 94, 0.08)" stroke="#22c55e" stroke-width="1.5"/>
+                            <text x="80" y="50" font-family="'Fira Code', monospace" font-size="13" fill="#22c55e" font-weight="bold">Level 1: Microcompaction</text>
+                            <text x="80" y="72" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">Continuous, non-disruptive. Runs before every API call.</text>
+                            <text x="80" y="92" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">Deletes old tool results via cache_edits or time-based pruning.</text>
+                            <text x="80" y="108" font-family="'Fira Code', monospace" font-size="10" fill="#6b7280">Frequency: every turn | Impact: minimal | User-visible: no</text>
+
+                            <!-- Arrow -->
+                            <line x1="350" y1="120" x2="350" y2="150" stroke="#374151" stroke-width="2" stroke-dasharray="4,4"/>
+                            <text x="365" y="140" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280">threshold exceeded</text>
+
+                            <!-- Level 2 - middle layer -->
+                            <rect x="50" y="150" width="600" height="100" rx="8" fill="rgba(245, 158, 11, 0.08)" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="80" y="180" font-family="'Fira Code', monospace" font-size="13" fill="#f59e0b" font-weight="bold">Level 2: Auto-Compaction</text>
+                            <text x="80" y="202" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">Threshold-based. Triggers when context usage hits ~83% (200K)</text>
+                            <text x="80" y="222" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">or ~97% (1M). Full summarisation with 9-section output.</text>
+                            <text x="80" y="238" font-family="'Fira Code', monospace" font-size="10" fill="#6b7280">Frequency: as needed | Impact: significant | User-visible: yes</text>
+
+                            <!-- Arrow -->
+                            <line x1="350" y1="250" x2="350" y2="280" stroke="#374151" stroke-width="2" stroke-dasharray="4,4"/>
+                            <text x="365" y="270" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280">user-triggered</text>
+
+                            <!-- Level 3 - bottom layer -->
+                            <rect x="50" y="280" width="600" height="100" rx="8" fill="rgba(59, 130, 246, 0.08)" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="80" y="310" font-family="'Fira Code', monospace" font-size="13" fill="#3b82f6" font-weight="bold">Level 3: Manual /compact</text>
+                            <text x="80" y="332" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">User-triggered with optional custom instructions.</text>
+                            <text x="80" y="352" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af">/compact &lt;instructions&gt; lets you control what to preserve.</text>
+                            <text x="80" y="368" font-family="'Fira Code', monospace" font-size="10" fill="#6b7280">Frequency: on demand | Impact: significant | User-visible: yes</text>
+
+                            <!-- Severity indicator -->
+                            <text x="620" y="75" font-family="'Fira Code', monospace" font-size="20" fill="#22c55e" text-anchor="middle">1</text>
+                            <text x="620" y="205" font-family="'Fira Code', monospace" font-size="20" fill="#f59e0b" text-anchor="middle">2</text>
+                            <text x="620" y="335" font-family="'Fira Code', monospace" font-size="20" fill="#3b82f6" text-anchor="middle">3</text>
+
+                            <!-- Scale label -->
+                            <text x="350" y="410" font-family="'Fira Code', monospace" font-size="10" fill="#6b7280" text-anchor="middle">Increasing impact and user visibility</text>
+                            <line x1="180" y1="400" x2="520" y2="400" stroke="#374151" stroke-width="1"/>
+                            <polygon points="520,397 530,400 520,403" fill="#374151"/>
+                        </svg>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Level 1: Microcompaction</h2>
+
+                    <p>Microcompaction runs silently before every API call. It targets old tool results (typically large file contents and command outputs) that are unlikely to be needed again. There are two variants:</p>
+
+                    <h3>Cached Microcompaction</h3>
+
+                    <p>Uses the API's <code>cache_edits</code> mechanism to delete old tool result blocks. This is the preferred variant because it preserves the prompt cache -- the API knows which parts were removed and can maintain its cached representation of the conversation prefix.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Cached Microcompaction</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Iteratively removes the oldest tool_result blocks</span>
+<span class="comment">// until context fits within the target window</span>
+<span class="keyword">while</span> (contextTokens > targetWindow) {
+  <span class="keyword">const</span> oldest = <span class="command">findOldestToolResult</span>(messages);
+  <span class="command">removeViaCacheEdit</span>(oldest);  <span class="comment">// Preserves prompt cache</span>
+}</div>
+                    </div>
+
+                    <h3>Time-Based Microcompaction</h3>
+
+                    <p>When a session has been idle for more than 60 minutes, the prompt cache has already expired. In this case, the system uses a more aggressive strategy: it clears all old tool results without worrying about cache preservation, since the cache needs to be rebuilt anyway.</p>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Why This Matters</div>
+                        <p>If you step away for an hour and come back, your oldest tool results have been silently removed. This is why Claude sometimes says "let me re-read that file" after breaks -- the earlier read result was garbage-collected.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Level 2: Auto-Compaction</h2>
+
+                    <p>When microcompaction is not enough and context usage exceeds the auto-compact threshold, a full compaction is triggered automatically. The threshold is calculated using this formula:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Auto-Compact Threshold Calculation</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">effectiveContextWindow</span> = modelContextWindow - <span class="number">20000</span>;
+<span class="keyword">const</span> <span class="command">autoCompactThreshold</span>  = effectiveContextWindow - <span class="number">13000</span>;
+
+<span class="comment">// For a 200K context model:</span>
+<span class="comment">//   effective = 200,000 - 20,000 = 180,000</span>
+<span class="comment">//   threshold = 180,000 - 13,000 = 167,000 (~83%)</span>
+
+<span class="comment">// For a 1M context model:</span>
+<span class="comment">//   effective = 1,000,000 - 20,000 = 980,000</span>
+<span class="comment">//   threshold = 980,000 - 13,000 = 967,000 (~97%)</span></div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Model Context Window</th>
+                                    <th>Effective Window</th>
+                                    <th>Auto-Compact Threshold</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>200,000 tokens</td>
+                                    <td>180,000</td>
+                                    <td>167,000</td>
+                                    <td>~83%</td>
+                                </tr>
+                                <tr>
+                                    <td>1,000,000 tokens</td>
+                                    <td>980,000</td>
+                                    <td>967,000</td>
+                                    <td>~97%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>shouldAutoCompact() Predicate</h2>
+
+                    <p>Before auto-compaction runs, the <code>shouldAutoCompact()</code> predicate checks several conditions. If any of these are true, auto-compaction is skipped:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Disabled Conditions</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Auto-compaction is DISABLED when:</span>
+
+<span class="comment">// 1. Environment variable override</span>
+<span class="command">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span>
+<span class="command">DISABLE_COMPACT</span>=<span class="number">1</span>
+
+<span class="comment">// 2. The trigger source is blacklisted</span>
+<span class="keyword">const</span> <span class="command">BLACKLISTED_SOURCES</span> = [
+  <span class="string">"session_memory"</span>,  <span class="comment">// Don't compact during memory operations</span>
+  <span class="string">"compact"</span>,         <span class="comment">// Don't re-compact during compaction</span>
+  <span class="string">"marble_origami"</span>   <span class="comment">// Internal test harness</span>
+];
+
+<span class="comment">// 3. Circuit breaker: 3 consecutive failures</span>
+<span class="keyword">if</span> (consecutiveFailures >= <span class="number">3</span>) {
+  <span class="comment">// Stop retrying, require manual /compact</span>
+  <span class="keyword">return</span> <span class="keyword">false</span>;
+}</div>
+                    </div>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            Circuit Breaker After 3 Failures
+                        </h3>
+                        <p>If auto-compaction fails three times in a row, the system gives up and stops retrying. Running <code>/compact</code> manually resets the circuit breaker. If compaction seems stuck, this is usually the cause.</p>
+                        <span class="impact impact-medium">Medium Impact</span>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Full Compaction Algorithm</h2>
+
+                    <p>When compaction runs (either auto or manual), it executes a three-phase process:</p>
+
+                    <h3>Phase 1: Pre-Compaction</h3>
+
+                    <ul>
+                        <li><strong>Run pre-compact hooks:</strong> Any registered hooks fire before compaction begins</li>
+                        <li><strong>Strip images:</strong> All image content blocks are removed from the conversation (they are expensive tokens and cannot be summarised)</li>
+                        <li><strong>Snapshot state:</strong> Current plan mode, active files, and pending tasks are captured</li>
+                    </ul>
+
+                    <h3>Phase 2: Summarisation</h3>
+
+                    <p>The entire conversation is sent to Claude with a summarisation prompt that requests a structured 9-section summary:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">The 9 Summarisation Sections</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="number">1.</span> <span class="command">Primary Request</span>
+   <span class="comment">What the user originally asked for</span>
+
+<span class="number">2.</span> <span class="command">Key Technical Concepts</span>
+   <span class="comment">Architecture decisions, patterns, and technical context</span>
+
+<span class="number">3.</span> <span class="command">Files and Code Sections</span>
+   <span class="comment">Which files were read/edited and their current state</span>
+
+<span class="number">4.</span> <span class="command">Errors and Fixes</span>
+   <span class="comment">Errors encountered and how they were resolved</span>
+
+<span class="number">5.</span> <span class="command">Problem Solving Efforts</span>
+   <span class="comment">Approaches tried, what worked and what did not</span>
+
+<span class="number">6.</span> <span class="command">All User Messages</span>
+   <span class="comment">Every user message preserved verbatim (critical for intent)</span>
+
+<span class="number">7.</span> <span class="command">Pending Tasks</span>
+   <span class="comment">Work that was agreed upon but not yet completed</span>
+
+<span class="number">8.</span> <span class="command">Current Work</span>
+   <span class="comment">What was being actively worked on when compaction triggered</span>
+
+<span class="number">9.</span> <span class="command">Optional Next Step</span>
+   <span class="comment">Suggested next action if the conversation was interrupted</span></div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Section 6 is Critical</div>
+                        <p>"All User Messages" preserves every user message verbatim. This is deliberate -- user messages are the ground truth for intent, and paraphrasing them risks losing nuance. This section often dominates the summary length.</p>
+                    </div>
+
+                    <h3>Phase 3: Prompt-Too-Long Recovery</h3>
+
+                    <p>If the summarised conversation still exceeds the context limit (rare, but possible with very long summaries), the system enters a recovery loop:</p>
+
+                    <ol>
+                        <li><strong>Drop oldest conversation rounds:</strong> Remove the earliest user+assistant turn pairs</li>
+                        <li><strong>Retry summarisation:</strong> Send the truncated conversation for re-summarisation</li>
+                        <li><strong>Maximum 3 retries:</strong> If the summary still does not fit after 3 attempts, the system gives up and starts fresh with just the summary</li>
+                    </ol>
+
+                    <hr class="section-divider">
+
+                    <h2>Post-Compaction Reconstruction</h2>
+
+                    <p>After summarisation, the system reconstructs the working environment so Claude can continue seamlessly. This reconstruction phase is surprisingly complex:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Action</th>
+                                    <th>Budget</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>1. Clear cache</strong></td>
+                                    <td>Invalidate the prompt cache (the conversation structure changed)</td>
+                                    <td>--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>2. Restore files</strong></td>
+                                    <td>Re-read up to 5 recently accessed files into context</td>
+                                    <td>50K tokens</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>3. Restore skills</strong></td>
+                                    <td>Re-inject any loaded skill definitions</td>
+                                    <td>25K tokens</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>4. Tool deltas</strong></td>
+                                    <td>Re-apply any tool configuration changes from the session</td>
+                                    <td>--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>5. MCP re-injection</strong></td>
+                                    <td>Re-register MCP server tool definitions</td>
+                                    <td>--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>6. Plan mode</strong></td>
+                                    <td>Restore plan mode state if it was active</td>
+                                    <td>--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">File Restoration Budget</div>
+                        <p>Only the 5 most recently accessed files are restored, with a hard cap of 50K tokens. If you were working across many files, some will be lost after compaction. Claude will need to re-read them when it encounters references to files it no longer has in context.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>What's Preserved vs What's Lost</h2>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>After Compaction</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>User messages</td>
+                                    <td><span class="badge badge-public">Preserved</span></td>
+                                    <td>Verbatim in Section 6 of summary</td>
+                                </tr>
+                                <tr>
+                                    <td>Primary request / intent</td>
+                                    <td><span class="badge badge-public">Preserved</span></td>
+                                    <td>Section 1 of summary</td>
+                                </tr>
+                                <tr>
+                                    <td>Pending tasks</td>
+                                    <td><span class="badge badge-public">Preserved</span></td>
+                                    <td>Section 7 of summary</td>
+                                </tr>
+                                <tr>
+                                    <td>Recent files (up to 5)</td>
+                                    <td><span class="badge badge-public">Restored</span></td>
+                                    <td>Re-read within 50K budget</td>
+                                </tr>
+                                <tr>
+                                    <td>Skills</td>
+                                    <td><span class="badge badge-public">Restored</span></td>
+                                    <td>Re-injected within 25K budget</td>
+                                </tr>
+                                <tr>
+                                    <td>Plan mode state</td>
+                                    <td><span class="badge badge-public">Preserved</span></td>
+                                    <td>Explicitly restored</td>
+                                </tr>
+                                <tr>
+                                    <td>Tool results / file contents</td>
+                                    <td><span class="badge badge-hidden">Lost</span></td>
+                                    <td>Only summarised, not preserved verbatim</td>
+                                </tr>
+                                <tr>
+                                    <td>Image content</td>
+                                    <td><span class="badge badge-internal">Stripped</span></td>
+                                    <td>Removed in pre-compaction phase</td>
+                                </tr>
+                                <tr>
+                                    <td>Exact error messages</td>
+                                    <td><span class="badge badge-hidden">Summarised</span></td>
+                                    <td>May lose exact stack traces</td>
+                                </tr>
+                                <tr>
+                                    <td>Prompt cache</td>
+                                    <td><span class="badge badge-internal">Invalidated</span></td>
+                                    <td>Must be rebuilt from scratch</td>
+                                </tr>
+                                <tr>
+                                    <td>Older files (beyond top 5)</td>
+                                    <td><span class="badge badge-hidden">Lost</span></td>
+                                    <td>Need to be re-read manually</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Partial Compaction</h2>
+
+                    <p>The system supports partial compaction with two directions, each with different trade-offs:</p>
+
+                    <h3>Direction: "from" (Compact from a point)</h3>
+
+                    <p>Keeps everything <strong>before</strong> the compaction point and summarises everything after. This preserves the prompt cache because the conversation prefix is unchanged.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Partial Compaction - "from"</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Direction: "from"</span>
+<span class="comment">// [KEPT: early conversation] [SUMMARISED: recent conversation]</span>
+<span class="comment">//          ^cache preserved^   ^compressed into summary^</span>
+
+<span class="comment">// Best when: you want to preserve cache and the early context</span>
+<span class="comment">// is more important than the recent context</span></div>
+                    </div>
+
+                    <h3>Direction: "up_to" (Compact up to a point)</h3>
+
+                    <p>Summarises everything <strong>before</strong> the compaction point and keeps everything after. This breaks the prompt cache because the conversation prefix is replaced with a summary.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Partial Compaction - "up_to"</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// Direction: "up_to"</span>
+<span class="comment">// [SUMMARISED: early conversation] [KEPT: recent conversation]</span>
+<span class="comment">//   ^compressed into summary^       ^preserved verbatim^</span>
+
+<span class="comment">// Best when: recent context is more important and you don't</span>
+<span class="comment">// mind the cache rebuild cost</span></div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Which Direction to Use</div>
+                        <p>The "from" direction is the default for auto-compaction because cache preservation reduces API costs. The "up_to" direction is better when you have just started a new task and the old context is no longer relevant -- it keeps recent work intact at the cost of rebuilding the cache.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Session Memory Compaction</h2>
+
+                    <p>As a faster alternative to full compaction, session memory compaction only compacts the session memory portion of the conversation. This is useful when memory entries are consuming disproportionate context but the actual conversation is still within limits.</p>
+
+                    <p>Session memory compaction is significantly cheaper because it processes a much smaller input (just the memory entries, not the entire conversation) and does not require post-compaction reconstruction.</p>
+
+                    <hr class="section-divider">
+
+                    <h2>Token Limits &amp; Thresholds</h2>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Constant</th>
+                                    <th>Value</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>effectiveContextWindow</code></td>
+                                    <td><span class="badge badge-env">modelContext - 20K</span></td>
+                                    <td>Usable context after reserving space for output</td>
+                                </tr>
+                                <tr>
+                                    <td><code>autoCompactThreshold</code></td>
+                                    <td><span class="badge badge-env">effective - 13K</span></td>
+                                    <td>Token count that triggers auto-compaction</td>
+                                </tr>
+                                <tr>
+                                    <td>File restoration budget</td>
+                                    <td><span class="badge badge-env">50,000 tokens</span></td>
+                                    <td>Maximum tokens for restoring recent files</td>
+                                </tr>
+                                <tr>
+                                    <td>File restoration count</td>
+                                    <td><span class="badge badge-env">5 files</span></td>
+                                    <td>Maximum number of files restored post-compaction</td>
+                                </tr>
+                                <tr>
+                                    <td>Skill restoration budget</td>
+                                    <td><span class="badge badge-env">25,000 tokens</span></td>
+                                    <td>Maximum tokens for re-injecting skill definitions</td>
+                                </tr>
+                                <tr>
+                                    <td>Time-based idle threshold</td>
+                                    <td><span class="badge badge-env">60 minutes</span></td>
+                                    <td>Idle time before time-based microcompaction</td>
+                                </tr>
+                                <tr>
+                                    <td>Circuit breaker limit</td>
+                                    <td><span class="badge badge-env">3 failures</span></td>
+                                    <td>Consecutive failures before auto-compact gives up</td>
+                                </tr>
+                                <tr>
+                                    <td>Prompt-too-long retries</td>
+                                    <td><span class="badge badge-env">3 attempts</span></td>
+                                    <td>Maximum retries for over-length summaries</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Warning System</h2>
+
+                    <p>The context warning system provides user-facing indicators as the context window fills up:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Warning Thresholds</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">percentLeft</span> = <span class="number">1</span> - (currentTokens / effectiveContextWindow);
+
+<span class="comment">// Warning levels:</span>
+<span class="comment">// percentLeft > 0.20  -->  No warning (green)</span>
+<span class="comment">// percentLeft > 0.10  -->  Moderate warning (yellow)</span>
+<span class="comment">// percentLeft > 0.05  -->  High warning (orange)</span>
+<span class="comment">// percentLeft <= 0.05 -->  Critical warning (red)</span>
+
+<span class="keyword">function</span> <span class="command">isAboveWarningThreshold</span>(currentTokens, contextWindow) {
+  <span class="keyword">const</span> effective = contextWindow - <span class="number">20000</span>;
+  <span class="keyword">const</span> percentUsed = currentTokens / effective;
+  <span class="keyword">return</span> percentUsed > <span class="number">0.80</span>;
+}</div>
+                    </div>
+
+                    <p>The warning indicator appears in the Claude Code UI status bar, giving users a visual cue of how much context remains before compaction triggers.</p>
+
+                    <hr class="section-divider">
+
+                    <h2>Environment Variable Configuration</h2>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Compaction Environment Variables</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Override the auto-compact threshold (absolute token count)</span>
+<span class="command">CLAUDE_CODE_AUTO_COMPACT_WINDOW</span>=<span class="number">150000</span>
+
+<span class="comment"># Trigger compaction at a specific percentage of context used</span>
+<span class="command">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</span>=<span class="number">85</span>
+
+<span class="comment"># Disable auto-compaction (keep manual /compact only)</span>
+<span class="command">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span>
+
+<span class="comment"># Disable ALL compaction (auto + manual)</span>
+<span class="command">DISABLE_COMPACT</span>=<span class="number">1</span>
+
+<span class="comment"># Disable 1M context window (forces 200K model behaviour)</span>
+<span class="command">CLAUDE_CODE_DISABLE_1M_CONTEXT</span>=<span class="number">1</span>
+
+<span class="comment"># Cap maximum context tokens</span>
+<span class="command">CLAUDE_CODE_MAX_CONTEXT_TOKENS</span>=<span class="number">500000</span></div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Practical Advice</div>
+                        <p>Setting <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85</code> is a good default for 200K context sessions -- it gives compaction enough room to produce a summary without hitting the hard limit. For 1M sessions, the default threshold (~97%) works well because there is ample headroom.</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

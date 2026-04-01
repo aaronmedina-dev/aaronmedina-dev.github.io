@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How Claude Code assembles its system prompt from 15+ sections at runtime, including caching strategy and feature-gated sections.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>System Prompt Assembly - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item active">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content content-wide">
+                    <h1>System Prompt Assembly</h1>
+                    <p class="lead">
+                        Claude Code does not ship with a single static system prompt. Instead, <code>getSystemPrompt()</code>
+                        in <code><span class="string">src/constants/prompts.ts</span></code> assembles the prompt at runtime from 15+ discrete sections,
+                        splitting them into a globally cacheable static half and a per-session dynamic half. Understanding this
+                        architecture is key to optimising your CLAUDE.md placement and minimising cache misses.
+                    </p>
+
+                    <h2>The Two-Part Architecture</h2>
+                    <p>
+                        Every system prompt is divided by a hard boundary marker into two halves. Everything above the marker is
+                        identical across all sessions for a given build, so it can be cached once and reused. Everything below
+                        changes per session, per project, or per user.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">src/constants/prompts.ts</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">CACHE_BOUNDARY</span> = <span class="string">"__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__"</span>;
+
+<span class="keyword">function</span> <span class="command">getSystemPrompt</span>(config: <span class="type">SessionConfig</span>): <span class="type">SystemPromptParts</span> {
+  <span class="keyword">const</span> staticSections = [
+    identitySection,          <span class="comment">// 1. Identity + CYBER_RISK_INSTRUCTION</span>
+    behaviourRules,           <span class="comment">// 2. System behaviour rules</span>
+    taskExecution,            <span class="comment">// 3. Task execution guidelines</span>
+    safetyGuidance,           <span class="comment">// 4. Safety &amp; reversibility</span>
+    toolUsage,                <span class="comment">// 5. Tool usage guidance</span>
+    toneAndStyle,             <span class="comment">// 6. Tone &amp; style</span>
+  ];
+
+  <span class="keyword">const</span> dynamicSections = [
+    toolTips(config.tools),   <span class="comment">// 7. Session-specific tool tips</span>
+    claudeMd(config.project), <span class="comment">// 8. MEMORY.md + CLAUDE.md</span>
+    envInfo(config.env),      <span class="comment">// 9. CWD, git, OS, model</span>
+    languagePref,             <span class="comment">// 10. Language preference</span>
+    outputStyle,              <span class="comment">// 11. Output style</span>
+    mcpInstructions,          <span class="comment">// 12. MCP server instructions</span>
+    scratchpadGuidance,       <span class="comment">// 13. Scratchpad guidance</span>
+    tokenManagement,          <span class="comment">// 14. Token management hints</span>
+  ];
+
+  <span class="keyword">return</span> {
+    <span class="command">static</span>: staticSections.<span class="command">join</span>(<span class="string">"\n"</span>),
+    <span class="command">boundary</span>: CACHE_BOUNDARY,
+    <span class="command">dynamic</span>: dynamicSections.<span class="command">join</span>(<span class="string">"\n"</span>),
+  };
+}</div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Why Two Parts?</div>
+                        <p>Anthropic's API supports prompt caching. By keeping sections 1-6 identical across sessions, the first ~60% of the system prompt hits the cache on every request. The dynamic half (sections 7-14+) is rebuilt per session but is smaller, so the cache miss cost is contained.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Static Sections (Globally Cacheable)</h2>
+                    <p>These six sections are identical for every user running the same build. They never change between sessions.</p>
+
+                    <div class="flow-diagram">
+                        <svg width="720" height="320" viewBox="0 0 720 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Header -->
+                            <rect x="30" y="10" width="660" height="28" rx="4" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="1.5"/>
+                            <text x="360" y="29" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle" font-weight="bold">STATIC HALF -- Cached Globally Per Build</text>
+
+                            <!-- Section 1 -->
+                            <rect x="30" y="50" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="72" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">1. Identity + CYBER_RISK_INSTRUCTION</text>
+                            <text x="650" y="72" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Who am I, what am I not allowed to do</text>
+
+                            <!-- Section 2 -->
+                            <rect x="30" y="94" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="116" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">2. System Behaviour Rules</text>
+                            <text x="650" y="116" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Core operational constraints</text>
+
+                            <!-- Section 3 -->
+                            <rect x="30" y="138" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="160" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">3. Task Execution Guidelines</text>
+                            <text x="650" y="160" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">How to approach work step-by-step</text>
+
+                            <!-- Section 4 -->
+                            <rect x="30" y="182" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="204" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">4. Safety &amp; Reversibility Guidance</text>
+                            <text x="650" y="204" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Prefer reversible actions, ask before destructive ops</text>
+
+                            <!-- Section 5 -->
+                            <rect x="30" y="226" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="248" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">5. Tool Usage Guidance</text>
+                            <text x="650" y="248" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">When and how to use each tool</text>
+
+                            <!-- Section 6 -->
+                            <rect x="30" y="270" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="292" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">6. Tone &amp; Style</text>
+                            <text x="650" y="292" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Conciseness, formatting, language register</text>
+                        </svg>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Section</th>
+                                    <th>Purpose</th>
+                                    <th>Key Contents</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><strong>Identity</strong></td>
+                                    <td>Establish who Claude is</td>
+                                    <td>Name, model, <code><span class="command">CYBER_RISK_INSTRUCTION</span></code> block (security hardening)</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><strong>Behaviour Rules</strong></td>
+                                    <td>Core operational constraints</td>
+                                    <td>Never fabricate, admit uncertainty, respect boundaries</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><strong>Task Execution</strong></td>
+                                    <td>How to approach work</td>
+                                    <td>Read before editing, verify after changes, prefer small diffs</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td><strong>Safety Guidance</strong></td>
+                                    <td>Reversibility rules</td>
+                                    <td>Prefer non-destructive git ops, ask before deleting, sandbox awareness</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td><strong>Tool Usage</strong></td>
+                                    <td>Per-tool instructions</td>
+                                    <td>When to use Bash vs Read vs Grep, file editing best practices</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td><strong>Tone &amp; Style</strong></td>
+                                    <td>Output formatting</td>
+                                    <td>Be concise, no preamble, no unnecessary apologies, markdown formatting</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>The Cache Boundary</h2>
+                    <p>
+                        Between the static and dynamic halves sits a sentinel string that the caching layer uses to split the prompt:
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Cache Marker</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="string">__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__</span></div>
+                    </div>
+
+                    <p>
+                        The API client splits on this marker. Everything before it is sent with <code><span class="keyword">cache_control</span>: { <span class="string">"type"</span>: <span class="string">"ephemeral"</span> }</code>,
+                        telling the Anthropic API to cache that prefix. Everything after is sent as a normal (uncached) system block.
+                        This means the static half is a <strong>write-once, read-many</strong> cache entry -- typically amortised across
+                        hundreds of requests.
+                    </p>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Cache-Breaking Gotcha</div>
+                        <p>Your CLAUDE.md lives in the <strong>dynamic</strong> half (section 8). Every edit to CLAUDE.md changes the dynamic portion, but does <em>not</em> break the static cache. However, if Anthropic ships a new build that changes sections 1-6, every user's static cache is invalidated globally.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Dynamic Sections (Per-Session)</h2>
+                    <p>These sections are rebuilt for each session based on your project, environment, and configuration.</p>
+
+                    <div class="flow-diagram">
+                        <svg width="720" height="400" viewBox="0 0 720 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Header -->
+                            <rect x="30" y="10" width="660" height="28" rx="4" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="360" y="29" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle" font-weight="bold">DYNAMIC HALF -- Rebuilt Per Session</text>
+
+                            <!-- Section 7 -->
+                            <rect x="30" y="50" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="72" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">7. Session-Specific Tool Tips</text>
+                            <text x="650" y="72" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Tips for currently available tools</text>
+
+                            <!-- Section 8 - highlighted -->
+                            <rect x="30" y="94" width="660" height="36" rx="4" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="48" y="116" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" font-weight="bold">8. MEMORY.md + CLAUDE.md</text>
+                            <text x="650" y="116" font-family="'Fira Code', monospace" font-size="9" fill="#3b82f6" text-anchor="end">YOUR INSTRUCTIONS HERE</text>
+
+                            <!-- Section 9 -->
+                            <rect x="30" y="138" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="160" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">9. Environment Info</text>
+                            <text x="650" y="160" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">CWD, git status, OS, shell, model name</text>
+
+                            <!-- Section 10 -->
+                            <rect x="30" y="182" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="204" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">10. Language Preference</text>
+                            <text x="650" y="204" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">User's preferred language (if set)</text>
+
+                            <!-- Section 11 -->
+                            <rect x="30" y="226" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="248" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">11. Output Style</text>
+                            <text x="650" y="248" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Conciseness level, formatting rules</text>
+
+                            <!-- Section 12 -->
+                            <rect x="30" y="270" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="292" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">12. MCP Server Instructions</text>
+                            <text x="650" y="292" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Connected MCP servers &amp; their tools</text>
+
+                            <!-- Section 13 -->
+                            <rect x="30" y="314" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="336" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">13. Scratchpad Guidance</text>
+                            <text x="650" y="336" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">How to use the scratchpad tool</text>
+
+                            <!-- Section 14 -->
+                            <rect x="30" y="358" width="660" height="36" rx="4" fill="#1e293b" stroke="#374151"/>
+                            <text x="48" y="380" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc">14. Token Management Hints</text>
+                            <text x="650" y="380" font-family="'Fira Code', monospace" font-size="9" fill="#6b7280" text-anchor="end">Budget awareness, output length guidance</text>
+                        </svg>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Section</th>
+                                    <th>Varies By</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>7</td>
+                                    <td><strong>Tool Tips</strong></td>
+                                    <td>Available tools</td>
+                                    <td>Generated from the tool set actually loaded for this session (MCP tools, built-in tools, agent-restricted tools)</td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td><strong>MEMORY.md + CLAUDE.md</strong></td>
+                                    <td>Project + user</td>
+                                    <td>Three tiers loaded: <code><span class="string">~/.claude/CLAUDE.md</span></code> (global), <code><span class="string">.claude/CLAUDE.md</span></code> (project), <code><span class="string">CLAUDE.md</span></code> (workspace root). Plus MEMORY.md files from <code><span class="string">~/.claude/projects/</span></code></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td><strong>Environment Info</strong></td>
+                                    <td>Machine + session</td>
+                                    <td>Working directory, git branch/status, OS name + version, shell, active model ID</td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td><strong>Language Preference</strong></td>
+                                    <td>User setting</td>
+                                    <td>If set, instructs Claude to respond in that language. Defaults to English.</td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td><strong>Output Style</strong></td>
+                                    <td>User setting</td>
+                                    <td>Conciseness level (concise, normal, verbose), code-only mode</td>
+                                </tr>
+                                <tr>
+                                    <td>12</td>
+                                    <td><strong>MCP Instructions</strong></td>
+                                    <td>Connected servers</td>
+                                    <td>Descriptions, tool schemas, and usage hints for each MCP server. Uses <code><span class="command">DANGEROUS_uncachedSystemPromptSection</span></code></td>
+                                </tr>
+                                <tr>
+                                    <td>13</td>
+                                    <td><strong>Scratchpad</strong></td>
+                                    <td>Feature flag</td>
+                                    <td>Guidance on using the scratchpad tool for persistent notes within a session</td>
+                                </tr>
+                                <tr>
+                                    <td>14</td>
+                                    <td><strong>Token Management</strong></td>
+                                    <td>Model + context</td>
+                                    <td>Budget hints, output length targets, compaction awareness</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>System Prefix Selection</h2>
+                    <p>
+                        Before any sections are assembled, the system selects one of three prefix variants based on how Claude Code was invoked.
+                        The prefix is prepended to the entire system prompt.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variant</th>
+                                    <th>When Used</th>
+                                    <th>Key Difference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge badge-public">Default CLI</span></td>
+                                    <td>Standard <code>claude</code> command</td>
+                                    <td>Full interactive identity: "You are Claude Code, an interactive CLI tool..."</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-env">Agent SDK (Claude Code)</span></td>
+                                    <td>When used via the Agent SDK as a Claude Code instance</td>
+                                    <td>Adds SDK-specific constraints, preserves Claude Code identity</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-hidden">Agent SDK (Generic)</span></td>
+                                    <td>When used via the Agent SDK as a generic agent</td>
+                                    <td>Minimal identity, no Claude Code branding. "You are an AI agent..."</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Prefix Selection Logic</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">function</span> <span class="command">getSystemPrefix</span>(mode: <span class="type">InvocationMode</span>): <span class="type">string</span> {
+  <span class="keyword">switch</span> (mode) {
+    <span class="keyword">case</span> <span class="string">"cli"</span>:
+      <span class="keyword">return</span> <span class="string">"You are Claude Code, a CLI-based AI coding assistant..."</span>;
+    <span class="keyword">case</span> <span class="string">"agent-sdk-claude-code"</span>:
+      <span class="keyword">return</span> <span class="string">"You are Claude Code, running via the Agent SDK..."</span>;
+    <span class="keyword">case</span> <span class="string">"agent-sdk-generic"</span>:
+      <span class="keyword">return</span> <span class="string">"You are an AI agent with access to tools..."</span>;
+  }
+}</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Knowledge Cutoff Dates</h2>
+                    <p>
+                        The system prompt includes a hardcoded knowledge cutoff date that varies by model. This is injected into the
+                        environment info section so Claude knows the limits of its training data.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Cutoff Date</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code><span class="command">claude-sonnet-4-6</span></code></td>
+                                    <td><strong>August 2025</strong></td>
+                                    <td>Most recent training data</td>
+                                </tr>
+                                <tr>
+                                    <td><code><span class="command">claude-opus-4-6</span></code></td>
+                                    <td><strong>May 2025</strong></td>
+                                    <td>Same cutoff as Opus 4.5</td>
+                                </tr>
+                                <tr>
+                                    <td><code><span class="command">claude-opus-4-5</span></code></td>
+                                    <td><strong>May 2025</strong></td>
+                                    <td>--</td>
+                                </tr>
+                                <tr>
+                                    <td><code><span class="command">claude-haiku-4</span></code></td>
+                                    <td><strong>February 2025</strong></td>
+                                    <td>Used by Explore agent, cheapest option</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Source: Knowledge Cutoff Map</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">KNOWLEDGE_CUTOFFS</span>: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt; = {
+  <span class="string">"claude-sonnet-4-6"</span>:  <span class="string">"August 2025"</span>,
+  <span class="string">"claude-opus-4-6"</span>:    <span class="string">"May 2025"</span>,
+  <span class="string">"claude-opus-4-5"</span>:    <span class="string">"May 2025"</span>,
+  <span class="string">"claude-haiku-4"</span>:     <span class="string">"February 2025"</span>,
+};</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Feature-Gated Sections</h2>
+                    <p>
+                        Several prompt sections are conditionally included based on feature flags (via GrowthBook), user type,
+                        or environment variables. These sections only appear when their gate is satisfied.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature Section</th>
+                                    <th>Gate</th>
+                                    <th>What It Adds</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Proactive Mode</strong></td>
+                                    <td><span class="badge badge-env">Feature Flag</span></td>
+                                    <td>Enables tick prompts: Claude can act autonomously between user messages, polling for state changes and taking action without being asked</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Verification Agent</strong></td>
+                                    <td><span class="badge badge-internal">Ant-Only A/B Test</span></td>
+                                    <td>Background agent that verifies outputs. Only available to internal Anthropic users as part of an A/B experiment</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Token Budget</strong></td>
+                                    <td><span class="badge badge-env">Feature Flag</span></td>
+                                    <td>Injects explicit token budget targets: "aim for under N tokens in this response". Helps control output length</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Numeric Length Anchors</strong></td>
+                                    <td><span class="badge badge-internal">Internal Builds</span></td>
+                                    <td>Hardcoded numeric targets like "keep responses under 4000 tokens". Reduced output by ~1.2% in internal testing</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Proactive Mode Deep Dive</h3>
+                    <p>
+                        When proactive mode is enabled, an additional section is injected that instructs Claude to use "tick prompts" --
+                        periodic self-triggered turns where Claude can check build status, test results, or file system changes and
+                        respond without waiting for the user.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Proactive Mode Prompt Injection</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment">// When proactive mode feature flag is enabled:</span>
+<span class="keyword">if</span> (features.<span class="command">proactiveMode</span>) {
+  dynamicSections.<span class="command">push</span>(<span class="string">`
+You have proactive mode enabled. You may take autonomous actions
+between user messages when you detect something that needs attention.
+Use tick prompts to poll for changes in build output, test results,
+or file system state.
+  `</span>);
+}</div>
+                    </div>
+
+                    <h3>Numeric Length Anchors</h3>
+                    <p>
+                        Internal Anthropic builds include specific numeric targets in the style section. These anchors measurably
+                        reduced output tokens by approximately 1.2% in A/B testing. The technique works because
+                        concrete numbers are harder for the model to rationalise away than vague instructions like "be concise".
+                    </p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Steal This: Add Numeric Anchors to CLAUDE.md
+                        </h3>
+                        <p>You can replicate the internal build's length anchors in your own CLAUDE.md. Instead of "be concise", use specific numbers: "Keep responses under 100 words. Keep text between tool calls under 25 words." This exploits the same mechanism Anthropic uses internally.</p>
+                        <span class="impact impact-medium">Medium Impact</span>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Ant-Only vs External Builds</h2>
+                    <p>
+                        The prompt assembly checks a <code><span class="command">USER_TYPE</span></code> gate to determine whether the user is an internal Anthropic employee
+                        ("ant") or an external user. Several sections differ between the two builds.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>External Build</th>
+                                    <th>Ant-Only Build</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Verification Agent</strong></td>
+                                    <td>Not available</td>
+                                    <td>Available (A/B tested)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Numeric Length Anchors</strong></td>
+                                    <td>Not included</td>
+                                    <td>Included (reduced output ~1.2%)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Explore Agent Model</strong></td>
+                                    <td>Haiku</td>
+                                    <td>May use higher-tier models</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Feature Flag Overrides</strong></td>
+                                    <td>Standard GrowthBook</td>
+                                    <td>Additional internal-only flags</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Debug Sections</strong></td>
+                                    <td>Stripped</td>
+                                    <td>Optional debug prompt sections available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">USER_TYPE Gate</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">const</span> <span class="command">isInternal</span> = process.env.<span class="command">USER_TYPE</span> === <span class="string">"ant"</span>;
+
+<span class="keyword">if</span> (isInternal) {
+  staticSections.<span class="command">push</span>(numericLengthAnchors);
+  <span class="comment">// Verification agent A/B test gate</span>
+  <span class="keyword">if</span> (features.<span class="command">verificationAgent</span>) {
+    dynamicSections.<span class="command">push</span>(verificationAgentSection);
+  }
+}</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Caching Strategy</h2>
+                    <p>
+                        The prompt uses section-level caching. Each section is individually cacheable, and the overall prompt
+                        is split at the boundary marker for API-level caching. However, one notable exception exists.
+                    </p>
+
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <strong>Static sections (1-6):</strong> Cached globally per build version. Identical for all users on the same build.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <strong>Dynamic sections (7-14):</strong> Cached per session. Rebuilt when tools, CLAUDE.md, or environment change.
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="20" height="20" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </div>
+                            <div>
+                                <strong>MCP section (12):</strong> Uses <code><span class="command">DANGEROUS_uncachedSystemPromptSection</span></code> -- deliberately excluded from caching because MCP server availability can change mid-session.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Why DANGEROUS_uncachedSystemPromptSection?</div>
+                        <p>
+                            The MCP instructions section is the <strong>only</strong> section that uses this escape hatch. MCP servers can
+                            connect and disconnect during a session, so caching their instructions would cause Claude to reference
+                            tools that no longer exist (or miss tools that just became available). The "DANGEROUS" prefix is a
+                            deliberate naming convention to discourage casual use -- it forces cache misses on every request.
+                        </p>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Practical Insight</div>
+                        <p>
+                            Since CLAUDE.md is in the dynamic half (section 8), editing it between turns does not break the
+                            static cache. But it <em>does</em> invalidate the per-session dynamic cache, meaning the next API call
+                            after a CLAUDE.md edit will be slightly more expensive (no dynamic cache hit). For this reason,
+                            avoid editing CLAUDE.md in tight loops or automation.
+                        </p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Full Assembly Flow</h2>
+                    <p>Putting it all together, here is the complete assembly pipeline from invocation to API call:</p>
+
+                    <div class="flow-diagram">
+                        <svg width="720" height="520" viewBox="0 0 720 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Step 1 -->
+                            <rect x="200" y="10" width="320" height="40" rx="6" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="360" y="35" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" text-anchor="middle">1. Detect invocation mode</text>
+
+                            <line x1="360" y1="50" x2="360" y2="70" stroke="#374151" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+                            <!-- Step 2 -->
+                            <rect x="200" y="70" width="320" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="95" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">2. Select system prefix variant</text>
+
+                            <line x1="360" y1="110" x2="360" y2="130" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 3 -->
+                            <rect x="200" y="130" width="320" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="155" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">3. Assemble static sections 1-6</text>
+
+                            <line x1="360" y1="170" x2="360" y2="190" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 4 -->
+                            <rect x="200" y="190" width="320" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="215" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">4. Check feature flags + USER_TYPE</text>
+
+                            <line x1="360" y1="230" x2="360" y2="250" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 5 -->
+                            <rect x="200" y="250" width="320" height="40" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="360" y="275" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle">5. Insert CACHE BOUNDARY marker</text>
+
+                            <line x1="360" y1="290" x2="360" y2="310" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 6 -->
+                            <rect x="200" y="310" width="320" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="335" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">6. Assemble dynamic sections 7-14+</text>
+
+                            <line x1="360" y1="350" x2="360" y2="370" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 7 -->
+                            <rect x="200" y="370" width="320" height="40" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="360" y="395" font-family="'Fira Code', monospace" font-size="11" fill="#f8fafc" text-anchor="middle">7. Inject gated sections if active</text>
+
+                            <line x1="360" y1="410" x2="360" y2="430" stroke="#374151" stroke-width="1.5"/>
+
+                            <!-- Step 8 -->
+                            <rect x="200" y="430" width="320" height="40" rx="6" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="1.5"/>
+                            <text x="360" y="455" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle">8. Send to API (static=cached)</text>
+
+                            <!-- Arrow marker definition -->
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Key Takeaway</div>
+                        <p>
+                            The system prompt is not a monolith. It is a pipeline of conditional sections, split by a cache boundary,
+                            with feature-gated additions and a deliberate uncached escape hatch for MCP. Understanding this structure
+                            lets you write CLAUDE.md instructions that complement (rather than duplicate) the built-in sections,
+                            and helps you predict when cache misses will increase your API costs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

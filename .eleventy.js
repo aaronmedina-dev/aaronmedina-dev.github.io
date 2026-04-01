@@ -10,6 +10,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("cidr-calculator");
     eleventyConfig.addPassthroughCopy("aikido");
     eleventyConfig.addPassthroughCopy("whatthepatch");
+    eleventyConfig.addPassthroughCopy("claude-code-leak");
     eleventyConfig.addPassthroughCopy("blog/css");
     eleventyConfig.addPassthroughCopy("blog/images");
     eleventyConfig.addPassthroughCopy("favicon.svg");
@@ -17,6 +18,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("google7f425c781d89ca1f.html");
     // Ignore non-blog markdown files from template processing
     eleventyConfig.ignores.add("AGENTS.md");
+    eleventyConfig.ignores.add("CLAUDE.md");
     eleventyConfig.ignores.add("pert/README.md");
     eleventyConfig.ignores.add("aikido/sub-issue-formatter/README.md");
     eleventyConfig.ignores.add("whatthepatch/README.md");

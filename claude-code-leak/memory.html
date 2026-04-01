@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How Claude Code's persistent memory system works: file-based storage, memory types, auto-extraction, and loading mechanics.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Memory System - Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item active">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content">
+                    <h1>Memory System</h1>
+                    <p class="lead">
+                        Claude Code uses a persistent, file-based memory system that survives across conversations.
+                        Memories are stored as Markdown files with YAML frontmatter, organised into types, and
+                        loaded into the system prompt at the start of every session.
+                    </p>
+
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">Memory Types</div>
+                        </div>
+                        <div class="stat-card orange">
+                            <div class="stat-number">200</div>
+                            <div class="stat-label">Line Limit (Index)</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-number">~150</div>
+                            <div class="stat-label">Chars Per Entry</div>
+                        </div>
+                        <div class="stat-card purple">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">Turn Budget</div>
+                        </div>
+                    </div>
+
+                    <h2>Memory Types</h2>
+                    <p>Every memory is categorised into one of four types. Each type has different durability, use cases, and decay behaviour.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Purpose</th>
+                                    <th>Decay Rate</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>User</strong></td>
+                                    <td>Role, goals, preferences</td>
+                                    <td>Slow</td>
+                                    <td>"Senior Go developer, microservices focus"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Feedback</strong></td>
+                                    <td>Corrections and confirmed approaches</td>
+                                    <td>Slowest</td>
+                                    <td>"Always use structured logging, not fmt.Printf"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Project</strong></td>
+                                    <td>Ongoing work, goals, deadlines</td>
+                                    <td>Fastest</td>
+                                    <td>"Merge freeze starts 2026-03-05"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reference</strong></td>
+                                    <td>Pointers to external systems</td>
+                                    <td>Medium</td>
+                                    <td>"Pipeline bugs tracked in Linear project INGEST"</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>User Memories</h3>
+                    <p>Capture who you are and how you work. These rarely change and persist the longest.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Example: user-preferences.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">---</span>
+<span class="type">name</span>: <span class="string">user-preferences</span>
+<span class="type">description</span>: <span class="string">Developer role and coding preferences</span>
+<span class="type">type</span>: <span class="string">user</span>
+<span class="keyword">---</span>
+<span class="comment"># User Preferences</span>
+- Senior Go developer, microservices focus
+- Prefers table-driven tests over subtests
+- Uses Australian English spelling (organise, behaviour)
+- Vim keybindings everywhere</div>
+                    </div>
+
+                    <h3>Feedback Memories</h3>
+                    <p>The most durable memory type. Structured as a rule, a reason (<em>why</em>), and application guidance (<em>how to apply</em>).</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Example: feedback-logging.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">---</span>
+<span class="type">name</span>: <span class="string">feedback-logging</span>
+<span class="type">description</span>: <span class="string">Logging conventions correction</span>
+<span class="type">type</span>: <span class="string">feedback</span>
+<span class="keyword">---</span>
+<span class="comment"># Rule</span>
+Always use structured logging via <span class="command">slog</span>, never <span class="command">fmt.Printf</span>.
+
+<span class="comment"># Why</span>
+The observability pipeline parses JSON logs. Printf output gets dropped.
+
+<span class="comment"># How to Apply</span>
+Import <span class="string">"log/slog"</span> and use <span class="command">slog.Info()</span>, <span class="command">slog.Error()</span> etc.</div>
+                    </div>
+
+                    <h3>Project Memories</h3>
+                    <p>Short-lived by design. Track deadlines, sprint goals, and in-progress work that becomes stale quickly.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Example: project-sprint.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">---</span>
+<span class="type">name</span>: <span class="string">project-sprint</span>
+<span class="type">description</span>: <span class="string">Current sprint goals and deadlines</span>
+<span class="type">type</span>: <span class="string">project</span>
+<span class="keyword">---</span>
+- Merge freeze starts 2026-03-05
+- Prioritise auth service migration
+- API v2 deprecation deadline: 2026-04-15</div>
+                    </div>
+
+                    <h3>Reference Memories</h3>
+                    <p>Pointers to external systems, documentation, and resources that Claude cannot access directly.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Example: reference-systems.md</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">---</span>
+<span class="type">name</span>: <span class="string">reference-systems</span>
+<span class="type">description</span>: <span class="string">External system pointers</span>
+<span class="type">type</span>: <span class="string">reference</span>
+<span class="keyword">---</span>
+- Pipeline bugs tracked in Linear project INGEST
+- Deployment runbooks in Notion workspace /eng/runbooks
+- Staging environment: staging.internal.example.com</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>File Structure</h2>
+                    <p>Memories live in a project-specific directory under <code>~/.claude/</code>. The path is derived from a hash of your project's absolute path.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Directory Layout</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">~/.claude/projects/&lt;project-hash&gt;/memory/</span>
+<span class="output">  MEMORY.md</span>                  <span class="comment"># Index file -- always loaded</span>
+<span class="output">  user-preferences.md</span>        <span class="comment"># Individual memory file</span>
+<span class="output">  feedback-logging.md</span>        <span class="comment"># Individual memory file</span>
+<span class="output">  project-sprint.md</span>          <span class="comment"># Individual memory file</span>
+<span class="output">  reference-systems.md</span>       <span class="comment"># Individual memory file</span></div>
+                    </div>
+
+                    <h3>MEMORY.md Index File</h3>
+                    <p>The index is the gateway to all other memories. It is <strong>always</strong> loaded into context at the start of every conversation.</p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            200-Line Hard Limit
+                        </h3>
+                        <p>MEMORY.md is truncated at 200 lines. Anything past line 200 is silently discarded. Keep entries concise (~150 characters each) and prune regularly.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">MEMORY.md (Index)</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Project Memory</span>
+
+<span class="comment">## User</span>
+- Senior Go developer, prefers table-driven tests [user-preferences.md]
+- Australian English spelling [user-preferences.md]
+
+<span class="comment">## Feedback</span>
+- Use slog structured logging, never fmt.Printf [feedback-logging.md]
+
+<span class="comment">## Project</span>
+- Merge freeze 2026-03-05, auth migration priority [project-sprint.md]
+
+<span class="comment">## Reference</span>
+- Pipeline bugs in Linear INGEST, runbooks in Notion [reference-systems.md]</div>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Key Detail</div>
+                        <p>MEMORY.md has <strong>no YAML frontmatter</strong>. It is plain Markdown. Individual memory files use frontmatter, but the index does not.</p>
+                    </div>
+
+                    <h3>Individual Memory File Format</h3>
+                    <p>Each memory file uses YAML frontmatter with three required fields:</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>name</code></td>
+                                    <td>Yes</td>
+                                    <td>Unique identifier for this memory (matches filename without .md)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>description</code></td>
+                                    <td>Yes</td>
+                                    <td>Human-readable summary of what the memory contains</td>
+                                </tr>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td>Yes</td>
+                                    <td>One of: <code>user</code>, <code>feedback</code>, <code>project</code>, <code>reference</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Memory Loading: loadMemoryPrompt()</h2>
+                    <p>At session start, the memory system builds a prompt section through a specific sequence of operations.</p>
+
+                    <div class="flow-diagram">
+                        <svg width="680" height="520" viewBox="0 0 680 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Title -->
+                            <text x="340" y="24" font-family="'Inter', sans-serif" font-size="14" fill="#f3f4f6" text-anchor="middle" font-weight="600">Memory Loading Pipeline</text>
+
+                            <!-- Step 1: Read MEMORY.md -->
+                            <rect x="200" y="48" width="280" height="50" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="340" y="70" font-family="'Fira Code', monospace" font-size="11" fill="#3b82f6" text-anchor="middle">1. Read MEMORY.md</text>
+                            <text x="340" y="86" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Truncate at 200 lines</text>
+
+                            <!-- Arrow -->
+                            <line x1="340" y1="98" x2="340" y2="128" stroke="#374151" stroke-width="2"/>
+                            <polygon points="335,124 340,134 345,124" fill="#374151"/>
+
+                            <!-- Step 2: Parse references -->
+                            <rect x="200" y="134" width="280" height="50" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+                            <text x="340" y="156" font-family="'Fira Code', monospace" font-size="11" fill="#22c55e" text-anchor="middle">2. Parse [filename.md] References</text>
+                            <text x="340" y="172" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Extract referenced memory files</text>
+
+                            <!-- Arrow -->
+                            <line x1="340" y1="184" x2="340" y2="214" stroke="#374151" stroke-width="2"/>
+                            <polygon points="335,210 340,220 345,210" fill="#374151"/>
+
+                            <!-- Step 3: Load individual files -->
+                            <rect x="200" y="220" width="280" height="50" rx="6" fill="#1e293b" stroke="#eab308" stroke-width="2"/>
+                            <text x="340" y="242" font-family="'Fira Code', monospace" font-size="11" fill="#eab308" text-anchor="middle">3. Load Individual Files</text>
+                            <text x="340" y="258" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Read frontmatter + body content</text>
+
+                            <!-- Arrow -->
+                            <line x1="340" y1="270" x2="340" y2="300" stroke="#374151" stroke-width="2"/>
+                            <polygon points="335,296 340,306 345,296" fill="#374151"/>
+
+                            <!-- Step 4: Check staleness -->
+                            <rect x="200" y="306" width="280" height="50" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                            <text x="340" y="328" font-family="'Fira Code', monospace" font-size="11" fill="#f59e0b" text-anchor="middle">4. Check File Staleness</text>
+                            <text x="340" y="344" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">&gt;1 day old = caveat injected</text>
+
+                            <!-- Arrow -->
+                            <line x1="340" y1="356" x2="340" y2="386" stroke="#374151" stroke-width="2"/>
+                            <polygon points="335,382 340,392 345,382" fill="#374151"/>
+
+                            <!-- Step 5: Format prompt -->
+                            <rect x="200" y="392" width="280" height="50" rx="6" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="340" y="414" font-family="'Fira Code', monospace" font-size="11" fill="#8b5cf6" text-anchor="middle">5. Format as Prompt Section</text>
+                            <text x="340" y="430" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">Inject into system prompt</text>
+
+                            <!-- Arrow -->
+                            <line x1="340" y1="442" x2="340" y2="472" stroke="#374151" stroke-width="2"/>
+                            <polygon points="335,468 340,478 345,468" fill="#374151"/>
+
+                            <!-- Cache note -->
+                            <rect x="200" y="478" width="280" height="34" rx="6" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4,4"/>
+                            <text x="340" y="500" font-family="'Fira Code', monospace" font-size="10" fill="#3b82f6" text-anchor="middle">Cached until /clear or /compact</text>
+
+                            <!-- Side annotations -->
+                            <rect x="520" y="220" width="140" height="136" rx="6" fill="#1e293b" stroke="#374151"/>
+                            <text x="590" y="244" font-family="'Fira Code', monospace" font-size="9" fill="#9ca3af" text-anchor="middle">File Sources</text>
+                            <text x="590" y="264" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e" text-anchor="middle">~/.claude/</text>
+                            <text x="590" y="280" font-family="'Fira Code', monospace" font-size="9" fill="#22c55e" text-anchor="middle">  MEMORY.md</text>
+                            <text x="590" y="300" font-family="'Fira Code', monospace" font-size="9" fill="#eab308" text-anchor="middle">projects/</text>
+                            <text x="590" y="316" font-family="'Fira Code', monospace" font-size="9" fill="#eab308" text-anchor="middle">  &lt;hash&gt;/</text>
+                            <text x="590" y="332" font-family="'Fira Code', monospace" font-size="9" fill="#eab308" text-anchor="middle">    memory/</text>
+                            <text x="590" y="348" font-family="'Fira Code', monospace" font-size="9" fill="#f59e0b" text-anchor="middle">      *.md</text>
+
+                            <!-- Connecting line from side box -->
+                            <line x1="520" y1="288" x2="480" y2="245" stroke="#374151" stroke-width="1" stroke-dasharray="4,4"/>
+                        </svg>
+                    </div>
+
+                    <p>The result is cached for the duration of the session. It is only reloaded if you run <code>/clear</code> or <code>/compact</code>.</p>
+
+                    <hr class="section-divider">
+
+                    <h2>Auto-Memory Extraction</h2>
+                    <p>Claude Code can automatically extract memories from conversations without explicit user action. This runs as a background process with strict constraints.</p>
+
+                    <h3>How It Works</h3>
+                    <ul class="features-list">
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span><strong>Forked sub-agent:</strong> A separate agent process is spawned, completely independent of your main conversation</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span><strong>5-turn budget:</strong> The extraction agent gets a maximum of 5 turns to identify, categorise, and write memories</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span><strong>Sandboxed:</strong> Can only write to the memory directory -- no access to your codebase or other files</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                            <span><strong>Conflict detection:</strong> Skips extraction if you manually wrote to memory in the same turn</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            <span><strong>Throttled:</strong> Rate-limited by GrowthBook feature flags (tengu_* namespace)</span>
+                        </li>
+                    </ul>
+
+                    <h3>What Gets Extracted</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Extracted</th>
+                                    <th>Not Extracted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>User preferences and coding style</td>
+                                    <td>Code patterns and implementations</td>
+                                </tr>
+                                <tr>
+                                    <td>Corrections ("don't do X, do Y instead")</td>
+                                    <td>Git history and commit details</td>
+                                </tr>
+                                <tr>
+                                    <td>Project conventions and standards</td>
+                                    <td>Debugging solutions (too ephemeral)</td>
+                                </tr>
+                                <tr>
+                                    <td>External system references</td>
+                                    <td>Content already in CLAUDE.md</td>
+                                </tr>
+                                <tr>
+                                    <td>Workflow and process decisions</td>
+                                    <td>Ephemeral task details ("fix this test")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="warning-card">
+                        <div class="warning-label">Warning</div>
+                        <p>Auto-extraction has throttling and conflict detection that can cause it to silently skip turns. If you need something remembered reliably, say "remember this" explicitly rather than relying on auto-extraction.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Memory Aging &amp; Staleness</h2>
+                    <p>Memories are not treated equally over time. The system applies age-based decay that varies by type.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Memory Type</th>
+                                    <th>Decay Behaviour</th>
+                                    <th>Staleness Caveat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Project</strong></td>
+                                    <td>Decays fastest -- deadlines and sprint goals become stale quickly</td>
+                                    <td>After ~1 day</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reference</strong></td>
+                                    <td>Medium decay -- external system pointers may change</td>
+                                    <td>After ~1 day</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>User</strong></td>
+                                    <td>Slow decay -- preferences are stable</td>
+                                    <td>After ~1 day</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Feedback</strong></td>
+                                    <td>Most durable -- corrections should persist</td>
+                                    <td>After ~1 day</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p>When a file is older than 1 day, the system injects a caveat into the prompt that makes Claude second-guess the memory's accuracy. To prevent this for stable memories:</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Terminal</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Reset modification time to prevent staleness caveat</span>
+<span class="command">touch</span> ~/.claude/projects/&lt;project-hash&gt;/memory/important_memory.md</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Memory Verification</h2>
+                    <p>The system includes safeguards to prevent acting on outdated or incorrect memories.</p>
+
+                    <ul>
+                        <li><strong>File existence check:</strong> Verifies the referenced file still exists before loading</li>
+                        <li><strong>Content grep:</strong> For memories referencing functions or flags, checks they still exist in the codebase</li>
+                        <li><strong>Verify before acting:</strong> Stale memories include a caveat prompting Claude to verify before relying on them</li>
+                    </ul>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Practical Tip</div>
+                        <p>If a memory references a function like <code>handleAuth()</code> that was later renamed, the verification step catches this. Claude will re-check the codebase rather than blindly trusting the memory.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Session Memory vs Persistent Memory</h2>
+                    <p>These are two distinct systems that serve different purposes.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Session Memory</th>
+                                    <th>Persistent Memory</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Lifetime</strong></td>
+                                    <td>Current conversation only</td>
+                                    <td>Survives across conversations</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Storage</strong></td>
+                                    <td>In-memory (conversation context)</td>
+                                    <td>Markdown files on disk</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Survives /compact</strong></td>
+                                    <td>Partially (summarised)</td>
+                                    <td>Yes (reloaded from files)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Survives /clear</strong></td>
+                                    <td>No</td>
+                                    <td>Yes (reloaded from files)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Capacity</strong></td>
+                                    <td>Limited by context window</td>
+                                    <td>Limited by 200-line index</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Agent Memory Scopes</h2>
+                    <p>Custom agents can specify which memory scope they operate in. This determines where their memories are stored and who can see them.</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Scope</th>
+                                    <th>Path</th>
+                                    <th>Visibility</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>user</code></td>
+                                    <td><code>~/.claude/memory/</code></td>
+                                    <td>All projects, all agents</td>
+                                </tr>
+                                <tr>
+                                    <td><code>project</code></td>
+                                    <td><code>~/.claude/projects/&lt;hash&gt;/memory/</code></td>
+                                    <td>All agents in this project</td>
+                                </tr>
+                                <tr>
+                                    <td><code>local</code></td>
+                                    <td><code>.claude/memory/</code> (in project root)</td>
+                                    <td>Only this project checkout</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Agent Frontmatter</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="keyword">---</span>
+<span class="type">name</span>: <span class="string">my-agent</span>
+<span class="type">description</span>: <span class="string">Agent with project-scoped memory</span>
+<span class="type">memory</span>: <span class="string">project</span>     <span class="comment"># user | project | local</span>
+<span class="keyword">---</span></div>
+                    </div>
+
+                    <h3>Team Memory Sync</h3>
+                    <p>In swarm scenarios (multiple agents working in parallel), the <code>local</code> scope stored in <code>.claude/memory/</code> within the project root can be committed to version control. This enables team-wide memory sharing -- every developer who clones the repository gets the same baseline memories.</p>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Swarm Tip</div>
+                        <p>For coordinated multi-agent work, use <code>local</code> scope so memories are visible to all agents in the same worktree. The <code>project</code> scope stores memories per-user and is not shared through git.</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>The /memory Command</h2>
+                    <p>Access the memory system directly from the CLI.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Terminal</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="comment"># Open the memory management interface</span>
+<span class="command">/memory</span>
+
+<span class="comment"># View current MEMORY.md contents</span>
+<span class="command">/memory</span> show
+
+<span class="comment"># Trigger explicit memory save</span>
+<span class="command">/memory</span> save</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Practical Tips</h2>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            "Remember this" Beats Auto-Extraction
+                        </h3>
+                        <p>Explicitly telling Claude "remember this" triggers a direct memory write that bypasses throttling, conflict detection, and the GrowthBook feature flag gate. Far more reliable than hoping auto-extraction picks it up.</p>
+                        <span class="impact impact-high">High Impact</span>
+                    </div>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Prune MEMORY.md Regularly
+                        </h3>
+                        <p>With only 200 lines available, every entry matters. Remove completed project goals, obsolete references, and feedback that has been incorporated into CLAUDE.md. Keep the index lean.</p>
+                        <span class="impact impact-medium">Medium Impact</span>
+                    </div>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Touch Files to Reset Staleness
+                        </h3>
+                        <p>Run <code>touch</code> on memory files that contain stable, long-lived information. This resets the modification timestamp and prevents the staleness caveat from being injected.</p>
+                        <span class="impact impact-low">Low Impact</span>
+                    </div>
+
+                    <div class="tip-card">
+                        <div class="tip-label">Memory vs CLAUDE.md</div>
+                        <p>Use <strong>CLAUDE.md</strong> for instructions that apply to every conversation (coding standards, project structure, tool preferences). Use <strong>memories</strong> for things that change over time (deadlines, current sprint focus, corrections from past mistakes). CLAUDE.md is deterministic; memories are probabilistic.</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

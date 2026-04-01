@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reverse-engineered analysis of Claude Code's publicly available source code. Hacks, optimisations, and architecture deep-dives.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/cc-logo.svg">
+    <title>Claude Code Source Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/cc-logo.svg" alt="CC">
+                        <span>Claude Code</span>
+                    </a>
+                    <span class="sidebar-version">source analysis</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">Documentation</span>
+                    <a href="index.html" class="nav-item active">Overview</a>
+                    <a href="hacks.html" class="nav-item">Hacks &amp; Optimisations</a>
+                    <a href="system-prompt.html" class="nav-item">System Prompt</a>
+                    <a href="agents.html" class="nav-item">Agent System</a>
+                    <a href="permissions.html" class="nav-item">Permissions</a>
+                    <a href="compaction.html" class="nav-item">Context Compaction</a>
+                    <a href="memory.html" class="nav-item">Memory System</a>
+                    <a href="feature-flags.html" class="nav-item">Feature Flags</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-section-title">Resources</span>
+                    <a href="https://github.com/aaronmedina-dev/claude-code" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev/claude-code/issues" class="nav-item" target="_blank">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Report Issue
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://aaronmedina-dev.github.io/" class="back-to-main">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Main Site
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <a href="https://github.com/aaronmedina-dev/claude-code" class="github-link" target="_blank">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="content-container">
+                <div class="content">
+                    <h1>Claude Code Leaked Source Code Analysis</h1>
+                    <p class="lead">
+                        While the leaked Claude Code's source is not readily runnable outside Anthropic's internal build pipeline,
+                        we reverse-engineered it to uncover undocumented hacks, hidden commands,
+                        and architectural patterns that let you push Claude Code further than the docs suggest.
+                    </p>
+
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" data-count="1900" data-suffix="+">0</div>
+                            <div class="stat-label">TypeScript Files</div>
+                        </div>
+                        <div class="stat-card orange">
+                            <div class="stat-number" data-count="90" data-suffix="+">0</div>
+                            <div class="stat-label">Slash Commands</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-number" data-count="40" data-suffix="+">0</div>
+                            <div class="stat-label">Built-in Tools</div>
+                        </div>
+                        <div class="stat-card purple">
+                            <div class="stat-number" data-count="7">0</div>
+                            <div class="stat-label">Security Layers</div>
+                        </div>
+                    </div>
+
+                    <h2>How It Was Leaked</h2>
+                    <p>On March 31, 2026, Chaofan Shou (<a href="https://x.com/Fried_rice" target="_blank">@Fried_rice</a>) discovered and publicly disclosed that Claude Code's full, unobfuscated TypeScript source was accessible via a source map file in Anthropic's published npm package.</p>
+
+                    <div class="hack-card">
+                        <h3>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            @Fried_rice
+                        </h3>
+                        <p>"Claude code source code has been leaked via a map file in their npm registry!"</p>
+                    </div>
+
+                    <p style="margin-bottom: 24px;">
+                        <img src="assets/images/twitter_post.png" alt="@Fried_rice tweet disclosing the Claude Code source leak via npm source map" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+                    </p>
+
+                    <p>The source map in the published npm package contained a reference to the full, uncompiled TypeScript source, which was downloadable as a zip archive from Anthropic's R2 storage bucket. The archive contained approximately <strong>1,900 TypeScript/TSX files</strong> -- the entire Claude Code codebase before compilation and dead code elimination.</p>
+                    <p>The source reveals the complete architecture: system prompt assembly, permission model, agent spawning, context compaction, memory system, feature flags, and more.</p>
+
+                    <h2>What Can You Actually Do With This?</h2>
+                    <ul class="features-list">
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span><strong>Reduce costs by up to 40%</strong> using undocumented environment variables that strip the system prompt, disable background tasks, and trigger earlier compaction</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span><strong>Write better CLAUDE.md files</strong> by understanding exactly where your instructions land in the 15-section system prompt and what's already covered</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span><strong>Use hidden slash commands</strong> like <code>/rewind</code>, <code>/context</code>, <code>/stats</code>, and custom <code>/compact</code> instructions for targeted context management</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span><strong>Build custom agents</strong> with Haiku for cheap automation, define tools and permissions in simple markdown files</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span><strong>Understand the security model</strong> from sandbox profiles to permission rules, so you know what Claude can and cannot do in your environment</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            <span><strong>Master context management</strong> by learning how microcompaction, auto-compaction, and post-compaction file restoration actually work under the hood</span>
+                        </li>
+                    </ul>
+
+                    <h2>What You Cannot Do</h2>
+                    <p>This source is not directly runnable. It relies on Anthropic's internal Bun build pipeline, compile-time feature gates, and internal-only dependencies. You also cannot:</p>
+                    <ul>
+                        <li>Build and run your own version of Claude Code from this source</li>
+                        <li>Circumvent security controls (sandbox, permissions, and guardrails are enforced server-side)</li>
+                        <li>Access internal-only features gated behind <code>USER_TYPE === 'ant'</code> checks</li>
+                    </ul>
+
+                    <h2>Documentation Guide</h2>
+                    <p>Start with the practical content and go deeper as needed:</p>
+
+                    <div class="card">
+                        <h3><a href="hacks.html">Hacks &amp; Optimisations</a></h3>
+                        <p>The actionable stuff. Environment variables, CLAUDE.md tricks, cost reduction strategies, and hidden commands you can use right now.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="system-prompt.html">System Prompt Assembly</a></h3>
+                        <p>How Claude Code's 15+ section system prompt is dynamically assembled, cached, and what your CLAUDE.md is competing with for attention.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="agents.html">Agent &amp; Sub-Agent System</a></h3>
+                        <p>The multi-agent architecture: built-in agents, custom agent definitions, fork-based spawning, worktree isolation, and swarm coordination.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="permissions.html">Permissions &amp; Sandboxing</a></h3>
+                        <p>Seven security layers in the Bash tool alone, plus macOS Seatbelt sandboxing, permission modes, and enterprise MDM controls.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="compaction.html">Context Compaction</a></h3>
+                        <p>Three levels of compaction (micro, auto, manual), the 9-section summarisation algorithm, and post-compaction file restoration.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="memory.html">Memory System</a></h3>
+                        <p>Four memory types, the MEMORY.md index with its 200-line hard limit, auto-extraction via forked sub-agents, and staleness caveats.</p>
+                    </div>
+                    <div class="card">
+                        <h3><a href="feature-flags.html">Feature Flags &amp; Hidden Commands</a></h3>
+                        <p>Compile-time DCE flags, GrowthBook runtime A/B tests (codename: Tengu), and the full list of hidden slash commands.</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <span>Source analysis by <a href="https://aaronmedina-dev.github.io/">Aaron Medina</a></span>
+                    <div class="footer-links">
+                        <a href="https://github.com/aaronmedina-dev/claude-code" target="_blank">GitHub</a>
+                        <a href="https://github.com/aaronmedina-dev/claude-code/issues" target="_blank">Issues</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <button class="scroll-top" aria-label="Scroll to top">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
