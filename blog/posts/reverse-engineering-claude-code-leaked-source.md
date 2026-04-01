@@ -5,6 +5,7 @@ description: "While everyone was hunting for vulnerabilities in Claude Code's le
 tags: ["Claude", "AI", "Reverse Engineering", "Productivity"]
 readTime: "8 min read"
 image: "/blog/images/claude-code-leak-hero.svg"
+ogImage: "/blog/images/claude-code-leak-hero.png"
 imageAlt: "Claude Code Leaked Source Code Analysis"
 ---
 

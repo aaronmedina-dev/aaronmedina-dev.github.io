@@ -13,12 +13,13 @@
     <meta property="og:title" content="{{ title }} | {{ site.author }}">
     <meta property="og:description" content="{{ description }}">
     <meta property="og:site_name" content="{{ site.author }}">
-    <meta property="og:image" content="{{ site.url }}/assets/og-image.png">
+    {% set socialImage = ogImage or image %}
+    <meta property="og:image" content="{% if socialImage %}{% if socialImage.startsWith('http') %}{{ socialImage }}{% else %}{{ site.url }}{{ socialImage }}{% endif %}{% else %}{{ site.url }}/assets/og-image.png{% endif %}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ title }} | {{ site.author }}">
     <meta name="twitter:description" content="{{ description }}">
-    <meta name="twitter:image" content="{{ site.url }}/assets/og-image.png">
+    <meta name="twitter:image" content="{% if socialImage %}{% if socialImage.startsWith('http') %}{{ socialImage }}{% else %}{{ site.url }}{{ socialImage }}{% endif %}{% else %}{{ site.url }}/assets/og-image.png{% endif %}">
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>{{ title }} | {{ site.author }}</title>
