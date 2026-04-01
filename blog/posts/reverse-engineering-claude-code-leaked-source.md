@@ -17,7 +17,7 @@ On March 31, 2026, Chaofan Shou ([@Fried_rice](https://x.com/Fried_rice)) posted
 
 Within hours, the entire 1,900-file codebase was circulating. Security researchers started combing through it for vulnerabilities. Anthropic will no doubt push changes to mitigate whatever gets found. The usual cycle.
 
-But while everyone else was hunting for exploits, I went in a different direction. I wanted to understand how Claude Code actually works under the hood, and whether there were undocumented levers we could pull to make it work better.
+But while everyone else was hunting for exploits, I went in a different direction. I wanted to understand how Claude Code actually works under the hood, and whether there were undocumented levers we could pull to make it work better. (I'm also looking into the security side of things, but that's a story for another post.)
 
 Turns out, there were quite a few.
 
