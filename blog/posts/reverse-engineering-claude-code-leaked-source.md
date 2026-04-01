@@ -21,6 +21,13 @@ But while everyone else was hunting for exploits, I went in a different directio
 
 Turns out, there were quite a few.
 
+<div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(59, 130, 246, 0.08)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 32px; margin: 32px 0; text-align: center;">
+  <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: #f59e0b; margin-bottom: 8px; font-weight: 600;">Full Documentation</p>
+  <p style="font-size: 1.5rem; font-weight: 700; color: #f3f4f6; margin-bottom: 12px;">Claude Code Leaked Source Code Analysis</p>
+  <p style="color: #9ca3af; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">8 pages covering system prompt assembly, agent architecture, permissions, compaction, memory, feature flags, and every undocumented hack we found.</p>
+  <a href="/claude-code-leak/" style="display: inline-block; background: #f59e0b; color: #0a0f1a; padding: 12px 32px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.95rem;">View the Full Analysis</a>
+</div>
+
 ## The Angle: Hacks, Not Exploits
 
 The source code is not readily runnable. It depends on Anthropic's internal Bun build pipeline, compile-time feature gates, and infrastructure we don't have access to. You can't just fork it and spin up your own Claude Code.
@@ -147,10 +154,6 @@ The trade-off is real: you lose all guardrails, style guidance, and tool usage t
 ## The Full Analysis
 
 These five are just the surface. The source reveals far more: [7 security layers](/claude-code-leak/permissions.html) in the Bash tool alone, a [three-level compaction system](/claude-code-leak/compaction.html) with silent microcompaction, [GrowthBook feature flags](/claude-code-leak/feature-flags.html) that reveal what Anthropic is A/B testing internally (codename: Tengu), and a complete [multi-agent swarm system](/claude-code-leak/agents.html) with leader/worker architecture.
-
-I've written it all up as a documentation site with detailed explanations, code examples, and architecture diagrams:
-
-**[Claude Code Leaked Source Code Analysis](/claude-code-leak/)**
 
 The [Hacks & Optimisations](/claude-code-leak/hacks.html) page has the full environment variable reference with defaults, usage guidance, and risk caveats. The [System Prompt](/claude-code-leak/system-prompt.html) page breaks down exactly how the 15-section prompt is assembled and cached. And the [Feature Flags](/claude-code-leak/feature-flags.html) page documents every compile-time gate and hidden slash command we found.
 
