@@ -79,97 +79,306 @@
                         behaviour, cut costs, and work more efficiently.
                     </p>
 
-                    <h2>The Nuclear Option: Minimal Prompt Mode</h2>
+                    <h2>Environment Variable Reference</h2>
+                    <p>All undocumented environment variables extracted from the source. Click any variable to jump to its detailed explanation.</p>
 
-                    <div class="hack-card">
-                        <h3>
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            CLAUDE_CODE_SIMPLE=1
-                        </h3>
-                        <p>Strips the system prompt down to a minimal version. The full system prompt is massive (15+ sections of instructions). This bypasses nearly all of it.</p>
-                        <span class="impact impact-high">High Impact</span>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Default</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="#env-simple"><code>CLAUDE_CODE_SIMPLE</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Prompt</td>
+                                    <td>Strips system prompt to minimal version</td>
+                                    <td><span class="impact impact-high">High</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-auto-compact-window"><code>CLAUDE_CODE_AUTO_COMPACT_WINDOW</code></a></td>
+                                    <td><code>ctx - 33K</code></td>
+                                    <td>Compaction</td>
+                                    <td>Override auto-compact threshold (tokens)</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-autocompact-pct"><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Compaction</td>
+                                    <td>Trigger compaction at % of context used</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-auto-compact"><code>DISABLE_AUTO_COMPACT</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Compaction</td>
+                                    <td>Disable auto-compaction, keep manual</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-compact"><code>DISABLE_COMPACT</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Compaction</td>
+                                    <td>Disable all compaction entirely</td>
+                                    <td><span class="impact impact-low">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-1m"><code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Context</td>
+                                    <td>Force 200K window even on 1M models</td>
+                                    <td><span class="impact impact-high">High</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-max-context"><code>CLAUDE_CODE_MAX_CONTEXT_TOKENS</code></a></td>
+                                    <td><code>model max</code></td>
+                                    <td>Context</td>
+                                    <td>Hard-cap maximum context tokens</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-thinking"><code>CLAUDE_CODE_DISABLE_THINKING</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Thinking</td>
+                                    <td>Disable extended thinking</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-interleaved"><code>DISABLE_INTERLEAVED_THINKING</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Thinking</td>
+                                    <td>Disable reasoning between tool calls</td>
+                                    <td><span class="impact impact-low">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-bg"><code>DISABLE_BACKGROUND_TASKS</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Background</td>
+                                    <td>Disable all background processes</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-disable-memory"><code>CLAUDE_CODE_DISABLE_AUTO_MEMORY</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Background</td>
+                                    <td>Disable auto-memory extraction only</td>
+                                    <td><span class="impact impact-low">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-coordinator"><code>CLAUDE_CODE_COORDINATOR_MODE</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Mode</td>
+                                    <td>Multi-agent orchestrator mode</td>
+                                    <td><span class="impact impact-high">High</span></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#env-fork"><code>CLAUDE_CODE_FORK_SUBAGENT</code></a></td>
+                                    <td><code>unset</code></td>
+                                    <td>Mode</td>
+                                    <td>Fork full context into background agent</td>
+                                    <td><span class="impact impact-medium">Med</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
+                    <div class="tip-card">
+                        <div class="tip-label">Usage</div>
+                        <p>Set these as environment variables before launching Claude Code. You can either <code>export</code> them for the whole shell session or prefix them inline for a single run (e.g., <code>CLAUDE_CODE_SIMPLE=1 claude</code>).</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <h2>Detailed Variable Reference</h2>
+
+                    <h3 id="env-simple">CLAUDE_CODE_SIMPLE</h3>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-label">Terminal</span>
+                            <span class="code-label">Shell</span>
                             <button class="copy-btn">Copy</button>
                         </div>
-                        <div class="code-content"><span class="command">CLAUDE_CODE_SIMPLE</span>=<span class="number">1</span> claude</div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_SIMPLE</span>=<span class="number">1</span></div>
                     </div>
-
-                    <p><strong>What it does:</strong> Reduces input tokens significantly, makes Claude respond faster, costs less per turn. Loses all guardrails, style guidance, and tool usage tips.</p>
-                    <p><strong>Best for:</strong> Scripted/automated pipelines where you send structured prompts and don't need the interactive hand-holding.</p>
-
+                    <p><strong>What it does:</strong> Strips the system prompt down to a minimal version. The full system prompt is massive (15+ sections covering identity, security guardrails, tool usage rules, task execution guidelines, style rules, and more). This flag bypasses nearly all of it, reducing input tokens significantly and making each API call faster and cheaper.</p>
+                    <p><strong>When to use:</strong> Scripted/automated pipelines where you send structured prompts and don't need the interactive hand-holding. Also useful for batch operations where you're driving Claude with precise instructions and want maximum throughput.</p>
                     <div class="warning-card">
-                        <div class="warning-label">Warning</div>
-                        <p>Not recommended for interactive use. Claude will behave differently without its full instruction set -- it may use tools incorrectly, skip safety checks, or produce inconsistent output styles.</p>
+                        <div class="warning-label">Risk</div>
+                        <p>Not recommended for interactive use. Without its full instruction set, Claude loses all guardrails, style guidance, and tool usage tips. It may use tools incorrectly (e.g., running <code>grep</code> via Bash instead of using the Grep tool), skip safety checks on destructive operations, produce inconsistent output styles, and forget conventions like reading files before editing them.</p>
                     </div>
 
-                    <h2>Environment Variable Controls</h2>
-
-                    <h3>Context &amp; Compaction</h3>
+                    <h3 id="env-auto-compact-window">CLAUDE_CODE_AUTO_COMPACT_WINDOW</h3>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-label">Environment Variables</span>
+                            <span class="code-label">Shell</span>
                             <button class="copy-btn">Copy</button>
                         </div>
-                        <div class="code-content"><span class="comment"># Override the auto-compact threshold (default: context window - 33K)</span>
-<span class="command">CLAUDE_CODE_AUTO_COMPACT_WINDOW</span>=<span class="number">150000</span>
-
-<span class="comment"># Trigger compaction at a specific % of context used</span>
-<span class="command">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</span>=<span class="number">85</span>
-
-<span class="comment"># Disable auto-compaction (keep manual /compact only)</span>
-<span class="command">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span>
-
-<span class="comment"># Disable ALL compaction</span>
-<span class="command">DISABLE_COMPACT</span>=<span class="number">1</span>
-
-<span class="comment"># Disable 1M context even if your model supports it</span>
-<span class="command">CLAUDE_CODE_DISABLE_1M_CONTEXT</span>=<span class="number">1</span>
-
-<span class="comment"># Cap maximum context tokens</span>
-<span class="command">CLAUDE_CODE_MAX_CONTEXT_TOKENS</span>=<span class="number">500000</span></div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_AUTO_COMPACT_WINDOW</span>=<span class="number">150000</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Overrides the effective context window size used to calculate when auto-compaction triggers. The default formula is <code>modelContextWindow - 33K</code>. Setting this lower (e.g., <code>150000</code>) forces compaction to trigger earlier, keeping per-turn token costs down.</p>
+                    <p><strong>When to use:</strong> Long-running sessions where you want to stay well under the context limit to maintain fast response times and avoid hitting the blocking limit.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>Setting this too low causes frequent compactions, which means you lose conversation detail more often. Each compaction replaces your full history with a 9-section summary, so nuance and intermediate reasoning get lost. You may find Claude asking to re-read files it already had in context.</p>
                     </div>
 
-                    <h3>Thinking &amp; Output</h3>
+                    <h3 id="env-autocompact-pct">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</h3>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-label">Environment Variables</span>
+                            <span class="code-label">Shell</span>
                             <button class="copy-btn">Copy</button>
                         </div>
-                        <div class="code-content"><span class="comment"># Disable extended thinking</span>
-<span class="command">CLAUDE_CODE_DISABLE_THINKING</span>=<span class="number">1</span>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</span>=<span class="number">85</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Triggers auto-compaction when context usage reaches a specific percentage of the window, rather than using the absolute token threshold. For example, <code>85</code> means compact when 85% of the context window is used.</p>
+                    <p><strong>When to use:</strong> When you want a predictable compaction point that scales automatically regardless of which model or context window size you're using. This is often simpler to reason about than an absolute token number.</p>
 
-<span class="comment"># Disable interleaved thinking</span>
-<span class="command">DISABLE_INTERLEAVED_THINKING</span>=<span class="number">1</span></div>
+                    <h3 id="env-disable-auto-compact">DISABLE_AUTO_COMPACT</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">DISABLE_AUTO_COMPACT</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Disables the automatic compaction trigger entirely. Compaction will only happen when you explicitly run <code>/compact</code>. The silent microcompaction (which cleans old tool results before each API call) still runs.</p>
+                    <p><strong>When to use:</strong> When you want full control over when context is summarised -- useful for sessions where you need Claude to retain precise details of earlier work and you're willing to manage the context window manually.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>If you forget to manually compact, the conversation will eventually hit the blocking limit and Claude will be unable to respond until you run <code>/compact</code>. Long uncompacted contexts also cost significantly more per turn since every API call includes the full history.</p>
                     </div>
 
-                    <h3>Background Behaviour</h3>
+                    <h3 id="env-disable-compact">DISABLE_COMPACT</h3>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-label">Environment Variables</span>
+                            <span class="code-label">Shell</span>
                             <button class="copy-btn">Copy</button>
                         </div>
-                        <div class="code-content"><span class="comment"># Disable all background tasks (auto-memory extraction, dreams, etc.)</span>
-<span class="command">DISABLE_BACKGROUND_TASKS</span>=<span class="number">1</span>
-
-<span class="comment"># Disable auto-memory extraction specifically</span>
-<span class="command">CLAUDE_CODE_DISABLE_AUTO_MEMORY</span>=<span class="number">1</span></div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">DISABLE_COMPACT</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Disables <strong>all</strong> compaction -- both automatic and manual. The <code>/compact</code> command itself becomes a no-op. No summarisation, no microcompaction, nothing.</p>
+                    <p><strong>When to use:</strong> Short, scripted sessions where you know the conversation will stay well within the context window and you want zero overhead from compaction logic.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Risk</div>
+                        <p>If the conversation exceeds the context window, Claude will hit the blocking limit with <strong>no way to recover</strong> other than restarting the session. Only use this when you are certain the session will be short-lived.</p>
                     </div>
 
-                    <h3>Hidden Modes</h3>
+                    <h3 id="env-disable-1m">CLAUDE_CODE_DISABLE_1M_CONTEXT</h3>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-label">Environment Variables</span>
+                            <span class="code-label">Shell</span>
                             <button class="copy-btn">Copy</button>
                         </div>
-                        <div class="code-content"><span class="comment"># Coordinator mode: Claude orchestrates worker sub-agents</span>
-<span class="command">CLAUDE_CODE_COORDINATOR_MODE</span>=<span class="number">1</span>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_DISABLE_1M_CONTEXT</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Forces Claude Code to use the standard 200K context window even when the model supports the extended 1M window. This means auto-compaction triggers at ~167K tokens instead of ~967K.</p>
+                    <p><strong>When to use:</strong> When you want to cap costs. The 1M context window means each turn can include up to 5x more tokens, which directly multiplies your API costs. Using the 200K window keeps per-turn costs predictable.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>You lose the ability to hold large codebases or long conversations in context. If your work requires cross-referencing many files simultaneously, the 200K limit can force frequent compactions that lose important context.</p>
+                    </div>
 
-<span class="comment"># Fork sub-agents: full context fork into a background agent</span>
-<span class="command">CLAUDE_CODE_FORK_SUBAGENT</span>=<span class="number">1</span></div>
+                    <h3 id="env-max-context">CLAUDE_CODE_MAX_CONTEXT_TOKENS</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_MAX_CONTEXT_TOKENS</span>=<span class="number">500000</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Hard-caps the maximum context token count, overriding whatever the model's native window supports. For example, setting <code>500000</code> on a 1M model means compaction triggers at ~467K instead of ~967K.</p>
+                    <p><strong>When to use:</strong> A more flexible alternative to <code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code>. Lets you pick an exact ceiling -- useful for budgeting or when you want some extended context but not the full 1M.</p>
+
+                    <h3 id="env-disable-thinking">CLAUDE_CODE_DISABLE_THINKING</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_DISABLE_THINKING</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Disables Claude's extended thinking (the internal reasoning step before generating a response). Without extended thinking, Claude skips the deliberation phase and responds immediately, saving output tokens and latency.</p>
+                    <p><strong>When to use:</strong> Straightforward, repetitive tasks where the extra reasoning doesn't improve quality -- batch file edits, simple code generation, or scripted pipelines.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Risk</div>
+                        <p>Extended thinking is what gives Claude the ability to reason through complex multi-step problems, architectural decisions, and debugging. Disabling it noticeably degrades quality on anything non-trivial. Claude is more likely to make mistakes, miss edge cases, and produce shallow solutions.</p>
+                    </div>
+
+                    <h3 id="env-disable-interleaved">DISABLE_INTERLEAVED_THINKING</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">DISABLE_INTERLEAVED_THINKING</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Prevents Claude from reasoning between tool calls. Normally, Claude can "think" between each tool use (e.g., reason about a file's contents before editing it). This flag forces Claude to chain tool calls without intermediate reasoning.</p>
+                    <p><strong>When to use:</strong> When you want faster tool execution chains and are willing to trade reasoning quality. Works well for predictable, linear workflows where Claude doesn't need to adapt between steps.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>Without interleaved thinking, Claude cannot course-correct between tool calls. If one tool returns unexpected results, Claude will blindly proceed with the next step rather than reconsidering its approach. This can lead to cascading errors in multi-step tasks.</p>
+                    </div>
+
+                    <h3 id="env-disable-bg">DISABLE_BACKGROUND_TASKS</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">DISABLE_BACKGROUND_TASKS</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Prevents Claude Code from spawning any background processes. This includes auto-memory extraction (the forked sub-agent that analyses conversations for memories), the "dream" system (background processing during idle periods), and any other background agent spawns.</p>
+                    <p><strong>When to use:</strong> Short scripted sessions, CI/CD pipelines, or any automated workflow where background processing is pure overhead. Also useful if you're debugging and want to eliminate all non-deterministic background activity.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>You lose all automatic memory extraction. Claude won't remember anything from the session for future conversations unless you explicitly ask it to save a memory. The dream system, which pre-processes tasks during idle time, is also disabled.</p>
+                    </div>
+
+                    <h3 id="env-disable-memory">CLAUDE_CODE_DISABLE_AUTO_MEMORY</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_DISABLE_AUTO_MEMORY</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Specifically disables the auto-memory extraction sub-agent without affecting other background tasks. The extraction agent normally forks after every N turns to analyse the conversation for memory-worthy information (corrections, preferences, project context).</p>
+                    <p><strong>When to use:</strong> When you want the dream system and other background tasks to remain active but don't want the cost of running the memory extraction agent. Useful if you manage your memories manually or don't use the memory system at all.</p>
+
+                    <h3 id="env-coordinator">CLAUDE_CODE_COORDINATOR_MODE</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_COORDINATOR_MODE</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Activates coordinator mode, where Claude acts as an orchestrator rather than doing work directly. In this mode, Claude delegates all tasks to worker sub-agents -- it researches via workers, synthesises their findings into implementation specs, then dispatches workers to implement and verify changes. The coordinator follows four phases: research, synthesis, implementation, verification.</p>
+                    <p><strong>When to use:</strong> Large, multi-file changes that benefit from parallel execution. The coordinator spawns multiple workers simultaneously, each operating in isolated worktrees, which can significantly speed up broad refactors or multi-component features.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Risk</div>
+                        <p>Coordinator mode spawns multiple sub-agents, each consuming their own API calls and tokens. Costs can multiply quickly -- a single task might spawn 3-5 workers, each running their own conversation. The synthesis step is also critical: if the coordinator writes a poor spec, all workers execute on a flawed plan. Best paired with <code>/plan</code> mode first to review the approach before execution begins.</p>
+                    </div>
+
+                    <h3 id="env-fork">CLAUDE_CODE_FORK_SUBAGENT</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Shell</span>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                        <div class="code-content"><span class="command">export</span> <span class="flag">CLAUDE_CODE_FORK_SUBAGENT</span>=<span class="number">1</span></div>
+                    </div>
+                    <p><strong>What it does:</strong> Enables fork-based sub-agent spawning. When Claude uses the Agent tool without specifying a <code>subagent_type</code>, instead of spawning a fresh agent, it forks the entire current context into a background agent. The forked agent inherits the full conversation history, system prompt, and file state byte-for-byte, including prompt cache.</p>
+                    <p><strong>When to use:</strong> When you want a sub-agent that already understands what you've been working on -- no need to re-explain the context. The fork inherits everything, so the first API call to the forked agent is cache-warm.</p>
+                    <div class="warning-card">
+                        <div class="warning-label">Caveat</div>
+                        <p>Forked agents are constrained by safety rules: they cannot spawn their own sub-agents (no recursive forking), must execute directly rather than suggesting next steps, and are expected to commit changes and report a hash. The full context duplication also means the forked agent's first turn is expensive -- it includes everything from the parent conversation.</p>
                     </div>
 
                     <hr class="section-divider">
@@ -180,7 +389,7 @@
                     <p>The source reveals the exact prompt order Claude sees. Your CLAUDE.md lands at <strong>position 10 out of 15+ sections</strong>, after 9 sections of Anthropic's own instructions:</p>
 
                     <div class="flow-diagram">
-                        <svg width="700" height="480" viewBox="0 0 700 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="700" height="510" viewBox="0 0 700 510" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <!-- Static sections -->
                             <rect x="50" y="10" width="600" height="30" rx="4" fill="#1e293b" stroke="#374151"/>
                             <text x="65" y="30" font-family="'Fira Code', monospace" font-size="11" fill="#9ca3af">1. Identity + Security Guardrails</text>

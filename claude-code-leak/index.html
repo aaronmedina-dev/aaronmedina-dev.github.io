@@ -110,7 +110,9 @@
                     </div>
 
                     <p style="margin-bottom: 24px;">
-                        <img src="assets/images/twitter_post.png" alt="@Fried_rice tweet disclosing the Claude Code source leak via npm source map" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+                        <a href="https://x.com/Fried_rice/status/2038894956459290963" target="_blank">
+                            <img src="assets/images/twitter_post.png" alt="@Fried_rice tweet disclosing the Claude Code source leak via npm source map" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+                        </a>
                     </p>
 
                     <p>The source map in the published npm package contained a reference to the full, uncompiled TypeScript source, which was downloadable as a zip archive from Anthropic's R2 storage bucket. The archive contained approximately <strong>1,900 TypeScript/TSX files</strong> -- the entire Claude Code codebase before compilation and dead code elimination.</p>
@@ -144,12 +146,28 @@
                         </li>
                     </ul>
 
-                    <h2>What You Cannot Do</h2>
-                    <p>This source is not directly runnable. It relies on Anthropic's internal Bun build pipeline, compile-time feature gates, and internal-only dependencies. You also cannot:</p>
-                    <ul>
-                        <li>Build and run your own version of Claude Code from this source</li>
-                        <li>Circumvent security controls (sandbox, permissions, and guardrails are enforced server-side)</li>
-                        <li>Access internal-only features gated behind <code>USER_TYPE === 'ant'</code> checks</li>
+                    <h2>How to Maximise the Source</h2>
+                    <ul class="features-list">
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <span><strong>Read <code>src/constants/prompts.ts</code> first</strong> -- the single most valuable file. It shows exactly how Claude Code's behaviour is defined and what instructions the model receives</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span><strong>Apply the environment variable hacks</strong> from our <a href="hacks.html">Hacks &amp; Optimisations</a> page -- these are immediately usable and can significantly reduce your costs</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                            <span><strong>Study the tool interface pattern</strong> in <code>src/tools/</code> to build your own MCP servers and custom skills that match the exact internal format</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+                            <span><strong>Borrow the architecture patterns</strong> -- the custom Ink fork, agent spawning system, and permission model are reusable references for building your own AI-powered CLI tools</span>
+                        </li>
+                        <li>
+                            <svg class="feature-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span><strong>Explore the feature flags</strong> to understand what Anthropic is testing internally and what features may ship next</span>
+                        </li>
                     </ul>
 
                     <h2>Documentation Guide</h2>
