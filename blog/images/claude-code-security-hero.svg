@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 400" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="780" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a0f1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="glowRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="400" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.04">
+    <line x1="0" y1="40" x2="780" y2="40" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="80" x2="780" y2="80" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="780" y2="120" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="780" y2="160" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="200" x2="780" y2="200" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="240" x2="780" y2="240" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="280" x2="780" y2="280" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="320" x2="780" y2="320" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="360" x2="780" y2="360" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="40" y1="0" x2="40" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="130" y1="0" x2="130" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="220" y1="0" x2="220" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="310" y1="0" x2="310" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="390" y1="0" x2="390" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="470" y1="0" x2="470" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="560" y1="0" x2="560" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="650" y1="0" x2="650" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="740" y1="0" x2="740" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+  </g>
+
+  <!-- Red ambient glow -->
+  <ellipse cx="220" cy="200" rx="200" ry="180" fill="url(#glowRed)" opacity="0.8"/>
+
+  <!-- Cracked shield -->
+  <g transform="translate(120, 50)">
+    <!-- Full shield body -->
+    <path d="M100 15L180 50V140C180 190 145 220 100 235C55 220 20 190 20 140V50L100 15Z" fill="url(#shieldGrad)" stroke="#ef4444" stroke-width="2.5" opacity="0.9"/>
+
+    <!-- Main jagged crack down the centre - wide and obvious -->
+    <path d="M100 15 L94 45 L110 70 L88 100 L112 130 L85 165 L108 195 L100 235"
+          stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+
+    <!-- Inner glow along crack (wider, softer) -->
+    <path d="M100 15 L94 45 L110 70 L88 100 L112 130 L85 165 L108 195 L100 235"
+          stroke="#ef4444" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.12" filter="url(#softGlow)"/>
+
+    <!-- Branch cracks spreading outward -->
+    <!-- Upper left branch -->
+    <path d="M94 45 L65 38 L52 50" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+    <!-- Upper right branch -->
+    <path d="M110 70 L140 60 L155 72" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+    <!-- Mid left branch -->
+    <path d="M88 100 L55 92 L38 105" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+    <!-- Mid right branch -->
+    <path d="M112 130 L148 122 L162 135" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+    <!-- Lower left branch -->
+    <path d="M85 165 L55 172 L42 185" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+    <!-- Lower right branch -->
+    <path d="M108 195 L138 188 L148 200" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+
+    <!-- Small fracture lines (hairline cracks) -->
+    <path d="M65 38 L58 28" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M155 72 L165 65" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M38 105 L28 100" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <path d="M162 135 L172 130" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <path d="M42 185 L32 192" stroke="#ef4444" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.4"/>
+
+    <!-- Debris chunks flying off -->
+    <rect x="30" y="55" width="8" height="5" rx="1" fill="#ef4444" opacity="0.5" transform="rotate(-25, 34, 57)"/>
+    <rect x="165" y="85" width="7" height="4" rx="1" fill="#ef4444" opacity="0.4" transform="rotate(20, 168, 87)"/>
+    <rect x="22" y="115" width="6" height="4" rx="1" fill="#ef4444" opacity="0.35" transform="rotate(-30, 25, 117)"/>
+    <rect x="170" y="145" width="6" height="3" rx="1" fill="#ef4444" opacity="0.35" transform="rotate(15, 173, 146)"/>
+    <rect x="25" y="195" width="5" height="3" rx="1" fill="#ef4444" opacity="0.3" transform="rotate(-10, 27, 196)"/>
+
+    <!-- Small dots (dust particles) -->
+    <circle cx="45" cy="42" r="2" fill="#ef4444" opacity="0.3"/>
+    <circle cx="170" cy="58" r="1.5" fill="#ef4444" opacity="0.25"/>
+    <circle cx="18" cy="130" r="2" fill="#ef4444" opacity="0.25"/>
+    <circle cx="178" cy="155" r="1.5" fill="#ef4444" opacity="0.2"/>
+    <circle cx="25" cy="205" r="1.5" fill="#ef4444" opacity="0.2"/>
+  </g>
+
+  <!-- Right side: title and vulnerability list -->
+  <g transform="translate(380, 55)">
+    <text x="0" y="0" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="600" fill="#ef4444" letter-spacing="2" xml:space="preserve">SECURITY AUDIT</text>
+
+    <text x="0" y="40" font-family="'Inter', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#f3f4f6" xml:space="preserve">23 Vulnerabilities</text>
+    <text x="0" y="68" font-family="'Inter', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#f3f4f6" xml:space="preserve">Exposed</text>
+
+    <line x1="0" y1="82" x2="200" y2="82" stroke="#ef4444" stroke-width="2" opacity="0.4"/>
+
+    <!-- Severity breakdown -->
+    <g transform="translate(0, 100)">
+      <rect x="0" y="0" width="80" height="28" rx="6" fill="#ef4444" opacity="0.15" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3"/>
+      <text x="40" y="19" font-family="'SF Mono', monospace" font-size="12" font-weight="700" fill="#ef4444" text-anchor="middle">7 CRIT</text>
+
+      <rect x="90" y="0" width="80" height="28" rx="6" fill="#f59e0b" opacity="0.15" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3"/>
+      <text x="130" y="19" font-family="'SF Mono', monospace" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="middle">10 HIGH</text>
+
+      <rect x="0" y="36" width="80" height="28" rx="6" fill="#3b82f6" opacity="0.15" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3"/>
+      <text x="40" y="55" font-family="'SF Mono', monospace" font-size="12" font-weight="700" fill="#3b82f6" text-anchor="middle">5 MED</text>
+
+      <rect x="90" y="36" width="80" height="28" rx="6" fill="#22c55e" opacity="0.15" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3"/>
+      <text x="130" y="55" font-family="'SF Mono', monospace" font-size="12" font-weight="700" fill="#22c55e" text-anchor="middle">1 LOW</text>
+    </g>
+
+    <!-- Top attack vectors -->
+    <g transform="translate(0, 185)">
+      <text x="0" y="0" font-family="'Fira Code', monospace" font-size="10" fill="#ef4444" xml:space="preserve">CRITICAL  Prompt injection via .claude/</text>
+      <text x="0" y="20" font-family="'Fira Code', monospace" font-size="10" fill="#ef4444" xml:space="preserve">CRITICAL  Hook command injection</text>
+      <text x="0" y="40" font-family="'Fira Code', monospace" font-size="10" fill="#ef4444" xml:space="preserve">CRITICAL  @include path traversal</text>
+      <text x="0" y="60" font-family="'Fira Code', monospace" font-size="10" fill="#ef4444" xml:space="preserve">CRITICAL  JWT signature not verified</text>
+      <text x="0" y="80" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" xml:space="preserve">HIGH      Plaintext credentials</text>
+      <text x="0" y="100" font-family="'Fira Code', monospace" font-size="10" fill="#f59e0b" xml:space="preserve">HIGH      Symlink following in writes</text>
+      <text x="0" y="120" font-family="'Fira Code', monospace" font-size="10" fill="#3b82f6" xml:space="preserve">MEDIUM    DNS exfil (no detection)</text>
+    </g>
+  </g>
+
+  <!-- Floating particles (breach particles) -->
+  <g filter="url(#softGlow)" opacity="0.3">
+    <circle cx="300" cy="80" r="2" fill="#ef4444"/>
+    <circle cx="340" cy="320" r="1.5" fill="#ef4444"/>
+    <circle cx="160" cy="350" r="2" fill="#ef4444"/>
+    <circle cx="500" cy="60" r="1.5" fill="#f59e0b"/>
+    <circle cx="700" cy="340" r="2" fill="#ef4444"/>
+    <circle cx="650" cy="120" r="1.5" fill="#f59e0b"/>
+  </g>
+</svg>
