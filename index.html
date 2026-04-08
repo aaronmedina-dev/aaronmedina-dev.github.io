@@ -88,6 +88,46 @@
             color: var(--accent);
         }
 
+        nav .logo {
+            display: inline-flex;
+            align-items: baseline;
+            cursor: default;
+        }
+
+        .logo-collapse {
+            display: inline-block;
+            max-width: 8em;
+            opacity: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            vertical-align: baseline;
+            transition: max-width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.35s ease;
+        }
+
+        nav .logo.scrolled .logo-collapse {
+            max-width: 0;
+            opacity: 0;
+        }
+
+        .nav-social-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .nav-social-links a:hover {
+            color: var(--text-primary);
+        }
+
         .nav-links {
             display: flex;
             gap: 32px;
@@ -323,11 +363,38 @@
             font-size: 0.85rem;
         }
 
+        .code-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .code-run-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .code-run-btn:hover {
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+
         .code-content {
             padding: 24px;
             font-family: 'Fira Code', 'Monaco', monospace;
             font-size: 0.9rem;
             line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
 
         .code-content .comment { color: #6b7280; }
@@ -965,6 +1032,12 @@
             }
         }
 
+        @media (max-width: 1024px) {
+            .code-run-btn {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -987,8 +1060,8 @@
                 padding: 8px 0;
             }
 
-            .nav-links .nav-btn {
-                width: fit-content;
+            .nav-social-links {
+                padding: 8px 0;
             }
 
             .mobile-menu-btn {
@@ -1139,7 +1212,7 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
-            <div class="logo">AM.</div>
+            <div class="logo">A<span class="logo-collapse">aron</span><span class="logo-collapse">&nbsp;</span>M<span class="logo-collapse">edina</span></div>
             <div class="nav-links">
                 <a href="#home">Home</a>
                 <a href="#about">About</a>
@@ -1147,7 +1220,14 @@
                 <a href="#blog">Blog</a>
                 <a href="#skills">Skills</a>
                 <a href="#contact">Contact</a>
-                <a href="https://linkedin.com/in/aamedina" class="nav-btn" target="_blank">LinkedIn</a>
+                <div class="nav-social-links">
+                    <a href="https://linkedin.com/in/aamedina" target="_blank" title="LinkedIn">
+                        <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </a>
+                    <a href="https://github.com/aaronmedina-dev" target="_blank" title="GitHub">
+                        <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                </div>
             </div>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1163,7 +1243,7 @@
             <div class="hero-content">
                 <div class="hero-text">
                     <p class="greeting">Hello! I'm</p>
-                    <h1>Aaron <span class="highlight">Medina</span></h1>
+                    <h1>Aaron</h1>
                     <p class="title">DevOps Engineer</p>
                     <p class="tagline">🚀 Helping teams build, ship, and run reliable cloud systems.</p>
                     <div class="hero-buttons">
@@ -1189,17 +1269,15 @@
                             <span class="yellow"></span>
                             <span class="green"></span>
                         </div>
-                        <span class="code-filename">devops.js</span>
+                        <div class="code-header-right">
+                            <span class="code-filename">devops.js</span>
+                            <button class="code-run-btn" id="codeRunBtn" title="Run">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="code-content">
-                        <p><span class="comment">// DevOps Engineer</span></p>
-                        <p><span class="keyword">const</span> <span class="variable">devOpsEngineer</span> = {</p>
-                        <p>&nbsp;&nbsp;<span class="property">name:</span> <span class="string">'Aaron Medina'</span>,</p>
-                        <p>&nbsp;&nbsp;<span class="property">skills:</span> [<span class="string">'AWS'</span>, <span class="string">'Linux'</span>, <span class="string">'Docker'</span>, <span class="string">'Kubernetes'</span>],</p>
-                        <p>&nbsp;&nbsp;<span class="property">focus:</span> [<span class="string">'DevOps'</span>, <span class="string">'CI/CD'</span>, <span class="string">'Automation'</span>],</p>
-                        <p>&nbsp;&nbsp;<span class="property">certified:</span> <span class="string">'AWS Solutions Architect Professional'</span>,</p>
-                        <p>&nbsp;&nbsp;<span class="property">learning:</span> <span class="string">'Always'</span></p>
-                        <p>}<span class="bracket">;</span><span class="cursor-blink"></span></p>
+                    <div class="code-content" id="codeContent">
+                        <p><span class="cursor-blink"></span></p>
                     </div>
                 </div>
             </div>
@@ -1701,6 +1779,14 @@
 
         // Active nav link highlighting and scroll-to-top visibility
         window.addEventListener('scroll', () => {
+            // Logo collapse animation
+            const logo = document.querySelector('nav .logo');
+            if (window.scrollY > 50) {
+                logo.classList.add('scrolled');
+            } else {
+                logo.classList.remove('scrolled');
+            }
+
             // Show/hide scroll-to-top button
             const scrollBtn = document.querySelector('.scroll-top');
             if (window.scrollY > 500) {
@@ -1865,6 +1951,108 @@
             requestAnimationFrame(drawGrid);
         }
         drawGrid();
+    </script>
+
+    <script>
+        // Code block typing animation + snake easter egg
+        (function () {
+            var codeContent = document.getElementById('codeContent');
+            var runBtn = document.getElementById('codeRunBtn');
+            if (!codeContent || !runBtn) return;
+
+            var isMobile = window.innerWidth <= 1024 || 'ontouchstart' in window;
+
+            var codeLines = [
+                '// DevOps Engineer',
+                'const devOpsEngineer = {',
+                "  name: 'Aaron Medina',",
+                "  skills: ['AWS', 'Linux', 'Docker', 'Kubernetes'],",
+                "  focus: ['DevOps', 'CI/CD', 'Automation'],",
+                "  certified: 'AWS Solutions Architect Professional',",
+                "  learning: 'Always'",
+                '};'
+            ];
+
+            var fullText = isMobile ? codeLines : codeLines.concat(['// click play']);
+
+            function escapeHtml(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            function colorizeLine(line) {
+                var safe = escapeHtml(line);
+                if (safe.trimStart().startsWith('//')) {
+                    return '<span class="comment">' + safe + '</span>';
+                }
+                safe = safe.replace(/\b(const|let|var)\b/g, '<span class="keyword">$1</span>');
+                safe = safe.replace(/\b(devOpsEngineer)\b/g, '<span class="variable">$1</span>');
+                safe = safe.replace(/'([^']*)'/g, '<span class="string">\'$1\'</span>');
+                safe = safe.replace(/(\w+):/g, '<span class="property">$1:</span>');
+                safe = safe.replace(/([{}\[\];])/g, '<span class="bracket">$1</span>');
+                return safe;
+            }
+
+            function render(typed) {
+                var lines = typed.split('\n');
+                var html = '';
+                for (var i = 0; i < lines.length; i++) {
+                    html += '<p>' + colorizeLine(lines[i]) + '</p>';
+                }
+                var lastP = html.lastIndexOf('</p>');
+                html = html.substring(0, lastP) + '<span class="cursor-blink"></span></p>';
+                codeContent.innerHTML = html;
+            }
+
+            function sleep(ms) {
+                return new Promise(function (r) { setTimeout(r, ms); });
+            }
+
+            // Natural typing: random jitter, bursts, micro-pauses
+            function charDelay(ch, prev) {
+                var base;
+                if (ch === ' ') base = 8;
+                else if (ch === ',' || ch === ':' || ch === ';') base = 12;
+                else if (ch === "'" || ch === '[' || ch === ']' || ch === '{' || ch === '}') base = 10;
+                else base = 18;
+
+                // Occasional micro-pause (like thinking)
+                if (Math.random() < 0.03) base += 80 + Math.random() * 120;
+                // Small burst speedup
+                else if (Math.random() < 0.15) base *= 0.4;
+
+                // Jitter
+                return Math.max(5, base + (Math.random() - 0.5) * 14);
+            }
+
+            async function typeAnimation() {
+                var typed = '';
+                for (var i = 0; i < fullText.length; i++) {
+                    var line = fullText[i];
+                    for (var j = 0; j < line.length; j++) {
+                        typed += line[j];
+                        render(typed);
+                        await sleep(charDelay(line[j], line[j - 1]));
+                    }
+                    if (i < fullText.length - 1) {
+                        typed += '\n';
+                        // Pause between lines: shorter after short lines, longer after long ones
+                        await sleep(40 + Math.random() * 60);
+                    }
+                }
+            }
+
+            if (isMobile) {
+                // Static render on mobile
+                render(fullText.join('\n'));
+            } else {
+                typeAnimation();
+
+                // Play button -> snake easter egg
+                runBtn.addEventListener('click', function () {
+                    window.location.href = '/snake/';
+                });
+            }
+        })();
     </script>
 </body>
 </html>

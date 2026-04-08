@@ -11,6 +11,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("aikido");
     eleventyConfig.addPassthroughCopy("whatthepatch");
     eleventyConfig.addPassthroughCopy("claude-code-leak");
+    eleventyConfig.addPassthroughCopy("snake");
     eleventyConfig.addPassthroughCopy("blog/css");
     eleventyConfig.addPassthroughCopy("blog/images");
     eleventyConfig.addPassthroughCopy("favicon.svg");
