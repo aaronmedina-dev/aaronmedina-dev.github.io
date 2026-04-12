@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 260" fill="none">
+  <rect width="780" height="260" rx="12" fill="#0d1117"/>
+
+  <!-- Step 1 -->
+  <rect x="20" y="30" width="160" height="100" rx="8" fill="#111827" stroke="#3b82f6" stroke-width="1.2"/>
+  <rect x="20" y="30" width="160" height="28" rx="8" fill="#1a2332"/>
+  <rect x="20" y="50" width="160" height="2" fill="#1e293b"/>
+  <text x="100" y="49" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#3b82f6" text-anchor="middle">Step 1</text>
+  <text x="100" y="78" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0" text-anchor="middle">Create Companion</text>
+  <text x="100" y="98" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">git init</text>
+  <text x="100" y="116" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">my-project-claude/</text>
+
+  <!-- Arrow 1 -->
+  <line x1="188" y1="80" x2="210" y2="80" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="210,75 220,80 210,85" fill="#3b82f6"/>
+
+  <!-- Step 2 -->
+  <rect x="224" y="30" width="160" height="100" rx="8" fill="#111827" stroke="#3b82f6" stroke-width="1.2"/>
+  <rect x="224" y="30" width="160" height="28" rx="8" fill="#1a2332"/>
+  <rect x="224" y="50" width="160" height="2" fill="#1e293b"/>
+  <text x="304" y="49" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#3b82f6" text-anchor="middle">Step 2</text>
+  <text x="304" y="78" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0" text-anchor="middle">Clone App Repo</text>
+  <text x="304" y="98" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">git clone &lt;app-repo&gt;</text>
+  <text x="304" y="116" font-family="'Fira Code', monospace" font-size="10" fill="#9ca3af" text-anchor="middle">+ add .gitignore</text>
+
+  <!-- Arrow 2 -->
+  <line x1="392" y1="80" x2="414" y2="80" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="414,75 424,80 414,85" fill="#3b82f6"/>
+
+  <!-- Step 3 -->
+  <rect x="428" y="30" width="160" height="100" rx="8" fill="#111827" stroke="#3b82f6" stroke-width="1.5"/>
+  <rect x="428" y="30" width="160" height="28" rx="8" fill="#3b82f6" fill-opacity="0.15"/>
+  <rect x="428" y="50" width="160" height="2" fill="#3b82f6" fill-opacity="0.3"/>
+  <text x="508" y="49" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#3b82f6" text-anchor="middle">Step 3</text>
+  <text x="508" y="78" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0" text-anchor="middle">Run /setup-project</text>
+  <text x="508" y="98" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#9ca3af" text-anchor="middle">Analyses codebase</text>
+  <text x="508" y="116" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#9ca3af" text-anchor="middle">Generates everything</text>
+
+  <!-- Arrow 3 -->
+  <line x1="596" y1="80" x2="618" y2="80" stroke="#3b82f6" stroke-width="1.5"/>
+  <polygon points="618,75 628,80 618,85" fill="#3b82f6"/>
+
+  <!-- Step 4 -->
+  <rect x="632" y="30" width="130" height="100" rx="8" fill="#111827" stroke="#4ade80" stroke-width="1.5"/>
+  <rect x="632" y="30" width="130" height="28" rx="8" fill="#4ade80" fill-opacity="0.1"/>
+  <rect x="632" y="50" width="130" height="2" fill="#4ade80" fill-opacity="0.3"/>
+  <text x="697" y="49" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#4ade80" text-anchor="middle">Done</text>
+  <text x="697" y="74" font-family="'Fira Code', monospace" font-size="11" fill="#4ade80" text-anchor="middle">.claude/</text>
+  <text x="697" y="92" font-family="'Fira Code', monospace" font-size="11" fill="#4ade80" text-anchor="middle">DOCS/</text>
+  <text x="697" y="110" font-family="'Fira Code', monospace" font-size="11" fill="#4ade80" text-anchor="middle">CLAUDE.md</text>
+
+  <!-- Bottom: Terminal preview -->
+  <rect x="20" y="150" width="742" height="92" rx="8" fill="#111827" stroke="#1e293b" stroke-width="1.2"/>
+  <circle cx="40" cy="168" r="5" fill="#f87171" fill-opacity="0.8"/>
+  <circle cx="56" cy="168" r="5" fill="#fbbf24" fill-opacity="0.8"/>
+  <circle cx="72" cy="168" r="5" fill="#4ade80" fill-opacity="0.8"/>
+
+  <text x="40" y="198" font-family="'Fira Code', monospace" font-size="12" fill="#6b7280">$</text>
+  <text x="56" y="198" font-family="'Fira Code', monospace" font-size="12" fill="#e2e8f0">mkdir my-project-claude &amp;&amp; cd my-project-claude &amp;&amp; git init</text>
+  <text x="40" y="216" font-family="'Fira Code', monospace" font-size="12" fill="#6b7280">$</text>
+  <text x="56" y="216" font-family="'Fira Code', monospace" font-size="12" fill="#e2e8f0">git clone https://github.com/you/my-project.git</text>
+  <text x="40" y="234" font-family="'Fira Code', monospace" font-size="12" fill="#6b7280">$</text>
+  <text x="56" y="234" font-family="'Fira Code', monospace" font-size="12" fill="#3b82f6">claude</text>
+  <text x="108" y="234" font-family="'Fira Code', monospace" font-size="12" fill="#9ca3af"> → then type</text>
+  <text x="250" y="234" font-family="'Fira Code', monospace" font-size="12" fill="#3b82f6"> /setup-project</text>
+</svg>
