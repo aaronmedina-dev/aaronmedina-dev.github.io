@@ -2,38 +2,36 @@
   <rect width="780" height="400" rx="12" fill="#0d1117"/>
 
   <!-- Header -->
-  <text x="390" y="30" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" fill="#f3f4f6" text-anchor="middle">What happens when .claude/ is in a public repo?</text>
+  <text x="390" y="30" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" fill="#f3f4f6" text-anchor="middle">For proprietary, client, and work codebases</text>
 
-  <!-- Left: Problem -->
-  <text x="190" y="62" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#f87171" text-anchor="middle">Inline on Public Repo</text>
+  <!-- Left: Inline on the repo -->
+  <text x="190" y="62" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#f59e0b" text-anchor="middle">Config committed to the repo</text>
 
-  <rect x="30" y="76" width="320" height="280" rx="8" fill="#111827" stroke="#f87171" stroke-width="1.2" stroke-opacity="0.5"/>
-  <text x="50" y="102" font-family="'Fira Code', monospace" font-size="13" font-weight="600" fill="#e2e8f0">public-project/</text>
-  <circle cx="320" cy="97" r="8" fill="none" stroke="#f87171" stroke-width="1.5"/>
-  <text x="320" y="101" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700" fill="#f87171" text-anchor="middle">!</text>
+  <rect x="30" y="76" width="320" height="280" rx="8" fill="#111827" stroke="#f59e0b" stroke-width="1.2" stroke-opacity="0.5"/>
+  <text x="50" y="102" font-family="'Fira Code', monospace" font-size="13" font-weight="600" fill="#e2e8f0">your-project/</text>
 
-  <rect x="50" y="116" width="280" height="34" rx="5" fill="#1a2332" stroke="#f87171" stroke-width="1" stroke-opacity="0.6"/>
-  <text x="66" y="138" font-family="'Fira Code', monospace" font-size="12" fill="#f87171">.claude/</text>
-  <text x="290" y="138" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171" text-anchor="end">exposed</text>
+  <rect x="50" y="116" width="280" height="34" rx="5" fill="#1a2332" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="66" y="138" font-family="'Fira Code', monospace" font-size="12" fill="#f59e0b">.claude/</text>
+  <text x="290" y="138" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b" text-anchor="end">shared with repo</text>
 
-  <rect x="50" y="160" width="280" height="34" rx="5" fill="#1a2332" stroke="#f87171" stroke-width="1" stroke-opacity="0.6"/>
-  <text x="66" y="182" font-family="'Fira Code', monospace" font-size="12" fill="#f87171">CLAUDE.md</text>
-  <text x="290" y="182" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171" text-anchor="end">exposed</text>
+  <rect x="50" y="160" width="280" height="34" rx="5" fill="#1a2332" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="66" y="182" font-family="'Fira Code', monospace" font-size="12" fill="#f59e0b">CLAUDE.md</text>
+  <text x="290" y="182" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b" text-anchor="end">shared with repo</text>
 
-  <rect x="50" y="204" width="280" height="34" rx="5" fill="#1a2332" stroke="#f87171" stroke-width="1" stroke-opacity="0.6"/>
-  <text x="66" y="226" font-family="'Fira Code', monospace" font-size="12" fill="#f87171">DOCS/</text>
-  <text x="290" y="226" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171" text-anchor="end">exposed</text>
+  <rect x="50" y="204" width="280" height="34" rx="5" fill="#1a2332" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="66" y="226" font-family="'Fira Code', monospace" font-size="12" fill="#f59e0b">DOCS/</text>
+  <text x="290" y="226" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b" text-anchor="end">shared with repo</text>
 
-  <text x="50" y="268" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#9ca3af">The world can see:</text>
-  <text x="50" y="288" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171">- Your workflows and automation</text>
-  <text x="50" y="306" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171">- Architecture decisions</text>
-  <text x="50" y="324" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171">- Security patterns and assumptions</text>
-  <text x="50" y="342" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f87171">- Complete codebase navigation map</text>
+  <text x="50" y="268" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#9ca3af">Anyone with repo access sees:</text>
+  <text x="50" y="288" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b">- Your workflows and automation</text>
+  <text x="50" y="306" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b">- Architecture decisions and domain boundaries</text>
+  <text x="50" y="324" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b">- Security patterns and assumptions</text>
+  <text x="50" y="342" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#f59e0b">- Complete codebase navigation map</text>
 
   <!-- Divider -->
   <line x1="390" y1="55" x2="390" y2="375" stroke="#1e293b" stroke-width="1" stroke-dasharray="5,4"/>
 
-  <!-- Right: Solution -->
+  <!-- Right: Companion repo -->
   <text x="590" y="62" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" fill="#4ade80" text-anchor="middle">Claude Companion Repo</text>
 
   <rect x="430" y="76" width="320" height="140" rx="8" fill="#111827" stroke="#4ade80" stroke-width="1.2" stroke-opacity="0.5"/>
@@ -50,16 +48,16 @@
   <text x="701" y="136" font-family="'Fira Code', monospace" font-size="11" fill="#4ade80" text-anchor="middle">DOCS/</text>
 
   <rect x="450" y="156" width="286" height="44" rx="5" fill="#0d1117" stroke="#1e293b" stroke-width="1.2" stroke-dasharray="5,3"/>
-  <text x="466" y="178" font-family="'Fira Code', monospace" font-size="11" fill="#6b7280">public-project/</text>
+  <text x="466" y="178" font-family="'Fira Code', monospace" font-size="11" fill="#6b7280">your-project/</text>
   <text x="720" y="178" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#4b5563" text-anchor="end">(git-ignored)</text>
 
   <rect x="430" y="236" width="320" height="54" rx="8" fill="#111827" stroke="#1e293b" stroke-width="1.2"/>
-  <text x="450" y="260" font-family="'Fira Code', monospace" font-size="13" font-weight="600" fill="#e2e8f0">public-project/</text>
-  <text x="650" y="260" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#9ca3af">(public repo)</text>
-  <text x="450" y="280" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#6b7280">Just your code -- nothing else exposed</text>
+  <text x="450" y="260" font-family="'Fira Code', monospace" font-size="13" font-weight="600" fill="#e2e8f0">your-project/</text>
+  <text x="650" y="260" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#9ca3af">(original repo)</text>
+  <text x="450" y="280" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#6b7280">Just your code, unchanged</text>
 
-  <text x="450" y="320" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#9ca3af">Your IP stays private:</text>
-  <text x="450" y="340" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#4ade80">- Workflows, agents, and skills are yours</text>
-  <text x="450" y="358" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#4ade80">- Architecture docs never leave your machine</text>
+  <text x="450" y="320" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#9ca3af">Keeps internal context separate:</text>
+  <text x="450" y="340" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#4ade80">- Workflows, agents, and skills stay with you</text>
+  <text x="450" y="358" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#4ade80">- Architecture docs stay in your companion repo</text>
   <text x="450" y="376" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#4ade80">- Security patterns stay internal</text>
 </svg>

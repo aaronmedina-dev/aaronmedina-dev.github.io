@@ -1,12 +1,13 @@
 ---
 title: "Creating Reusable Workflows for Claude Code Projects"
-date: 2026-04-10
+date: 2026-04-13
 description: "A deep dive into Claude Code's configuration primitives — rules, agents, skills, commands — how they compose, and how /setup-project orchestrates them to generate a complete project configuration automatically."
 tags: ["Claude", "AI", "Skills", "Productivity"]
 readTime: "15 min read"
+draft: true
 ---
 
-In a previous post I covered how I structure my projects locally with Claude Code using the wrapper repo pattern. That post deliberately skipped over the internals -- what the `.claude/` directory actually contains, why each piece exists, and how `/setup-project` orchestrates everything. This post is the deep dive. It covers the five configuration primitives (rules, agents, skills, commands, settings), how they compose into something greater than the sum of their parts, and how workflow skills like `/setup-project` automate the entire setup process. If you haven't read the first post, [How I Set Up My Projects Locally with Claude Code](/blog/posts/how-i-set-up-projects-with-claude-code/) covers the wrapper pattern and the five-minute setup workflow.
+In a previous post I covered how I structure my projects locally with Claude Code using the wrapper repo pattern. That post deliberately skipped over the internals -- what the `.claude/` directory actually contains, why each piece exists, and how `/setup-project` orchestrates everything. This post is the deep dive. It covers the five configuration primitives (rules, agents, skills, commands, settings), how they compose into something greater than the sum of their parts, and how workflow skills like `/setup-project` automate the entire setup process. If you haven't read the first post, [The Claude Companion Repo: How I Set Up Every New Project](/blog/posts/how-i-set-up-projects-with-claude-code/) covers the wrapper pattern and the five-minute setup workflow.
 
 ## The Five Primitives
 

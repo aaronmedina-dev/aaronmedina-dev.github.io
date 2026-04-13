@@ -185,6 +185,8 @@
 
         section {
             padding: 100px 0;
+            position: relative;
+            z-index: 1;
         }
 
         .section-header {
@@ -424,43 +426,6 @@
             margin-bottom: 32px;
         }
 
-        .info-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .info-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .info-card h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            font-size: 1rem;
-        }
-
-        .info-card .info-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .info-card .info-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .info-card .info-date {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-
         .about-profile {
             text-align: center;
         }
@@ -499,14 +464,81 @@
             font-size: 0.8rem;
         }
 
+        /* Certification badges wall */
+        .cert-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 24px;
+        }
+
         .cert-badge {
-            display: inline-block;
-            margin-top: 16px;
+            position: relative;
+            display: inline-flex;
+            padding: 6px;
+            border-radius: 12px;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            filter: grayscale(0.15) brightness(0.92);
+            text-decoration: none;
         }
 
         .cert-badge img {
-            width: 100px;
+            width: 72px;
             height: auto;
+            display: block;
+        }
+
+        .cert-badge:hover,
+        .cert-badge:focus-visible {
+            transform: translateY(-4px);
+            filter: grayscale(0) brightness(1.05);
+            outline: none;
+        }
+
+        /* Tooltip label shown above the badge on hover/focus */
+        .cert-badge[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translate(-50%, 4px);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            z-index: 5;
+        }
+
+        /* Tooltip arrow */
+        .cert-badge[data-tooltip]::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translate(-50%, 4px);
+            border: 6px solid transparent;
+            border-top-color: var(--border-light);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 5;
+        }
+
+        .cert-badge:hover::after,
+        .cert-badge:hover::before,
+        .cert-badge:focus-visible::after,
+        .cert-badge:focus-visible::before {
+            opacity: 1;
+            transform: translate(-50%, 0);
         }
 
         /* Projects Section */
@@ -1101,8 +1133,10 @@
                 gap: 24px;
             }
 
-            .info-cards {
-                grid-template-columns: 1fr;
+            .cert-badge[data-tooltip]::after {
+                white-space: normal;
+                max-width: 220px;
+                text-align: center;
             }
         }
 
@@ -1216,8 +1250,8 @@
             <div class="nav-links">
                 <a href="#home">Home</a>
                 <a href="#about">About</a>
-                <a href="#projects">Projects</a>
                 <a href="#blog">Blog</a>
+                <a href="#projects">Projects</a>
                 <a href="#skills">Skills</a>
                 <a href="#contact">Contact</a>
                 <div class="nav-social-links">
@@ -1290,36 +1324,10 @@
             </div>
             <div class="about-grid">
                 <div class="about-content">
-                    <h3>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Bio
-                    </h3>
-                    <p>I work at the intersection of engineering, operations, and architecture, and I’ve spent my career building, running, and improving production systems in demanding environments. My background spans software development, cloud platforms, DevOps, and technical leadership.</p>
-                    <p>I’ve been involved across the full lifecycle of systems, from building and deploying, to operating in production and evolving them as requirements change. Along the way, I’ve led teams, guided delivery across multiple projects, and worked closely with stakeholders and clients on cloud migrations, CI/CD pipelines, Infrastructure as Code, security and compliance work, and internal tools that make life easier for both developers and operators.</p>
-                    <p>I’m drawn to complex systems and long-term problems. I enjoy thinking through trade-offs, bringing clarity to messy situations, and building platforms that don’t just work today, but continue to support teams and businesses as they grow.</p>
-
-                    <div class="info-cards">
-                        <div class="info-card">
-                            <h4>
-                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                Experience
-                            </h4>
-                            <p class="info-title">DevOps Engineer</p>
-                            <p class="info-subtitle">Aligent</p>
-                            <p class="info-date">Building cloud infrastructure for e-commerce</p>
-                        </div>
-                        <div class="info-card">
-                            <h4>
-                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                                Certification
-                            </h4>
-                            <p class="info-title">AWS Solutions Architect</p>
-                            <p class="info-subtitle">Professional (SAP-C02)</p>
-                            <a href="https://www.credly.com/badges/your-badge-id" target="_blank" class="cert-badge">
-                                <img src="assets/aws-sap-badge.png" alt="AWS Solutions Architect Professional" style="width: 70px; height: auto;">
-                            </a>
-                        </div>
-                    </div>
+                    <p>I work at the intersection of engineering, operations, and architecture, building and running production systems in demanding environments. My background spans software development, cloud platforms, DevOps, and technical leadership.</p>
+                    <p>I’ve worked across the full lifecycle of systems, from building and deploying, to operating in production and evolving them as requirements change. Along the way, I’ve led teams, guided delivery across multiple projects, and partnered closely with stakeholders on cloud migrations, CI/CD pipelines, Infrastructure as Code, security and compliance, and internal tooling that makes life easier for both developers and operators.</p>
+                    <p>I’m particularly drawn to complex systems and long-term problems. I enjoy working through trade-offs, bringing clarity to messy situations, and building platforms that don’t just work today, but continue to support teams as they scale.</p>
+                    <p>Outside of that, I’m actively exploring AI and how it can be applied in real-world engineering workflows. I’m always learning, testing new ideas, and looking for practical ways to use emerging tools to simplify work, improve systems, and unlock better outcomes.</p>
                 </div>
                 <div class="about-profile">
                     <img src="https://github.com/aaronmedina-dev.png" alt="Aaron Medina" class="profile-image">
@@ -1331,8 +1339,72 @@
                         <span>CI/CD</span>
                         <span>IaC</span>
                     </div>
+                    <div class="cert-wall" aria-label="Certifications">
+                        <a href="https://www.credly.com/badges/695d6dec-8ecc-4943-b30c-287f00ca76c1/public_url"
+                           target="_blank"
+                           rel="noopener"
+                           class="cert-badge"
+                           data-tooltip="AWS Solutions Architect – Professional (SAP-C02)"
+                           aria-label="AWS Solutions Architect Professional certified">
+                            <img src="assets/aws-sap-badge.png" alt="AWS Solutions Architect Professional">
+                        </a>
+                        <a href="https://credentials.newrelic.com/1e4e52c0-610a-427f-8f5b-205a74577288#acc.nLSIDWqP"
+                           target="_blank"
+                           rel="noopener"
+                           class="cert-badge"
+                           data-tooltip="NVF – New Relic Verified Foundation"
+                           aria-label="NVF – New Relic Verified Foundation certified">
+                            <img src="assets/nvf-badge.png" alt="NVF – New Relic Verified Foundation">
+                        </a>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section id="blog">
+            <div class="section-header">
+                <h2>Blog</h2>
+                <p>Thoughts on DevOps, cloud infrastructure, and developer tooling.</p>
+            </div>
+            <div class="blog-featured" id="blogFeatured">
+                <p class="loading-repos">Loading posts...</p>
+            </div>
+            <script>
+            fetch('/blog/feed.json')
+                .then(function(res) { return res.json(); })
+                .then(function(posts) {
+                    var container = document.getElementById('blogFeatured');
+                    var max = 3;
+                    var html = '';
+                    posts.slice(0, max).forEach(function(post, i) {
+                        var isFeatured = i === 0;
+                        html += '<a href="' + post.url + '" class="blog-card' + (isFeatured ? ' featured' : '') + '">';
+                        html += '<div class="blog-card-meta">';
+                        html += '<time>' + post.date + '</time>';
+                        if (isFeatured) html += '<span class="blog-latest-badge">Latest</span>';
+                        html += '<span>' + post.readTime + '</span>';
+                        html += '</div>';
+                        html += '<h3>' + post.title + '</h3>';
+                        html += '<p>' + post.description + '</p>';
+                        html += '<div class="blog-card-tags">';
+                        post.tags.forEach(function(tag) {
+                            html += '<span>' + tag + '</span>';
+                        });
+                        html += '</div>';
+                        html += '<span class="blog-card-read">Read article <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
+                        html += '</a>';
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(function() {
+                    document.getElementById('blogFeatured').innerHTML = '<p class="loading-repos">Unable to load posts.</p>';
+                });
+            </script>
+            <a href="/blog/" class="blog-view-all">
+                View All Posts
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
         </section>
 
         <!-- Projects Section -->
@@ -1523,52 +1595,6 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Blog Section -->
-        <section id="blog">
-            <div class="section-header">
-                <h2>Blog</h2>
-                <p>Thoughts on DevOps, cloud infrastructure, and developer tooling.</p>
-            </div>
-            <div class="blog-featured" id="blogFeatured">
-                <p class="loading-repos">Loading posts...</p>
-            </div>
-            <script>
-            fetch('/blog/feed.json')
-                .then(function(res) { return res.json(); })
-                .then(function(posts) {
-                    var container = document.getElementById('blogFeatured');
-                    var max = 3;
-                    var html = '';
-                    posts.slice(0, max).forEach(function(post, i) {
-                        var isFeatured = i === 0;
-                        html += '<a href="' + post.url + '" class="blog-card' + (isFeatured ? ' featured' : '') + '">';
-                        html += '<div class="blog-card-meta">';
-                        html += '<time>' + post.date + '</time>';
-                        if (isFeatured) html += '<span class="blog-latest-badge">Latest</span>';
-                        html += '<span>' + post.readTime + '</span>';
-                        html += '</div>';
-                        html += '<h3>' + post.title + '</h3>';
-                        html += '<p>' + post.description + '</p>';
-                        html += '<div class="blog-card-tags">';
-                        post.tags.forEach(function(tag) {
-                            html += '<span>' + tag + '</span>';
-                        });
-                        html += '</div>';
-                        html += '<span class="blog-card-read">Read article <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
-                        html += '</a>';
-                    });
-                    container.innerHTML = html;
-                })
-                .catch(function() {
-                    document.getElementById('blogFeatured').innerHTML = '<p class="loading-repos">Unable to load posts.</p>';
-                });
-            </script>
-            <a href="/blog/" class="blog-view-all">
-                View All Posts
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
         </section>
 
         <!-- GitHub Section -->

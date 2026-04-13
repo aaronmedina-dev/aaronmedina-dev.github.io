@@ -306,6 +306,12 @@ body {
     text-decoration: underline;
 }
 
+.article-body strong,
+.article-body b {
+    color: var(--warning);
+    font-weight: 600;
+}
+
 .article-body ul,
 .article-body ol {
     color: var(--text-secondary);
