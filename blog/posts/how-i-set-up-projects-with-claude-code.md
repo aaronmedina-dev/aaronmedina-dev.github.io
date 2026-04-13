@@ -1,5 +1,5 @@
 ---
-title: "The Claude Companion Repo: How I Set Up Every New Project"
+title: "The Claude Companion Repo: How I Set Up New Projects"
 date: 2026-04-13
 description: "A walkthrough of how I keep Claude Code configuration in a separate companion repo from application code: the reasoning, the setup workflow, and when this approach makes sense for you."
 tags: ["Claude", "AI", "Productivity"]
