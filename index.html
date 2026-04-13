@@ -269,19 +269,19 @@
         }
 
         .btn-primary {
-            background: var(--accent);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
+            background: #f59e0b;
+            color: #0a0f1a;
+            padding: 12px 26px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 500;
-            transition: background 0.2s;
+            font-weight: 600;
+            transition: background 0.18s ease;
             border: none;
             cursor: pointer;
         }
 
         .btn-primary:hover {
-            background: var(--accent-hover);
+            background: #d97706;
         }
 
         .btn-secondary {
@@ -692,14 +692,88 @@
 
         /* Contact Section */
         .contact-simple {
-            max-width: 600px;
+            width: 100%;
         }
 
         .contact-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 32px;
+            padding: 48px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 64px;
+            align-items: start;
+        }
+
+        .contact-col { display: flex; flex-direction: column; }
+
+        .contact-col--side {
+            padding-left: 48px;
+            border-left: 1px solid var(--border);
+        }
+
+        .contact-intro {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .contact-cta {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px;
+        }
+
+        .contact-quote {
+            margin: 0 0 20px;
+            padding-left: 20px;
+            border-left: 3px solid var(--accent);
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .contact-quote cite {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.85rem;
+            font-style: normal;
+            opacity: 0.7;
+        }
+
+        .contact-closer {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 36px;
+        }
+
+        .contact-connect h4 {
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .contact-card { padding: 32px; }
+            .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+            .contact-col--side {
+                padding-left: 0;
+                padding-top: 32px;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
         }
 
         .contact-card > p {
@@ -895,13 +969,15 @@
         }
 
         .blog-latest-badge {
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            color: var(--accent);
-            padding: 2px 10px;
+            background: #f59e0b;
+            border: none;
+            color: #0a0f1a;
+            padding: 3px 11px;
             border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .blog-card h3 {
@@ -1216,6 +1292,135 @@
             .mobile-dots {
                 display: block;
             }
+        }
+
+        /* =========================================================
+         * Final combined styles
+         * Polished for hero + projects + contact (kept as cards)
+         * Editorial for skills + blog (no boxes, typography rows)
+         * ========================================================= */
+
+        /* Hero h1 gradient */
+        .hero-text h1 .highlight {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 55%, #f472b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Polished glass surface — projects + contact only */
+        .project-card,
+        .contact-card {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.025), transparent 45%),
+                var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.04),
+                0 10px 28px -18px rgba(0, 0, 0, 0.6);
+        }
+        .contact-card { border-radius: 16px; }
+
+        /* Project cards — coloured hover glow + mouse-follow spotlight */
+        .project-card {
+            position: relative;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            --mx: 50%;
+            --my: 50%;
+        }
+        .project-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(480px circle at var(--mx) var(--my),
+                        rgba(59, 130, 246, 0.14), transparent 45%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .project-card:hover {
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 24px 48px -20px rgba(59, 130, 246, 0.25),
+                0 10px 28px -18px rgba(0, 0, 0, 0.5);
+        }
+        .project-card:hover::after { opacity: 1; }
+
+        /* SKILLS — editorial typography rows, no boxes, full width */
+        .skills-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        .skill-card {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: none;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+        .skill-card h4 { margin-bottom: 0; font-size: 1rem; }
+        .skill-tags { gap: 14px 18px; }
+        .skill-tags span {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        /* BLOG — editorial stacked rows, no boxes */
+        .blog-featured {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        .blog-card {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 28px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            transition: border-bottom-color 0.25s ease;
+        }
+        .blog-card.featured {
+            grid-column: 1 / -1;
+            padding: 36px 0;
+        }
+        .blog-card:hover {
+            transform: none;
+            box-shadow: none;
+            border-bottom-color: rgba(59, 130, 246, 0.4);
+        }
+        .blog-card h3 { font-size: 1.5rem; }
+        .blog-card.featured h3 { font-size: 2rem; }
+        .blog-card-tags { gap: 16px; }
+        .blog-card-tags span {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: var(--accent);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Per-section padding rhythm */
+        #about    { padding: 120px 0 80px; }
+        #blog     { padding: 80px 0; }
+        #projects { padding: 80px 0 120px; }
+        #github   { padding: 100px 0 60px; }
+        #skills   { padding: 100px 0; }
+        #contact  { padding: 140px 0 80px; }
+
+        @media (max-width: 768px) {
+            .skill-card { grid-template-columns: 1fr; gap: 12px; }
         }
     </style>
     <script type="application/ld+json">
@@ -1711,36 +1916,42 @@
             </div>
             <div class="contact-simple">
                 <div class="contact-card">
-                    <p>I'm always open to discussing DevOps, cloud architecture, or collaboration opportunities.</p>
-                    <div class="contact-details">
-                        <div class="contact-item">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <span>aamedina0305@gmail.com</span>
-                        </div>
-                        <div class="contact-item">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span>Australia</span>
-                        </div>
-                    </div>
-                    <a href="mailto:aamedina0305@gmail.com" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 24px;">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        Send Email
-                    </a>
-                    <div style="margin-top: 32px;">
-                        <h4 style="margin-bottom: 12px;">Connect with me</h4>
-                        <div class="social-links">
-                            <a href="https://github.com/aaronmedina-dev" target="_blank" title="GitHub">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                            </a>
-                            <a href="https://linkedin.com/in/aamedina" target="_blank" title="LinkedIn">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    <div class="contact-grid">
+                        <div class="contact-col">
+                            <p class="contact-intro">I'm always open to discussing DevOps, cloud architecture, or collaboration opportunities.</p>
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <span>aamedina0305@gmail.com</span>
+                                </div>
+                                <div class="contact-item">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <span>Australia</span>
+                                </div>
+                            </div>
+                            <a href="mailto:aamedina0305@gmail.com" class="btn-primary contact-cta">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                Send Email
                             </a>
                         </div>
+                        <div class="contact-col contact-col--side">
+                            <blockquote class="contact-quote">
+                                "The best way to predict the future is to create it." <cite>– Peter Drucker</cite>
+                            </blockquote>
+                            <p class="contact-closer">Let's build something amazing together.</p>
+                            <div class="contact-connect">
+                                <h4>Connect with me</h4>
+                                <div class="social-links">
+                                    <a href="https://github.com/aaronmedina-dev" target="_blank" rel="noopener" title="GitHub">
+                                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                    </a>
+                                    <a href="https://linkedin.com/in/aamedina" target="_blank" rel="noopener" title="LinkedIn">
+                                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <blockquote style="margin-top: 32px; padding-left: 16px; border-left: 3px solid var(--accent); color: var(--text-secondary); font-style: italic;">
-                        "The best way to predict the future is to create it." – Peter Drucker
-                    </blockquote>
-                    <p style="margin-top: 16px; color: var(--text-primary); font-weight: 500;">Let's build something amazing together!</p>
                 </div>
             </div>
         </section>
@@ -2078,6 +2289,22 @@
                     window.location.href = '/snake/';
                 });
             }
+        })();
+    </script>
+
+    <!-- Mouse-follow spotlight on project cards -->
+    <script>
+        (function () {
+            function track(card) {
+                if (card.dataset.spotlight) return;
+                card.dataset.spotlight = '1';
+                card.addEventListener('mousemove', function (e) {
+                    var r = card.getBoundingClientRect();
+                    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+                });
+            }
+            document.querySelectorAll('.project-card').forEach(track);
         })();
     </script>
 </body>
