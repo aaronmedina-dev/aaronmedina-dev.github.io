@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 400" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="780" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a0f1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="termBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0d1321"/>
+    </linearGradient>
+    <linearGradient id="glowBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="waveGradLeft" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="400" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.04">
+    <line x1="0" y1="40" x2="780" y2="40" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="80" x2="780" y2="80" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="780" y2="120" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="780" y2="160" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="200" x2="780" y2="200" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="240" x2="780" y2="240" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="280" x2="780" y2="280" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="320" x2="780" y2="320" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="0" y1="360" x2="780" y2="360" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="40" y1="0" x2="40" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="130" y1="0" x2="130" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="220" y1="0" x2="220" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="310" y1="0" x2="310" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="390" y1="0" x2="390" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="470" y1="0" x2="470" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="560" y1="0" x2="560" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="650" y1="0" x2="650" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+    <line x1="740" y1="0" x2="740" y2="400" stroke="#94a3b8" stroke-width="0.5"/>
+  </g>
+
+  <!-- Glow behind terminal -->
+  <ellipse cx="390" cy="220" rx="240" ry="130" fill="url(#glowBlue)"/>
+
+  <!-- Title -->
+  <text x="390" y="46" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" text-anchor="middle" letter-spacing="-0.5">Sound Notifications for Claude Code</text>
+
+  <!-- Subtitle -->
+  <text x="390" y="74" fill="#64748b" font-family="system-ui, sans-serif" font-size="14" text-anchor="middle">Never miss a prompt or completion again</text>
+
+  <!-- Terminal window -->
+  <rect x="190" y="100" width="400" height="220" rx="10" fill="url(#termBg)" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- Title bar -->
+  <rect x="190" y="100" width="400" height="32" rx="10" fill="#1e293b"/>
+  <rect x="190" y="122" width="400" height="10" fill="#1e293b"/>
+
+  <!-- Traffic light dots -->
+  <circle cx="212" cy="116" r="5" fill="#ef4444" opacity="0.7"/>
+  <circle cx="228" cy="116" r="5" fill="#f59e0b" opacity="0.7"/>
+  <circle cx="244" cy="116" r="5" fill="#22c55e" opacity="0.7"/>
+
+  <!-- File name -->
+  <text x="390" y="120" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="11" text-anchor="middle">settings.json</text>
+
+  <!-- JSON content -->
+  <text x="210" y="155" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">1</text>
+  <text x="220" y="155" fill="#fbbf24" font-family="ui-monospace, monospace" font-size="10.5">{</text>
+
+  <text x="210" y="172" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">2</text>
+  <text x="220" y="172" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">  <tspan fill="#60a5fa">"hooks"</tspan>: {</text>
+
+  <text x="210" y="189" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">3</text>
+  <text x="220" y="189" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">    <tspan fill="#60a5fa">"Stop"</tspan>: [{ <tspan fill="#60a5fa">"type"</tspan>: <tspan fill="#a5d6a7">"command"</tspan>,</text>
+
+  <text x="210" y="206" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">4</text>
+  <text x="220" y="206" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">      <tspan fill="#60a5fa">"command"</tspan>: <tspan fill="#a5d6a7">"afplay ...Glass.aiff"</tspan> }],</text>
+
+  <text x="210" y="223" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">5</text>
+  <text x="220" y="223" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">    <tspan fill="#60a5fa">"Notification"</tspan>: [{ <tspan fill="#60a5fa">"type"</tspan>: <tspan fill="#a5d6a7">"command"</tspan>,</text>
+
+  <text x="210" y="240" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">6</text>
+  <text x="220" y="240" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">      <tspan fill="#60a5fa">"command"</tspan>: <tspan fill="#a5d6a7">"afplay ...Funk.aiff"</tspan> }]</text>
+
+  <text x="210" y="257" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">7</text>
+  <text x="220" y="257" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="10.5">  }</text>
+
+  <text x="210" y="274" fill="#475569" font-family="ui-monospace, monospace" font-size="10" text-anchor="end">8</text>
+  <text x="220" y="274" fill="#fbbf24" font-family="ui-monospace, monospace" font-size="10.5">}</text>
+
+  <!-- Sound waves radiating right from terminal -->
+  <g transform="translate(600, 210)">
+    <!-- Arc 1 (closest) -->
+    <path d="M 0,-20 A 20,20 0 0,1 0,20" fill="none" stroke="url(#waveGrad)" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arc 2 -->
+    <path d="M 12,-32 A 35,35 0 0,1 12,32" fill="none" stroke="url(#waveGrad)" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <!-- Arc 3 -->
+    <path d="M 26,-44 A 50,50 0 0,1 26,44" fill="none" stroke="url(#waveGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/>
+    <!-- Arc 4 (farthest) -->
+    <path d="M 42,-54 A 65,65 0 0,1 42,54" fill="none" stroke="url(#waveGrad)" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+  </g>
+
+  <!-- Sound waves radiating left from terminal -->
+  <g transform="translate(180, 210)">
+    <!-- Arc 1 -->
+    <path d="M 0,-20 A 20,20 0 0,0 0,20" fill="none" stroke="url(#waveGradLeft)" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Arc 2 -->
+    <path d="M -12,-32 A 35,35 0 0,0 -12,32" fill="none" stroke="url(#waveGradLeft)" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <!-- Arc 3 -->
+    <path d="M -26,-44 A 50,50 0 0,0 -26,44" fill="none" stroke="url(#waveGradLeft)" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/>
+    <!-- Arc 4 -->
+    <path d="M -42,-54 A 65,65 0 0,0 -42,54" fill="none" stroke="url(#waveGradLeft)" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+  </g>
+
+  <!-- Speaker/bell icon above terminal, left side -->
+  <g transform="translate(108, 155)">
+    <rect x="-8" y="-8" width="16" height="16" rx="4" fill="#1e293b" stroke="#334155" stroke-width="0.8"/>
+    <path d="M -3,-3 L -1,-3 L 3,-5.5 L 3,5.5 L -1,3 L -3,3 Z" fill="#3b82f6" opacity="0.8"/>
+    <path d="M 5,-2 A 3,3 0 0,1 5,2" fill="none" stroke="#3b82f6" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+  </g>
+  <text x="108" y="180" fill="#3b82f6" font-family="system-ui, sans-serif" font-size="8" font-weight="600" text-anchor="middle" opacity="0.7">DING</text>
+
+  <!-- Bell icon above terminal, right side -->
+  <g transform="translate(672, 155)">
+    <rect x="-8" y="-8" width="16" height="16" rx="4" fill="#1e293b" stroke="#334155" stroke-width="0.8"/>
+    <path d="M 0,-5 C -4,-5 -5,-2 -5,1 L -5,3 L -6,4 L 6,4 L 5,3 L 5,1 C 5,-2 4,-5 0,-5 Z" fill="#f59e0b" opacity="0.7" transform="scale(0.7)"/>
+    <circle cx="0" cy="4" r="1" fill="#f59e0b" opacity="0.7"/>
+  </g>
+  <text x="672" y="180" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="8" font-weight="600" text-anchor="middle" opacity="0.7">DONG</text>
+
+  <!-- Labels at bottom -->
+  <g transform="translate(280, 348)">
+    <rect x="-45" y="-12" width="90" height="22" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="0.8" opacity="0.8"/>
+    <text x="0" y="3" fill="#22c55e" font-family="ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">Stop</text>
+  </g>
+  <g transform="translate(500, 348)">
+    <rect x="-60" y="-12" width="120" height="22" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="0.8" opacity="0.8"/>
+    <text x="0" y="3" fill="#f59e0b" font-family="ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">Notification</text>
+  </g>
+
+  <!-- Connecting lines from labels to terminal -->
+  <line x1="280" y1="334" x2="340" y2="320" stroke="#22c55e" stroke-width="0.6" opacity="0.3"/>
+  <line x1="500" y1="334" x2="440" y2="320" stroke="#f59e0b" stroke-width="0.6" opacity="0.3"/>
+
+  <!-- Bottom accent line -->
+  <rect x="290" y="385" width="200" height="2" rx="1" fill="#374151" opacity="0.5"/>
+</svg>
