@@ -649,45 +649,76 @@
         }
 
         /* Skills Section */
+        .skills-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .skill-group-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
         .skills-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
         }
 
-        .skill-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .skill-card h4 {
+        .skill-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 10px;
-            margin-bottom: 16px;
-            font-size: 0.95rem;
-            color: var(--text-primary);
+            padding: 12px 8px;
+            transition: all 0.2s ease;
         }
 
-        .skill-card h4 svg {
-            color: var(--accent);
+        .skill-item:hover {
+            transform: translateY(-2px);
         }
 
-        .skill-tags {
+        .skill-item img {
+            width: 36px;
+            height: 36px;
+            filter: grayscale(100%) brightness(2);
+            transition: filter 0.2s ease;
+        }
+
+        .skill-item:hover img {
+            filter: none;
+        }
+
+        .skill-icon-fallback {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.02em;
         }
 
-        .skill-tags span {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: var(--text-primary);
+        .skill-item span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.3;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         /* Contact Section */
@@ -1365,15 +1396,10 @@
             gap: 48px;
             align-items: start;
         }
-        .skill-card h4 { margin-bottom: 0; font-size: 1rem; }
-        .skill-tags { gap: 14px 18px; }
-        .skill-tags span {
-            background: transparent;
-            border: none;
-            padding: 0;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
+        .skills-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        .skill-item { padding: 14px 8px; }
+        .skill-item img, .skill-icon-fallback { width: 28px; height: 28px; }
+        .skill-item span { font-size: 0.7rem; }
 
         /* BLOG — editorial stacked rows, no boxes */
         .blog-featured {
@@ -1398,8 +1424,8 @@
             box-shadow: none;
             border-bottom-color: rgba(59, 130, 246, 0.4);
         }
-        .blog-card h3 { font-size: 1.5rem; }
-        .blog-card.featured h3 { font-size: 2rem; }
+        .blog-card h3 { font-size: 1.25rem; }
+        .blog-card.featured h3 { font-size: 1.5rem; }
         .blog-card-tags { gap: 16px; }
         .blog-card-tags span {
             background: transparent;
@@ -1411,8 +1437,160 @@
             letter-spacing: 0.08em;
         }
 
+        /* Recommendations Carousel */
+        .recommendations-carousel {
+            position: relative;
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .recommendations-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .recommendation-card {
+            min-width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .recommendation-content {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .recommendation-quote {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+            font-style: italic;
+            position: relative;
+            padding-left: 24px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .recommendation-author {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .recommendation-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            flex-shrink: 0;
+        }
+
+        .recommendation-initials {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05));
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .recommendation-meta h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .recommendation-meta span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .recommendation-meta .recommendation-relationship {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .carousel-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .carousel-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+
+        .carousel-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .carousel-dot.active {
+            background: var(--accent);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendation-content {
+                padding: 24px;
+            }
+            .recommendation-quote {
+                font-size: 0.95rem;
+            }
+            .recommendation-card {
+                padding: 0 8px;
+            }
+        }
+
         /* Per-section padding rhythm */
         #about    { padding: 120px 0 80px; }
+        #recommendations { padding: 80px 0; }
         #blog     { padding: 80px 0; }
         #projects { padding: 80px 0 120px; }
         #github   { padding: 100px 0 60px; }
@@ -1420,7 +1598,9 @@
         #contact  { padding: 140px 0 80px; }
 
         @media (max-width: 768px) {
-            .skill-card { grid-template-columns: 1fr; gap: 12px; }
+            .skills-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .skill-item { padding: 12px 6px; gap: 6px; }
+            .skill-icon-fallback { font-size: 0.55rem; }
         }
     </style>
     <script type="application/ld+json">
@@ -1455,9 +1635,10 @@
             <div class="nav-links">
                 <a href="#home">Home</a>
                 <a href="#about">About</a>
+                <a href="#recommendations">Kind Words</a>
                 <a href="#blog">Blog</a>
-                <a href="#projects">Projects</a>
-                <a href="#skills">Skills</a>
+                <a href="#projects">Playground</a>
+                <a href="#skills">Toolbox</a>
                 <a href="#contact">Contact</a>
                 <div class="nav-social-links">
                     <a href="https://linkedin.com/in/aamedina" target="_blank" title="LinkedIn">
@@ -1487,7 +1668,7 @@
                     <p class="tagline">🚀 Helping teams build, ship, and run reliable cloud systems.</p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn-primary">Contact Me</a>
-                        <a href="#projects" class="btn-secondary">View Projects</a>
+                        <a href="#projects" class="btn-secondary">View Playground</a>
                     </div>
                     <div class="social-links">
                         <a href="https://github.com/aaronmedina-dev" target="_blank" title="GitHub">
@@ -1566,6 +1747,152 @@
             </div>
         </section>
 
+        <!-- Recommendations Section -->
+        <section id="recommendations">
+            <div class="section-header">
+                <h2>Kind Words</h2>
+                <p>What colleagues and collaborators have to say.</p>
+            </div>
+            <div class="recommendations-carousel" id="recommendationsCarousel">
+                <div class="recommendations-track" id="recommendationsTrack">
+                </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="carouselPrev" aria-label="Previous recommendation">&#8592;</button>
+                    <div class="carousel-dots" id="carouselDots"></div>
+                    <button class="carousel-btn" id="carouselNext" aria-label="Next recommendation">&#8594;</button>
+                </div>
+            </div>
+            <script>
+            (function() {
+                var recommendations = []; // populated from _data at build or fetched
+
+                function formatDate(dateStr) {
+                    var parts = dateStr.split('-');
+                    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return months[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+                }
+
+                function getInitials(name) {
+                    return name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase();
+                }
+
+                function buildAvatar(rec) {
+                    if (rec.photo) {
+                        return '<img src="' + rec.photo + '" alt="' + rec.name + '" class="recommendation-avatar" onerror="this.outerHTML=\'<div class=\\\'recommendation-initials\\\'>' + getInitials(rec.name) + '</div>\'">';
+                    }
+                    return '<div class="recommendation-initials">' + getInitials(rec.name) + '</div>';
+                }
+
+                function renderCarousel(data) {
+                    var track = document.getElementById('recommendationsTrack');
+                    var dotsContainer = document.getElementById('carouselDots');
+                    var html = '';
+                    var dotsHtml = '';
+
+                    data.forEach(function(rec, i) {
+                        html += '<div class="recommendation-card">' +
+                            '<div class="recommendation-content">' +
+                                '<p class="recommendation-quote">' + rec.text.replace(/\n/g, '<br>') + '</p>' +
+                                '<div class="recommendation-author">' +
+                                    buildAvatar(rec) +
+                                    '<div class="recommendation-meta">' +
+                                        '<h4>' + rec.name + '</h4>' +
+                                        '<span>' + rec.role + '</span>' +
+                                        '<span class="recommendation-relationship">' + rec.relationship + ' &middot; ' + formatDate(rec.date) + '</span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+                        dotsHtml += '<button class="carousel-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" aria-label="Go to recommendation ' + (i + 1) + '"></button>';
+                    });
+
+                    track.innerHTML = html;
+                    dotsContainer.innerHTML = dotsHtml;
+                }
+
+                function initCarousel() {
+                    var currentIndex = 0;
+                    var track = document.getElementById('recommendationsTrack');
+                    var dotsContainer = document.getElementById('carouselDots');
+                    var totalSlides = track.children.length;
+                    var autoplayInterval;
+
+                    function goToSlide(index) {
+                        if (index < 0) index = totalSlides - 1;
+                        if (index >= totalSlides) index = 0;
+                        currentIndex = index;
+                        track.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+                        var dots = dotsContainer.querySelectorAll('.carousel-dot');
+                        dots.forEach(function(dot, i) {
+                            dot.classList.toggle('active', i === currentIndex);
+                        });
+                    }
+
+                    document.getElementById('carouselPrev').addEventListener('click', function() {
+                        goToSlide(currentIndex - 1);
+                        resetAutoplay();
+                    });
+
+                    document.getElementById('carouselNext').addEventListener('click', function() {
+                        goToSlide(currentIndex + 1);
+                        resetAutoplay();
+                    });
+
+                    dotsContainer.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('carousel-dot')) {
+                            goToSlide(parseInt(e.target.dataset.index));
+                            resetAutoplay();
+                        }
+                    });
+
+                    // Touch/swipe support
+                    var touchStartX = 0;
+                    var touchEndX = 0;
+                    var carousel = document.getElementById('recommendationsCarousel');
+
+                    carousel.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+
+                    carousel.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        var diff = touchStartX - touchEndX;
+                        if (Math.abs(diff) > 50) {
+                            if (diff > 0) goToSlide(currentIndex + 1);
+                            else goToSlide(currentIndex - 1);
+                            resetAutoplay();
+                        }
+                    }, { passive: true });
+
+                    // Autoplay
+                    function startAutoplay() {
+                        autoplayInterval = setInterval(function() {
+                            goToSlide(currentIndex + 1);
+                        }, 6000);
+                    }
+
+                    function resetAutoplay() {
+                        clearInterval(autoplayInterval);
+                        startAutoplay();
+                    }
+
+                    startAutoplay();
+                }
+
+                // Fetch recommendations from data file
+                fetch('/assets/data/recommendations.json')
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        renderCarousel(data);
+                        initCarousel();
+                    })
+                    .catch(function() {
+                        document.getElementById('recommendationsCarousel').style.display = 'none';
+                    });
+            })();
+            </script>
+        </section>
+
         <!-- Blog Section -->
         <section id="blog">
             <div class="section-header">
@@ -1615,7 +1942,7 @@
         <!-- Projects Section -->
         <section id="projects">
             <div class="section-header">
-                <h2>Projects</h2>
+                <h2>Playground</h2>
                 <p>Things I’ve built to make work a little easier.</p>
             </div>
             <div class="projects-grid">
@@ -1827,85 +2154,232 @@
         <!-- Skills Section -->
         <section id="skills">
             <div class="section-header">
-                <h2>Skills</h2>
+                <h2>Toolbox</h2>
                 <p>Technologies and tools I work with regularly.</p>
             </div>
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-                        Cloud & DevOps
-                    </h4>
-                    <div class="skill-tags">
-                        <span>AWS</span>
-                        <span>Docker</span>
-                        <span>Kubernetes</span>
-                        <span>Terraform</span>
-                        <span>GitHub Actions</span>
-                        <span>CI/CD</span>
+            <div class="skills-container">
+                <!-- Cloud & Infrastructure -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Cloud & Infrastructure</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS">
+                            <span>AWS</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker">
+                            <span>Docker</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/kubernetes/326CE5" alt="Kubernetes">
+                            <span>Kubernetes</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/terraform/844FBA" alt="Terraform">
+                            <span>Terraform</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/vercel/FFFFFF" alt="Vercel">
+                            <span>Vercel</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/nginx/009639" alt="Nginx">
+                            <span>Nginx</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/apache/D22128" alt="Apache">
+                            <span>Apache</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/linux/FCC624" alt="Linux">
+                            <span>Linux</span>
+                        </div>
                     </div>
                 </div>
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                        Languages
-                    </h4>
-                    <div class="skill-tags">
-                        <span>TypeScript</span>
-                        <span>Bash</span>
-                        <span>Python</span>
-                        <span>JavaScript</span>
-                        <span>PHP</span>
+
+                <!-- CI/CD & DevOps -->
+                <div class="skill-group">
+                    <div class="skill-group-label">CI/CD & DevOps</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/githubactions/2088FF" alt="GitHub Actions">
+                            <span>GitHub Actions</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/github/FFFFFF" alt="GitHub">
+                            <span>GitHub</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/bitbucket/0052CC" alt="Bitbucket">
+                            <span>Bitbucket</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/argo/EF7B4D" alt="ArgoCD">
+                            <span>ArgoCD</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/jenkins/D24939" alt="Jenkins">
+                            <span>Jenkins</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/gocd/94399E" alt="GoCD">
+                            <span>GoCD</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/git/F05032" alt="Git">
+                            <span>Git</span>
+                        </div>
                     </div>
                 </div>
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
-                        Backend & Frameworks
-                    </h4>
-                    <div class="skill-tags">
-                        <span>Node.js</span>
-                        <span>Next.js</span>
-                        <span>REST APIs</span>
+
+                <!-- Languages -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Languages</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript">
+                            <span>TypeScript</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/javascript/F7DF1E" alt="JavaScript">
+                            <span>JavaScript</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/python/3776AB" alt="Python">
+                            <span>Python</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/php/777BB4" alt="PHP">
+                            <span>PHP</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/gnubash/4EAA25" alt="Bash">
+                            <span>Bash</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/html5/E34F26" alt="HTML">
+                            <span>HTML</span>
+                        </div>
                     </div>
                 </div>
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
-                        Databases
-                    </h4>
-                    <div class="skill-tags">
-                        <span>PostgreSQL</span>
-                        <span>MySQL</span>
-                        <span>Redis</span>
-                        <span>DynamoDB</span>
+
+                <!-- Frameworks & Runtime -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Frameworks & Runtime</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/nodedotjs/5FA04E" alt="Node.js">
+                            <span>Node.js</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/nextdotjs/FFFFFF" alt="Next.js">
+                            <span>Next.js</span>
+                        </div>
                     </div>
                 </div>
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        Tools
-                    </h4>
-                    <div class="skill-tags">
-                        <span>Git</span>
-                        <span>Linux</span>
-                        <span>Nginx</span>
-                        <span>Monitoring</span>
+
+                <!-- eCommerce -->
+                <div class="skill-group">
+                    <div class="skill-group-label">eCommerce</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/shopify/7AB55C" alt="Shopify">
+                            <span>Shopify</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/bigcommerce/FFFFFF" alt="BigCommerce">
+                            <span>BigCommerce</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/magento/magento-original.svg" alt="Adobe Commerce">
+                            <span>Adobe Commerce</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/magento/magento-original.svg" alt="Magento">
+                            <span>Magento</span>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-icon-fallback">MS</div>
+                            <span>Makeswift</span>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-icon-fallback">G</div>
+                            <span>Gadget.dev</span>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-icon-fallback">CA</div>
+                            <span>Catalyst</span>
+                        </div>
                     </div>
                 </div>
-                <div class="skill-card">
-                    <h4>
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                        Practices
-                    </h4>
-                    <div class="skill-tags">
-                        <span>IaC</span>
-                        <span>Agile</span>
-                        <span>Code Review</span>
-                        <span>Documentation</span>
+
+                <!-- Databases -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Databases</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL">
+                            <span>PostgreSQL</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL">
+                            <span>MySQL</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/redis/FF4438" alt="Redis">
+                            <span>Redis</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynamodb/dynamodb-original.svg" alt="DynamoDB">
+                            <span>DynamoDB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monitoring & Observability -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Monitoring & Observability</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/newrelic/1CE783" alt="New Relic">
+                            <span>New Relic</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/betterstack/F43F5E" alt="Betterstack">
+                            <span>Betterstack</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/uptimekuma/5CDD8B" alt="Uptime Kuma">
+                            <span>Uptime Kuma</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools & Integrations -->
+                <div class="skill-group">
+                    <div class="skill-group-label">Tools & Integrations</div>
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/postman/FF6C37" alt="Postman">
+                            <span>Postman</span>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-icon-fallback">AC</div>
+                            <span>ActiveCampaign</span>
+                        </div>
+                        <div class="skill-item">
+                            <img src="https://cdn.simpleicons.org/zapier/FF4A00" alt="Zapier">
+                            <span>Zapier</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            <script>
+            document.querySelectorAll('.skill-item').forEach(function(item) {
+                var label = item.querySelector('span');
+                if (label) item.title = label.textContent;
+            });
+            </script>
         </section>
 
         <!-- Contact Section -->
