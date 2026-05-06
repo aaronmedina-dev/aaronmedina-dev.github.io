@@ -397,6 +397,9 @@
             line-height: 1.8;
             white-space: pre-wrap;
             word-break: break-all;
+            height: 20rem;
+            overflow-y: hidden;
+            text-align: left;
         }
 
         .code-content .comment { color: #6b7280; }
@@ -689,14 +692,17 @@
             width: 36px;
             height: 36px;
             filter: grayscale(100%) brightness(2);
-            transition: filter 0.2s ease;
+            transition: filter 0.2s ease, transform 0.2s ease;
         }
 
-        .skill-item:hover img {
+        .skill-item:hover img,
+        .skill-item:hover .skill-icon-fallback {
             filter: none;
+            transform: scale(1.25);
         }
 
         .skill-icon-fallback {
+            transition: transform 0.2s ease;
             width: 36px;
             height: 36px;
             border-radius: 8px;
@@ -1667,7 +1673,7 @@
                     <p class="title">DevOps Engineer</p>
                     <p class="tagline">🚀 Helping teams build, ship, and run reliable cloud systems.</p>
                     <div class="hero-buttons">
-                        <a href="#contact" class="btn-primary">Contact Me</a>
+                        <a href="#contact" class="btn-primary">Reach out</a>
                         <a href="#projects" class="btn-secondary">View Playground</a>
                     </div>
                     <div class="social-links">
