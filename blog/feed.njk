@@ -10,7 +10,8 @@ eleventyExcludeFromCollections: true
     "description": {{ post.data.description | dump | safe }},
     "url": "{{ post.url }}",
     "tags": {{ post.data.tags | dump | safe }},
-    "readTime": "{{ post.data.readTime }}"
+    "readTime": "{{ post.data.readTime }}",
+    "image": "{{ post.data.image | default('') }}"
   }{% if not loop.last %},{% endif %}
 {%- endfor %}
 ]

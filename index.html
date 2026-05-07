@@ -56,7 +56,6 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
         /* Navigation */
@@ -140,6 +139,28 @@
             font-size: 0.9rem;
             font-weight: 500;
             transition: color 0.2s;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .nav-links a.active::after {
+            width: 100%;
         }
 
         .nav-links a:hover {
@@ -178,7 +199,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 24px;
-            overflow-x: hidden;
             width: 100%;
             box-sizing: border-box;
         }
@@ -766,6 +786,21 @@
             align-items: center;
             gap: 8px;
             margin-top: 28px;
+            animation: ctaGlow 3s ease-in-out infinite;
+        }
+
+        .hero-cta {
+            animation: ctaGlowAmber 3s ease-in-out infinite;
+        }
+
+        @keyframes ctaGlow {
+            0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45), 0 0 40px rgba(59, 130, 246, 0.15); }
+        }
+
+        @keyframes ctaGlowAmber {
+            0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.45), 0 0 40px rgba(245, 158, 11, 0.15); }
         }
 
         .contact-quote {
@@ -979,6 +1014,33 @@
             color: inherit;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-card-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .blog-card-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(10, 15, 26, 0.85), rgba(10, 15, 26, 0.95));
+        }
+
+        .blog-card:hover .blog-card-bg {
+            opacity: 1;
+        }
+
+        .blog-card > *:not(.blog-card-bg) {
+            position: relative;
+            z-index: 1;
         }
 
         .blog-card:hover {
@@ -1468,6 +1530,19 @@
             border-radius: 16px;
             padding: 40px;
             position: relative;
+            overflow: hidden;
+        }
+
+        .recommendation-content::before {
+            content: '\201C';
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            font-size: 8rem;
+            line-height: 1;
+            color: rgba(59, 130, 246, 0.07);
+            font-family: Georgia, serif;
+            pointer-events: none;
         }
 
         .recommendation-quote {
@@ -1594,6 +1669,29 @@
             }
         }
 
+        /* Scroll fade-in */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.2s ease, transform 1.2s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .skill-item.stagger {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .skill-item.stagger.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* Per-section padding rhythm */
         #about    { padding: 120px 0 80px; }
         #recommendations { padding: 80px 0; }
@@ -1673,7 +1771,7 @@
                     <p class="title">DevOps Engineer</p>
                     <p class="tagline">🚀 Helping teams build, ship, and run reliable cloud systems.</p>
                     <div class="hero-buttons">
-                        <a href="#contact" class="btn-primary">Reach out</a>
+                        <a href="#contact" class="btn-primary hero-cta">Reach out</a>
                         <a href="#projects" class="btn-secondary">View Playground</a>
                     </div>
                     <div class="social-links">
@@ -1918,6 +2016,9 @@
                     posts.slice(0, max).forEach(function(post, i) {
                         var isFeatured = i === 0;
                         html += '<a href="' + post.url + '" class="blog-card' + (isFeatured ? ' featured' : '') + '">';
+                        if (post.image) {
+                            html += '<div class="blog-card-bg" style="background-image: url(\'' + post.image + '\')"></div>';
+                        }
                         html += '<div class="blog-card-meta">';
                         html += '<time>' + post.date + '</time>';
                         if (isFeatured) html += '<span class="blog-latest-badge">Latest</span>';
@@ -2135,8 +2236,8 @@
             </div>
         </section>
 
-        <!-- GitHub Section -->
-        <section id="github">
+        <!-- GitHub Section (hidden for now) -->
+        <section id="github" style="display: none;">
             <div class="section-header">
                 <h2>GitHub Activity</h2>
                 <p>My contributions and most active public repositories.</p>
@@ -2511,21 +2612,21 @@
             } else {
                 scrollBtn.classList.remove('visible');
             }
-            const sections = document.querySelectorAll('section');
+            const sections = document.querySelectorAll('section:not([style*="display: none"])');
             const navLinks = document.querySelectorAll('.nav-links a:not(.nav-btn)');
 
             let current = '';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                if (scrollY >= sectionTop - 200) {
+                if (sectionTop > 0 && scrollY >= sectionTop - 200) {
                     current = section.getAttribute('id');
                 }
             });
 
             navLinks.forEach(link => {
-                link.style.color = '';
+                link.classList.remove('active');
                 if (link.getAttribute('href') === '#' + current) {
-                    link.style.color = '#f3f4f6';
+                    link.classList.add('active');
                 }
             });
         });
@@ -2601,8 +2702,47 @@
             }
         }
 
-        // Load repos on page load
-        loadGitHubRepos();
+        // Load repos on page load (disabled while section is hidden)
+        // loadGitHubRepos();
+
+        // Scroll fade-in
+        (function() {
+            var targets = document.querySelectorAll('#about, #recommendations, #blog, #projects, #skills, #contact');
+            targets.forEach(function(el) { el.classList.add('fade-in'); });
+
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            targets.forEach(function(el) { observer.observe(el); });
+        })();
+
+        // Staggered toolbox icon reveal
+        (function() {
+            var items = document.querySelectorAll('.skill-item');
+            items.forEach(function(el) { el.classList.add('stagger'); });
+
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        var icons = entry.target.querySelectorAll('.skill-item.stagger');
+                        icons.forEach(function(icon, i) {
+                            setTimeout(function() {
+                                icon.classList.add('visible');
+                            }, i * 70);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            observer.observe(document.getElementById('skills'));
+        })();
 
         // Grid distortion effect
         const canvas = document.getElementById('gridCanvas');
